@@ -1,0 +1,49 @@
+import { Menu } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import { DynamicBreadcrumbs } from "./breadcrumbs"
+import { Notifications } from "./notifications"
+import { ThemeToggle } from "./theme-toggle"
+import { UserNav } from "./user-nav"
+
+interface TopNavProps {
+  onMenuClick: () => void
+}
+
+export function TopNav({ onMenuClick }: TopNavProps) {
+  return (
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="-m-2.5 p-2.5 text-muted-foreground lg:hidden"
+        onClick={onMenuClick}
+      >
+        <span className="sr-only">Open sidebar</span>
+        <Menu className="h-6 w-6" aria-hidden="true" />
+      </Button>
+
+      {/* Separator for mobile */}
+      <div className="h-6 w-px bg-border lg:hidden" aria-hidden="true" />
+
+      <div className="flex flex-1 items-center justify-between gap-x-4 self-stretch lg:gap-x-6">
+        <div className="flex flex-1 items-center">
+          <DynamicBreadcrumbs />
+        </div>
+        <div className="flex items-center gap-x-4 lg:gap-x-6">
+          <ThemeToggle />
+          <Notifications />
+          
+          {/* Separator */}
+          <div
+            className="hidden lg:block lg:h-6 lg:w-px lg:bg-border"
+            aria-hidden="true"
+          />
+
+          {/* Profile dropdown */}
+          <UserNav />
+        </div>
+      </div>
+    </header>
+  )
+}
