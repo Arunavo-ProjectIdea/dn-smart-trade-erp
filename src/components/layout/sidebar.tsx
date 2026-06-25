@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { motion } from "framer-motion"
 import { 
   BarChart3, 
   LayoutDashboard, 
@@ -88,20 +89,27 @@ export function Sidebar({ className, role = "Admin", ...props }: SidebarProps) {
               {navigation.map((item) => {
                 const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== '/dashboard')
                 return (
-                  <li key={item.name}>
+                  <li key={item.name} className="relative">
+                    {isActive && (
+                      <motion.div
+                        layoutId="sidebar-active"
+                        className="absolute inset-0 rounded-md bg-sidebar-accent"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      />
+                    )}
                     <Link
                       href={item.href}
                       className={cn(
                         isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-colors"
+                          ? "text-sidebar-accent-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
+                        "relative z-10 group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-all duration-200 hover:translate-x-1 active:scale-[0.98]"
                       )}
                     >
                       <item.icon
                         className={cn(
                           isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground group-hover:text-sidebar-accent-foreground",
-                          "h-5 w-5 shrink-0"
+                          "h-5 w-5 shrink-0 transition-colors"
                         )}
                         aria-hidden="true"
                       />
@@ -115,7 +123,7 @@ export function Sidebar({ className, role = "Admin", ...props }: SidebarProps) {
           <li className="mt-auto">
             <Link
               href="/help"
-              className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 hover:translate-x-1 active:scale-[0.98]"
             >
               <FileText
                 className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-sidebar-accent-foreground"

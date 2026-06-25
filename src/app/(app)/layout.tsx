@@ -1,4 +1,5 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell"
+import { PageTransition } from "@/components/layout/page-transition"
 import { AuthService } from "@/lib/auth"
 
 export default function AppLayout({
@@ -11,7 +12,9 @@ export default function AppLayout({
 
   return (
     <DashboardShell role={role}>
-      {children}
+      <PageTransition>
+        {children}
+      </PageTransition>
     </DashboardShell>
   )
 }

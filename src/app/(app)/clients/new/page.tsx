@@ -51,29 +51,29 @@ export default function AddClientPage() {
         saveText="Create Client"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="companyName">Company Name *</Label>
-            <Input id="companyName" placeholder="e.g. Acme Corp" required />
+          <div className="relative mt-2">
+            <Input id="companyName" placeholder=" " className="peer pt-5 pb-1 h-12" required />
+            <Label htmlFor="companyName" className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary">Company Name *</Label>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="contactPerson">Contact Person *</Label>
-            <Input id="contactPerson" placeholder="Full Name" required />
+          <div className="relative mt-2">
+            <Input id="contactPerson" placeholder=" " className="peer pt-5 pb-1 h-12" required />
+            <Label htmlFor="contactPerson" className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary">Contact Person *</Label>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
-            <Input id="email" type="email" placeholder="contact@company.com" required />
+          <div className="relative mt-2">
+            <Input id="email" type="email" placeholder=" " className="peer pt-5 pb-1 h-12" required />
+            <Label htmlFor="email" className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary">Email Address *</Label>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number *</Label>
-            <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" required />
+          <div className="relative mt-2">
+            <Input id="phone" type="tel" placeholder=" " className="peer pt-5 pb-1 h-12" required />
+            <Label htmlFor="phone" className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary">Phone Number *</Label>
           </div>
 
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="address">Registered Address</Label>
-            <Input id="address" placeholder="123 Business St, City, Country" />
+          <div className="relative mt-2 md:col-span-2">
+            <Input id="address" placeholder=" " className="peer pt-5 pb-1 h-12" />
+            <Label htmlFor="address" className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary">Registered Address</Label>
           </div>
         </div>
 

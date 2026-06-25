@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 import {
   Table,
@@ -97,10 +98,10 @@ export function DataTable<T>({
   return (
     <div className="space-y-4">
       {/* Toolbar */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-1 items-center space-x-2">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-1 items-center space-x-2 w-full sm:w-auto">
           {searchKey && (
-            <div className="relative w-full max-w-sm">
+            <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={searchPlaceholder}
@@ -109,10 +110,20 @@ export function DataTable<T>({
                   setSearchQuery(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="pl-8"
+                className="pl-8 bg-card"
               />
             </div>
           )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="bg-card">
+            <Download className="mr-2 h-4 w-4" />
+            CSV
+          </Button>
+          <Button variant="outline" size="sm" className="bg-card">
+            <Download className="mr-2 h-4 w-4" />
+            Excel
+          </Button>
         </div>
       </div>
 
@@ -124,13 +135,22 @@ export function DataTable<T>({
               {columns.map((col, index) => (
                 <TableHead 
                   key={index}
-                  className={col.sortable ? "cursor-pointer select-none" : ""}
+                  className={cn(
+                    "transition-colors duration-200",
+                    col.sortable ? "cursor-pointer select-none hover:text-primary" : ""
+                  )}
                   onClick={() => col.sortable && col.accessorKey && handleSort(col.accessorKey)}
                 >
                   <div className="flex items-center space-x-1">
                     <span>{col.header}</span>
-                    {col.sortable && sortConfig?.key === col.accessorKey && (
-                      sortConfig?.direction === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                    {col.sortable && (
+                      <ChevronDown 
+                        className={cn(
+                          "h-4 w-4 transition-all duration-200", 
+                          sortConfig?.key === col.accessorKey ? "opacity-100" : "opacity-0 -translate-y-1",
+                          sortConfig?.key === col.accessorKey && sortConfig?.direction === "asc" ? "rotate-180" : "rotate-0"
+                        )} 
+                      />
                     )}
                   </div>
                 </TableHead>
