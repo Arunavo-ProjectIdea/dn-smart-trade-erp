@@ -1,45 +1,75 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { BarChart3, Download, FileText } from "lucide-react"
+"use client"
+
+import { DashboardShell } from "@/components/layout/dashboard-shell"
+import { PageHeader } from "@/components/erp/page-header"
+import { KPICards } from "@/components/reports/kpi-cards"
+import { ChartsSection } from "@/components/reports/charts-section"
+import { FilterPanel, FilterState } from "@/components/reports/filter-panel"
+import { ReportTabs } from "@/components/reports/report-tabs"
+import { AnalyticsInsights } from "@/components/reports/analytics-insights"
+import { AuthService } from "@/lib/auth"
+import { useEffect, useState } from "react"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ShieldAlert } from "lucide-react"
 
 export default function ReportsPage() {
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [filters, setFilters] = useState<FilterState | null>(null)
+
+  useEffect(() => {
+    // In a real app, this would be an authenticated session check
+    const user = AuthService.getCurrentUser()
+    if (user) {
+      setUserRole(user.role)
+    }
+  }, [])
+
+  // Show nothing while checking role (or loading state)
+  if (!userRole) return null
+
+  // Access Control: Clients have no access
+  if (userRole === "Client") {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <Card className="max-w-md w-full border-red-200">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
+              <ShieldAlert className="h-6 w-6 text-red-600" />
+            </div>
+            <CardTitle className="text-red-700">Access Denied</CardTitle>
+            <CardDescription>
+              You do not have permission to view the Reports & Analytics module. 
+              This section is restricted to administrative and internal employee accounts.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-          <p className="text-muted-foreground mt-2">
-            Generate and view comprehensive business intelligence reports.
-          </p>
-        </div>
-        <Button>
-          <BarChart3 className="mr-2 h-4 w-4" /> Generate New Report
-        </Button>
-      </div>
+    <>
+      <PageHeader 
+        title="Reports & Analytics" 
+        description="Comprehensive insights and performance metrics."
+      />
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[
-          { title: "Monthly Revenue", desc: "Financial performance across all regions." },
-          { title: "Shipment Volume", desc: "Total shipments categorized by logistics routes." },
-          { title: "Customs Clearance Time", desc: "Average time taken for BOE clearance." },
-          { title: "Client Activity", desc: "Order volumes and activity per client account." },
-          { title: "Duty & Tax Summaries", desc: "Aggregate tax liabilities and payments." },
-          { title: "Inventory Turnover", desc: "Warehouse stock levels and movement speeds." },
-        ].map((report, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-base font-semibold">{report.title}</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <CardDescription className="mb-4">{report.desc}</CardDescription>
-              <Button variant="outline" size="sm" className="w-full">
-                <Download className="mr-2 h-4 w-4" /> Export CSV
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="space-y-6 mt-4">
+        <FilterPanel onApply={setFilters} />
+        <KPICards />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3 space-y-6">
+            <ChartsSection />
+            <ReportTabs filters={filters} />
+          </div>
+          <div className="lg:col-span-1">
+            <div className="sticky top-6">
+              <AnalyticsInsights />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

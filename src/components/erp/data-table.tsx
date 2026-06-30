@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import {
