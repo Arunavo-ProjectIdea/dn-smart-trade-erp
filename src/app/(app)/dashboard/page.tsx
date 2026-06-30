@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-
+import { motion } from "framer-motion"
 import { 
   Package, 
   FileText, 
@@ -21,13 +21,10 @@ export default function DashboardPage() {
   const [role, setRole] = useState<UserRole>("Admin")
 
   useEffect(() => {
-    const initRole = async () => {
-      const user = AuthService.getCurrentUser()
-      if (user) {
-        setRole(user.role)
-      }
+    const user = AuthService.getCurrentUser()
+    if (user) {
+      setRole(user.role)
     }
-    initRole()
   }, [])
 
   const stats = [

@@ -17,20 +17,17 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
   const [role, setRole] = React.useState<Role>(propRole)
 
   React.useEffect(() => {
-    const initRole = async () => {
-      const user = AuthService.getCurrentUser()
-      if (user) {
-        setRole(user.role)
-      }
+    const user = AuthService.getCurrentUser()
+    if (user) {
+      setRole(user.role)
     }
-    initRole()
   }, [])
 
   return (
     <div>
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetContent side="left" className="p-0 w-72">
-          <Sidebar role={role} className="w-full" />
+          <Sidebar role={role} className="w-full" onClose={() => setSidebarOpen(false)} />
         </SheetContent>
       </Sheet>
 

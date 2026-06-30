@@ -7,7 +7,7 @@ import { Building, Mail, Phone, Calendar, Clock, KeyRound, UserX, Pencil, Briefc
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -31,7 +31,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   // Dialog States
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
-
+  const [isDeactivating, setIsDeactivating] = useState(false)
 
   // Client-side role protection
   useEffect(() => {
@@ -46,7 +46,9 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   }
 
   const handleDeactivate = () => {
+    setIsDeactivating(true)
     setTimeout(() => {
+      setIsDeactivating(false)
       setDeactivateOpen(false)
       alert("Employee deactivated successfully.")
       // In a real app we'd redirect or mutate the data
