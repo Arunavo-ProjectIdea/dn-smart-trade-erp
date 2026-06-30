@@ -14,8 +14,7 @@ import {
   FileSpreadsheet,
   Hash,
   Bot,
-  UserCircle,
-  Bell
+  UserCircle
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -63,7 +62,6 @@ export function Sidebar({ className, role = "Admin", onClose, ...props }: Sideba
           { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
           { name: "My Shipments", href: "/shipments", icon: Truck },
           { name: "My Documents", href: "/documents", icon: FileText },
-          { name: "Notifications", href: "/notifications", icon: Bell },
           { name: "Profile", href: "/profile", icon: UserCircle },
         ]
       default:

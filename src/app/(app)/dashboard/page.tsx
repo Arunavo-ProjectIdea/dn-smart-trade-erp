@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
+import { useState } from "react"
 import { 
   Package, 
   FileText, 
@@ -14,33 +13,36 @@ import {
   Activity
 } from "lucide-react"
 
+import Link from "next/link"
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { AuthService, UserRole } from "@/lib/auth"
+import { AuthService } from "@/lib/auth"
+import { mockClients } from "@/lib/mock-data/clients"
+import { mockBOEList } from "@/lib/mock-data/boe"
+import { mockDocumentsList } from "@/lib/mock-data/document"
+import { mockEmployees } from "@/lib/mock-data/employees"
+import { mockShipmentsList } from "@/lib/mock-data/shipment"
 
 export default function DashboardPage() {
-  const [role, setRole] = useState<UserRole>("Admin")
-
-  useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user) {
-      setRole(user.role)
-    }
-  }, [])
+  const [role] = useState(() => {
+    const user = AuthService.getCurrentUser();
+    return user ? user.role : "Admin";
+  });
 
   const stats = [
-    { name: "Today's Shipments", value: "124", icon: Package, trend: "+12.5%", positive: true },
-    { name: "Pending BOE", value: "18", icon: FileText, trend: "-2.4%", positive: false },
-    { name: "Pending Documents", value: "45", icon: FileCheck, trend: "+5.2%", positive: true },
-    { name: "Total Clients", value: "1,240", icon: Users, trend: "+18.1%", positive: true },
-    { name: "Active Employees", value: "34", icon: Briefcase, trend: "0%", positive: true },
-    { name: "Monthly Revenue", value: "$142,500", icon: DollarSign, trend: "+24.5%", positive: true },
+    { name: "Active Shipments", link: "/shipments?status=In Transit", value: mockShipmentsList.filter(s => s.status !== "Completed" && s.status !== "Delivered" && s.status !== "Cancelled").length.toString(), icon: Package, trend: "+12.5%", positive: true },
+    { name: "Total BOE", link: "/boe", value: mockBOEList.length.toString(), icon: FileText, trend: "-2.4%", positive: false },
+    { name: "Total Documents", link: "/documents", value: mockDocumentsList.length.toString(), icon: FileCheck, trend: "+5.2%", positive: true },
+    { name: "Total Clients", link: "/clients", value: mockClients.length.toString(), icon: Users, trend: "+18.1%", positive: true },
+    { name: "Active Employees", link: "/employees?status=Active", value: mockEmployees.filter(e => e.status === "Active").length.toString(), icon: Briefcase, trend: "0%", positive: true },
+    { name: "Monthly Revenue", link: "/reports", value: "$142,500", icon: DollarSign, trend: "+24.5%", positive: true },
   ]
 
   const recentActivity = [
-    { action: "Shipment #SHP-8472 cleared customs", time: "10 mins ago", status: "success" },
-    { action: "New client 'Apex Trading' onboarded", time: "1 hour ago", status: "info" },
-    { action: "BOE #BOE-993 rejected due to missing docs", time: "3 hours ago", status: "danger" },
-    { action: "Invoice #INV-2041 paid by 'Global Imports'", time: "5 hours ago", status: "success" },
+    { action: "Shipment #SHP-8472 cleared customs", time: "10 mins ago", status: "success", link: "/shipments/SHP-8472" },
+    { action: "New client 'Global Logistics Inc.' onboarded", time: "1 hour ago", status: "info", link: "/clients/CL-1001" },
+    { action: "BOE #BOE-2026-001 rejected due to missing docs", time: "3 hours ago", status: "danger", link: "/boe/boe-1" },
+    { action: "Invoice #INV-2041 paid by 'Global Logistics Inc.'", time: "5 hours ago", status: "success", link: "/documents/doc-1" },
   ]
 
   return (
@@ -56,28 +58,40 @@ export default function DashboardPage() {
       
       {/* Top Stats */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {stats.map((stat, i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {stat.name}
-              </CardTitle>
-              <div className="h-10 w-10 bg-primary/10 flex items-center justify-center rounded-xl">
-                <stat.icon className="h-5 w-5 text-primary" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-foreground">{stat.value}</div>
-              <div className="flex items-center mt-1 text-sm">
-                <span className={`font-medium flex items-center ${stat.positive ? "text-success" : "text-destructive"}`}>
-                  {stat.positive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-                  {stat.trend}
-                </span>
-                <span className="text-muted-foreground ml-2">from last month</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {stats.map((stat, i) => {
+          const cardContent = (
+            <Card className="hover:shadow-md transition-all h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {stat.name}
+                </CardTitle>
+                <div className="h-10 w-10 bg-primary/10 flex items-center justify-center rounded-xl">
+                  <stat.icon className="h-5 w-5 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                <div className="flex items-center mt-1 text-sm">
+                  <span className={`font-medium flex items-center ${stat.positive ? "text-success" : "text-destructive"}`}>
+                    {stat.positive ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                    {stat.trend}
+                  </span>
+                  <span className="text-muted-foreground ml-2">from last month</span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+          
+          return stat.link ? (
+            <Link href={stat.link} key={i} className="block h-full">
+              {cardContent}
+            </Link>
+          ) : (
+            <div key={i} className="h-full">
+              {cardContent}
+            </div>
+          );
+        })}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
@@ -133,24 +147,36 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {recentActivity.map((activity, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <div className="relative mt-1">
-                    <div className={`h-3 w-3 rounded-full ${
-                      activity.status === "success" ? "bg-success" : 
-                      activity.status === "danger" ? "bg-destructive" : 
-                      "bg-primary"
-                    } ring-4 ring-background`} />
-                    {i !== recentActivity.length - 1 && (
-                      <div className="absolute top-3 left-1.5 h-full w-px bg-border -translate-x-1/2" />
-                    )}
+              {recentActivity.map((activity, i) => {
+                const content = (
+                  <div className="flex items-start gap-4 group">
+                    <div className="relative mt-1">
+                      <div className={`h-3 w-3 rounded-full ${
+                        activity.status === "success" ? "bg-success" : 
+                        activity.status === "danger" ? "bg-destructive" : 
+                        "bg-primary"
+                      } ring-4 ring-background transition-transform group-hover:scale-125`} />
+                      {i !== recentActivity.length - 1 && (
+                        <div className="absolute top-3 left-1.5 h-full w-px bg-border -translate-x-1/2" />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm font-medium leading-none group-hover:text-primary transition-colors">{activity.action}</p>
+                      <p className="text-xs text-muted-foreground">{activity.time}</p>
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium leading-none">{activity.action}</p>
-                    <p className="text-xs text-muted-foreground">{activity.time}</p>
+                );
+
+                return activity.link ? (
+                  <Link href={activity.link} key={i} className="block">
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={i}>
+                    {content}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

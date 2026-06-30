@@ -14,14 +14,10 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, role: propRole = "Admin" }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
-  const [role, setRole] = React.useState<Role>(propRole)
-
-  React.useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user) {
-      setRole(user.role)
-    }
-  }, [])
+  const [role] = React.useState<Role>(() => {
+    const user = AuthService.getCurrentUser();
+    return user ? user.role : propRole;
+  });
 
   return (
     <div>

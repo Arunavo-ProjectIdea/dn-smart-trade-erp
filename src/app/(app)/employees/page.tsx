@@ -11,10 +11,12 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { mockEmployees, Employee } from "@/lib/mock-data/employees"
+import { useToast } from "@/components/ui/use-toast"
 import { AuthService } from "@/lib/auth"
 
 export default function EmployeesPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [data, setData] = useState<Employee[]>(mockEmployees)
   
   // Dialog States
@@ -38,7 +40,7 @@ export default function EmployeesPage() {
 
   const handleResetPassword = () => {
     if (resetId) {
-      alert(`Password reset link sent to employee ID: ${resetId}`)
+      toast({ title: "Password Reset", description: `Password reset link sent to employee ID: ${resetId}` })
       setResetId(null)
     }
   }
@@ -94,16 +96,14 @@ export default function EmployeesPage() {
             <Eye className="h-4 w-4" />
             <span className="sr-only">View</span>
           </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-muted-foreground hover:text-foreground"
+          <Link 
+            href={`/employees/${item.id}/edit`}
+            className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
             title="Edit Employee"
-            onClick={() => alert("Edit mode mock")}
           >
             <Pencil className="h-4 w-4" />
             <span className="sr-only">Edit</span>
-          </Button>
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 

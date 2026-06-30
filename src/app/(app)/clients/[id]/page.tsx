@@ -10,6 +10,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DataTable } from "@/components/erp/data-table"
 import { mockClients } from "@/lib/mock-data/clients"
+import { mockDocumentsList } from "@/lib/mock-data/document"
+import { mockBOEList } from "@/lib/mock-data/boe"
+import Link from "next/link"
+import { buttonVariants } from "@/components/ui/button"
 
 export default function ClientDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -30,14 +34,22 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
   }))
 
   const shipmentColumns = [
-    { header: "Tracking ID", accessorKey: "id" as keyof typeof mockShipments[0] },
+    { 
+      header: "Tracking ID", 
+      accessorKey: "id" as keyof typeof mockShipments[0],
+      cell: (item: typeof mockShipments[0]) => (
+        <Link href={`/shipments/${item.id}`} className="font-medium text-primary hover:underline">
+          {item.id}
+        </Link>
+      )
+    },
     { header: "Origin", accessorKey: "origin" as keyof typeof mockShipments[0] },
     { header: "Destination", accessorKey: "destination" as keyof typeof mockShipments[0] },
     { header: "Date", accessorKey: "date" as keyof typeof mockShipments[0] },
     { 
       header: "Status", 
       accessorKey: "status" as keyof typeof mockShipments[0],
-      cell: (item: any) => (
+      cell: (item: typeof mockShipments[0]) => (
         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
           item.status === 'In Transit' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
         }`}>
@@ -47,12 +59,85 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
     }
   ]
 
+  const clientBoes = mockBOEList.filter(b => b.importer.clientName === client.companyName)
+  
+  const boeColumns = [
+    { 
+      header: "BOE Number", 
+      accessorKey: "boeNumber" as keyof typeof clientBoes[0],
+      cell: (item: typeof clientBoes[0]) => (
+        <Link href={`/boe/${item.id}`} className="font-medium text-primary hover:underline">
+          {item.boeNumber}
+        </Link>
+      )
+    },
+    { header: "Status", accessorKey: "status" as keyof typeof clientBoes[0],
+      cell: (item: typeof clientBoes[0]) => (
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+          item.status === 'Completed' ? 'bg-success/10 text-success' : 
+          item.status === 'Under Review' ? 'bg-warning/10 text-warning' : 
+          'bg-muted text-muted-foreground'
+        }`}>
+          {item.status}
+        </span>
+      )
+    },
+    { 
+      header: "Date", 
+      accessorKey: "createdAt" as keyof typeof clientBoes[0],
+      cell: (item: typeof clientBoes[0]) => new Date(item.createdAt).toLocaleDateString()
+    }
+  ]
+
+  const clientDocs = mockDocumentsList.filter(d => d.clientId === client.id || d.clientName === client.companyName)
+  
+  const documentColumns = [
+    { 
+      header: "Name", 
+      accessorKey: "name" as keyof typeof clientDocs[0],
+      cell: (item: typeof clientDocs[0]) => (
+        <Link href={`/documents/${item.id}`} className="font-medium text-primary hover:underline max-w-[200px] truncate block">
+          {item.name}
+        </Link>
+      )
+    },
+    { header: "Type", accessorKey: "type" as keyof typeof clientDocs[0] },
+    { 
+      header: "Status", 
+      accessorKey: "status" as keyof typeof clientDocs[0],
+      cell: (item: typeof clientDocs[0]) => (
+        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+          item.status === 'Approved' ? 'bg-success/10 text-success' : 
+          item.status === 'Pending Review' ? 'bg-warning/10 text-warning' : 
+          'bg-muted text-muted-foreground'
+        }`}>
+          {item.status}
+        </span>
+      )
+    },
+    { 
+      header: "Date", 
+      accessorKey: "uploadedAt" as keyof typeof clientDocs[0],
+      cell: (item: typeof clientDocs[0]) => new Date(item.uploadedAt).toLocaleDateString()
+    }
+  ]
+
   return (
     <div className="flex flex-col gap-8 pb-10">
       <PageHeader 
         title={client.companyName}
         description={`Client ID: ${client.id} • ${client.clientType}`}
-        action={<StatusBadge status={client.status} className="text-sm px-3 py-1" />}
+        action={
+          <div className="flex items-center gap-3">
+            <StatusBadge status={client.status} className="text-sm px-3 py-1" />
+            <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "outline" })}>
+              Edit Client
+            </Link>
+            <Link href={`/shipments/create?clientId=${client.id}`} className={buttonVariants({ variant: "default" })}>
+              New Shipment
+            </Link>
+          </div>
+        }
       />
 
       <div className="grid gap-6 md:grid-cols-3">
@@ -110,43 +195,50 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
 
         {/* Summary Metrics */}
         <div className="grid gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Shipments</CardTitle>
-              <Truck className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{client.activeShipments}</div>
-              <p className="text-xs text-muted-foreground">Currently in transit</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Shipments</CardTitle>
-              <Truck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{client.totalShipments}</div>
-              <p className="text-xs text-muted-foreground">Historical records</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Documents</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{client.totalDocuments}</div>
-              <p className="text-xs text-muted-foreground">Invoices & Certificates</p>
-            </CardContent>
-          </Card>
+          <Link href={`/shipments?client=${client.companyName}&status=In Transit`} className="block group">
+            <Card className="transition-all hover:border-primary/50 hover:shadow-md">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Active Shipments</CardTitle>
+                <Truck className="h-4 w-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{client.activeShipments}</div>
+                <p className="text-xs text-muted-foreground">Currently in transit</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href={`/shipments?client=${client.companyName}`} className="block group">
+            <Card className="transition-all hover:border-primary/50 hover:shadow-md">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Total Shipments</CardTitle>
+                <Truck className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{client.totalShipments}</div>
+                <p className="text-xs text-muted-foreground">Historical records</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link href={`/documents?client=${client.id}`} className="block group">
+            <Card className="transition-all hover:border-primary/50 hover:shadow-md">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Total Documents</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{client.totalDocuments}</div>
+                <p className="text-xs text-muted-foreground">Invoices & Certificates</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </div>
 
       {/* Tabs Section */}
       <Tabs defaultValue="shipments" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 max-w-[400px]">
+        <TabsList className="grid w-full grid-cols-4 max-w-[500px]">
           <TabsTrigger value="shipments">Shipments</TabsTrigger>
+          <TabsTrigger value="boe">BOE</TabsTrigger>
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
         </TabsList>
@@ -165,13 +257,33 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="boe" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Bill of Entry</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <DataTable 
+                columns={boeColumns} 
+                data={clientBoes} 
+                emptyStateTitle="No BOE"
+                emptyStateDescription="This client has no Bill of Entry records."
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="documents" className="mt-6">
           <Card>
             <CardHeader>
               <CardTitle>Uploaded Documents</CardTitle>
             </CardHeader>
-            <CardContent className="h-40 flex items-center justify-center text-muted-foreground text-sm border-t">
-              Document storage integration pending.
+            <CardContent>
+              <DataTable 
+                columns={documentColumns} 
+                data={clientDocs} 
+                emptyStateTitle="No documents"
+                emptyStateDescription="This client has no uploaded documents."
+              />
             </CardContent>
           </Card>
         </TabsContent>

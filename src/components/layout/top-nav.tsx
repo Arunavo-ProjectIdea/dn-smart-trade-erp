@@ -3,7 +3,6 @@ import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DynamicBreadcrumbs } from "./breadcrumbs"
 import { Notifications } from "./notifications"
-import { ThemeToggle } from "./theme-toggle"
 import { UserNav } from "./user-nav"
 
 interface TopNavProps {
@@ -31,7 +30,6 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           <DynamicBreadcrumbs />
         </div>
         <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <ThemeToggle />
           <Notifications />
           
           {/* Separator */}

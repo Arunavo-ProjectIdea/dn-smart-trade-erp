@@ -7,7 +7,7 @@ import { Building, Mail, Phone, Calendar, Clock, KeyRound, UserX, Pencil, Briefc
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -16,6 +16,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { mockEmployees } from "@/lib/mock-data/employees"
+import { useToast } from "@/components/ui/use-toast"
+import Link from "next/link"
 import { AuthService } from "@/lib/auth"
 
 interface EmployeeDetailsPageProps {
@@ -25,13 +27,13 @@ interface EmployeeDetailsPageProps {
 }
 
 export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps) {
+  const { toast } = useToast()
   const router = useRouter()
   const employee = mockEmployees.find((e) => e.id === params.id)
   
-  // Dialog States
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
-  const [isDeactivating, setIsDeactivating] = useState(false)
+
 
   // Client-side role protection
   useEffect(() => {
@@ -46,18 +48,16 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   }
 
   const handleDeactivate = () => {
-    setIsDeactivating(true)
     setTimeout(() => {
-      setIsDeactivating(false)
       setDeactivateOpen(false)
-      alert("Employee deactivated successfully.")
+      toast({ title: "Employee deactivated", description: "Employee deactivated successfully." })
       // In a real app we'd redirect or mutate the data
       router.push("/employees")
     }, 800)
   }
 
   const handleResetPassword = () => {
-    alert(`Password reset link sent to ${employee.email}`)
+    toast({ title: "Password Reset", description: `Password reset link sent to ${employee.email}` })
     setResetOpen(false)
   }
 
@@ -69,9 +69,9 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
         action={
           <div className="flex items-center gap-3">
             <StatusBadge status={employee.status} />
-            <Button variant="outline" onClick={() => alert("Edit mode mock")}>
+            <Link href={`/employees/${employee.id}/edit`} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
               <Pencil className="mr-2 h-4 w-4" /> Edit
-            </Button>
+            </Link>
           </div>
         }
       />
@@ -154,36 +154,42 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Assigned Clients
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{employee.assignedClients}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Shipments
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{employee.activeShipments}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Documents Processed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{employee.documentsProcessed}</div>
-          </CardContent>
-        </Card>
+        <Link href={`/clients?employee=${employee.id}`} className="block group">
+          <Card className="transition-all hover:border-primary/50 hover:shadow-md h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
+                Assigned Clients
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{employee.assignedClients}</div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href={`/shipments?employee=${employee.id}`} className="block group">
+          <Card className="transition-all hover:border-primary/50 hover:shadow-md h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
+                Active Shipments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{employee.activeShipments}</div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href={`/documents?employee=${employee.id}`} className="block group">
+          <Card className="transition-all hover:border-primary/50 hover:shadow-md h-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
+                Documents Processed
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{employee.documentsProcessed}</div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="my-2 border-t border-border" />

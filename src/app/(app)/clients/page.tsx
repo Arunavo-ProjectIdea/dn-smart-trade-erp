@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Eye, Pencil, Trash2, Plus } from "lucide-react"
 
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -11,8 +10,10 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { mockClients, Client } from "@/lib/mock-data/clients"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function ClientsPage() {
+  const { toast } = useToast()
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null)
   
   // In a real app, this would use React Query or SWR and a mutation
@@ -20,8 +21,12 @@ export default function ClientsPage() {
 
   const handleDelete = () => {
     if (deleteDialogId) {
-      setData(data.filter(c => c.id !== deleteDialogId))
-      setDeleteDialogId(null)
+      const index = mockClients.findIndex(c => c.id === deleteDialogId);
+      if (index > -1) {
+        mockClients.splice(index, 1);
+        setData([...mockClients]);
+      }
+      setDeleteDialogId(null);
     }
   }
 
@@ -30,16 +35,20 @@ export default function ClientsPage() {
       header: "Client ID",
       accessorKey: "id",
       sortable: true,
-      cell: (item) => <span className="font-mono text-sm">{item.id}</span>
+      cell: (item) => (
+        <Link href={`/clients/${item.id}`} className="font-mono text-sm text-primary hover:underline">
+          {item.id}
+        </Link>
+      )
     },
     {
       header: "Company Name",
       accessorKey: "companyName",
       sortable: true,
       cell: (item) => (
-        <div className="font-medium">
+        <Link href={`/clients/${item.id}`} className="font-medium hover:underline">
           {item.companyName}
-        </div>
+        </Link>
       )
     },
     {
@@ -76,16 +85,14 @@ export default function ClientsPage() {
             <Eye className="h-4 w-4" />
             <span className="sr-only">View</span>
           </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-muted-foreground hover:text-foreground"
+          <Link 
+            href={`/clients/${item.id}/edit`}
+            className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
             title="Edit Client"
-            onClick={() => alert("Edit mode mock")}
           >
             <Pencil className="h-4 w-4" />
             <span className="sr-only">Edit</span>
-          </Button>
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 

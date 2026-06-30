@@ -43,7 +43,7 @@ const baseData = [
 export const mockHSCodes: HSCode[] = []
 
 // Base ones
-baseData.forEach((item, index) => {
+baseData.forEach((item) => {
   mockHSCodes.push({
     id: `HS-${item.code}`,
     code: item.code,

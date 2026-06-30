@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { Search, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/components/ui/use-toast"
 
 import {
   Table,
@@ -47,6 +48,7 @@ export function DataTable<T>({
   emptyStateTitle = "No data found",
   emptyStateDescription = "There are no records to display matching your criteria.",
 }: DataTableProps<T>) {
+  const { toast } = useToast()
   const [searchQuery, setSearchQuery] = React.useState("")
   const [sortConfig, setSortConfig] = React.useState<{ key: keyof T; direction: "asc" | "desc" } | null>(null)
   const [currentPage, setCurrentPage] = React.useState(1)
@@ -116,11 +118,11 @@ export function DataTable<T>({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="bg-card">
+          <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
             <Download className="mr-2 h-4 w-4" />
             CSV
           </Button>
-          <Button variant="outline" size="sm" className="bg-card">
+          <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export Excel", description: "Exporting data..." })}>
             <Download className="mr-2 h-4 w-4" />
             Excel
           </Button>

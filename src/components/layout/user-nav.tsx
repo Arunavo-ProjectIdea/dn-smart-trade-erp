@@ -1,5 +1,11 @@
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
+import Link from "next/link"
+import { AuthService } from "@/lib/auth"
+import { useEffect, useState } from "react"
+import { LogOut, Settings, User } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,45 +13,64 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 export function UserNav() {
+  const [user, setUser] = useState<{name: string, email: string} | null>(null)
+
+  useEffect(() => {
+    const currentUser = AuthService.getCurrentUser()
+    if (currentUser) {
+      setUser(currentUser)
+    }
+  }, [])
+
+  const handleLogout = () => {
+    AuthService.logout().then(() => {
+      window.location.replace("/login")
+    })
+  }
+
+  const initials = user?.name
+    ? user.name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()
+    : "AD"
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt="@admin" />
-            <AvatarFallback>AD</AvatarFallback>
-          </Avatar>
-        </Button>
-      } />
+      <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", className: "relative h-8 w-8 rounded-full" })}>
+        <Avatar className="h-8 w-8">
+          <AvatarImage src="/avatars/01.png" alt={user?.name || "User"} />
+          <AvatarFallback>{initials}</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Admin User</p>
+            <p className="text-sm font-medium leading-none">{user?.name || "Admin User"}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              admin@dnsmarttrade.com
+              {user?.email || "admin@dnsmarttrade.com"}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/profile" />}>
+            <User className="mr-2 h-4 w-4" />
             Profile
-            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/settings" />}>
+            <Settings className="mr-2 h-4 w-4" />
             Settings
-            <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          variant="destructive"
+          render={<button type="button" onClick={handleLogout} />}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
           Log out
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
