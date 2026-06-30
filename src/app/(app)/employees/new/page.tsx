@@ -53,7 +53,14 @@ export default function AddEmployeePage() {
   }
 
   // Pre-generated mock password
-  const tempPassword = "TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase()
+  const [tempPassword, setTempPassword] = useState("")
+
+  useEffect(() => {
+    const initData = async () => {
+      setTempPassword("TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase())
+    }
+    initData()
+  }, [])
 
   return (
     <div className="flex flex-col gap-8 pb-10">

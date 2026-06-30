@@ -37,7 +37,7 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
     { 
       header: "Status", 
       accessorKey: "status" as keyof typeof mockShipments[0],
-      cell: (item: any) => (
+      cell: (item: typeof mockShipments[0]) => (
         <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
           item.status === 'In Transit' ? 'bg-warning/10 text-warning' : 'bg-success/10 text-success'
         }`}>
