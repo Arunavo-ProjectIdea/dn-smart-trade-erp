@@ -1,72 +1,140 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Search, MapPin } from "lucide-react"
+"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+import { Eye, Pencil, Plus, List, LayoutGrid } from "lucide-react"
+
+import { Button, buttonVariants } from "@/components/ui/button"
+import { PageHeader } from "@/components/erp/page-header"
+import { DataTable, ColumnDef } from "@/components/erp/data-table"
+import { KanbanBoard } from "@/components/erp/kanban-board"
+import { StatusBadge } from "@/components/erp/status-badge"
+import { mockShipments, Shipment } from "@/lib/mock-data/shipments"
 
 export default function ShipmentsPage() {
+  const [data] = useState<Shipment[]>(mockShipments)
+  const [view, setView] = useState<'list' | 'kanban'>('kanban')
+
+  const columns: ColumnDef<Shipment>[] = [
+    {
+      header: "Shipment ID",
+      accessorKey: "id",
+      sortable: true,
+      cell: (item) => <span className="font-mono text-sm">{item.id}</span>
+    },
+    {
+      header: "Client Name",
+      accessorKey: "clientName",
+      sortable: true,
+      cell: (item) => <span className="font-medium">{item.clientName}</span>
+    },
+    {
+      header: "Type",
+      accessorKey: "type",
+      sortable: true,
+      cell: (item) => (
+        <span className={item.type === "Import" ? "text-primary" : "text-blue-500 font-medium"}>
+          {item.type}
+        </span>
+      )
+    },
+    {
+      header: "Origin",
+      accessorKey: "originCountry",
+      sortable: true,
+    },
+    {
+      header: "Destination",
+      accessorKey: "destinationCountry",
+      sortable: true,
+    },
+    {
+      header: "Carrier",
+      accessorKey: "carrier",
+      sortable: true,
+    },
+    {
+      header: "Container No.",
+      accessorKey: "containerNumber",
+      cell: (item) => <span className="font-mono text-xs">{item.containerNumber}</span>
+    },
+    {
+      header: "Expected Arrival",
+      accessorKey: "expectedArrivalDate",
+      sortable: true,
+      cell: (item) => <span>{new Date(item.expectedArrivalDate).toLocaleDateString()}</span>
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      sortable: true,
+      cell: (item) => <StatusBadge status={item.status} />
+    },
+    {
+      header: "Actions",
+      cell: (item) => (
+        <div className="flex items-center justify-end gap-1">
+          <Link 
+            href={`/shipments/${item.id}`}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
+            title="View Shipment"
+          >
+            <Eye className="h-4 w-4" />
+            <span className="sr-only">View</span>
+          </Link>
+          <Link 
+            href={`/shipments/${item.id}/edit`}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
+            title="Edit Shipment"
+          >
+            <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+            <span className="sr-only">Edit</span>
+          </Link>
+        </div>
+      )
+    }
+  ]
+
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Shipments</h1>
-          <p className="text-muted-foreground mt-2">
-            Track and manage active shipments globally.
-          </p>
-        </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> New Shipment
-        </Button>
-      </div>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Active Shipments</CardTitle>
-          <CardDescription>Overview of all in-transit and pending shipments.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2 mb-6">
-            <div className="relative w-full max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search tracking number..." className="pl-8" />
+      <PageHeader 
+        title="Shipment Management" 
+        description="Track and manage all import and export logistics operations."
+        action={
+          <div className="flex items-center gap-4">
+            <div className="flex bg-surface-container-highest rounded-lg p-1 border border-border/20 hidden md:flex">
+              <button 
+                onClick={() => setView('kanban')}
+                className={`px-3 py-1 rounded shadow-sm text-sm font-medium transition-colors flex items-center gap-2 ${view === 'kanban' ? 'bg-surface-variant text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <LayoutGrid className="w-4 h-4" /> Kanban
+              </button>
+              <button 
+                onClick={() => setView('list')}
+                className={`px-3 py-1 rounded shadow-sm text-sm font-medium transition-colors flex items-center gap-2 ${view === 'list' ? 'bg-surface-variant text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <List className="w-4 h-4" /> List
+              </button>
             </div>
-            <Button variant="outline">Filter</Button>
+            <Link href="/shipments/new" className={buttonVariants({ variant: "default" })}>
+              <Plus className="mr-2 h-4 w-4" /> Create Shipment
+            </Link>
           </div>
-          
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Tracking ID</TableHead>
-                <TableHead>Origin</TableHead>
-                <TableHead>Destination</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell className="font-medium">#TRK-9823{i}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <MapPin className="h-3 w-3 text-muted-foreground" /> Shanghai, CN
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <MapPin className="h-3 w-3 text-muted-foreground" /> Los Angeles, US
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-warning/10 text-warning">
-                      In Transit
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        }
+      />
+      
+      {view === 'list' ? (
+        <DataTable 
+          columns={columns} 
+          data={data} 
+          searchKey="id"
+          searchPlaceholder="Search by Shipment ID..."
+          emptyStateTitle="No shipments found"
+          emptyStateDescription="Get started by creating a new shipment."
+        />
+      ) : (
+        <KanbanBoard shipments={data} />
+      )}
     </div>
   )
 }

@@ -94,16 +94,14 @@ export default function EmployeesPage() {
             <Eye className="h-4 w-4" />
             <span className="sr-only">View</span>
           </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-muted-foreground hover:text-foreground"
+          <Link 
+            href={`/employees/${item.id}/edit`}
+            className={buttonVariants({ variant: "ghost", size: "icon" })}
             title="Edit Employee"
-            onClick={() => alert("Edit mode mock")}
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground" />
             <span className="sr-only">Edit</span>
-          </Button>
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 

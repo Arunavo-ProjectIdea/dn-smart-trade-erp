@@ -62,7 +62,6 @@ export function Sidebar({ className, role = "Admin", ...props }: SidebarProps) {
           { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
           { name: "My Shipments", href: "/shipments", icon: Truck },
           { name: "My Documents", href: "/documents", icon: FileText },
-          { name: "Notifications", href: "/notifications", icon: Bell },
           { name: "Profile", href: "/profile", icon: UserCircle },
         ]
       default:
@@ -120,18 +119,7 @@ export function Sidebar({ className, role = "Admin", ...props }: SidebarProps) {
               })}
             </ul>
           </li>
-          <li className="mt-auto">
-            <Link
-              href="/help"
-              className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 hover:translate-x-1 active:scale-[0.98]"
-            >
-              <FileText
-                className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-sidebar-accent-foreground"
-                aria-hidden="true"
-              />
-              Documentation
-            </Link>
-          </li>
+
         </ul>
       </nav>
     </div>

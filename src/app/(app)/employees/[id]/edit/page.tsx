@@ -1,14 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Copy } from "lucide-react"
+import { notFound, useRouter, useParams } from "next/navigation"
 
 import { FormLayout } from "@/components/erp/form-layout"
 import { PageHeader } from "@/components/erp/page-header"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -16,10 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { mockEmployees } from "@/lib/mock-data/employees"
 import { AuthService } from "@/lib/auth"
 
-export default function AddEmployeePage() {
+export default function EditEmployeePage() {
   const router = useRouter()
+  const params = useParams()
+  const id = params?.id as string
+  const employee = mockEmployees.find((e) => e.id === id)
+  
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Client-side role protection
@@ -30,6 +33,12 @@ export default function AddEmployeePage() {
     }
   }, [router])
 
+  if (!employee && id) {
+    notFound()
+  }
+
+  if (!employee) return null
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -37,65 +46,49 @@ export default function AddEmployeePage() {
     // Mock API call delay
     setTimeout(() => {
       setIsSubmitting(false)
-      router.push("/employees")
+      alert("Employee updated successfully!")
+      router.push(`/employees/${employee.id}`)
     }, 800)
   }
 
   const handleCancel = () => {
-    router.push("/employees")
+    router.push(`/employees/${employee.id}`)
   }
-
-  const copyToClipboard = (text: string) => {
-    if (typeof window !== "undefined") {
-      navigator.clipboard.writeText(text)
-      // Visual feedback could go here
-    }
-  }
-
-  // Pre-generated mock password
-  const [tempPassword, setTempPassword] = useState("")
-
-  useEffect(() => {
-    const initData = async () => {
-      setTempPassword("TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase())
-    }
-    initData()
-  }, [])
 
   return (
     <div className="flex flex-col gap-8 pb-10">
       <PageHeader 
-        title="Add New Employee" 
-        description="Create a new staff account and generate their initial credentials."
+        title={`Edit Employee: ${employee.fullName}`} 
+        description={`Update system profile for ${employee.id}`}
       />
       
       <FormLayout
         title="Employee Profile"
-        description="Enter the personal and departmental details."
+        description="Update personal and departmental details."
         onSave={handleSave}
         onCancel={handleCancel}
         isSubmitting={isSubmitting}
-        saveText="Create Employee"
+        saveText="Save Changes"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name *</Label>
-            <Input id="fullName" placeholder="e.g. John Doe" required />
+            <Input id="fullName" defaultValue={employee.fullName} required />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="email">Work Email *</Label>
-            <Input id="email" type="email" placeholder="john.doe@dnsmarttrade.com" required />
+            <Input id="email" type="email" defaultValue={employee.email} required />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number *</Label>
-            <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" required />
+            <Input id="phone" type="tel" defaultValue={employee.phone} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="department">Department *</Label>
-            <Select required defaultValue="Logistics">
+            <Select required defaultValue={employee.department}>
               <SelectTrigger id="department">
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
@@ -111,22 +104,22 @@ export default function AddEmployeePage() {
 
           <div className="space-y-2">
             <Label htmlFor="designation">Designation *</Label>
-            <Input id="designation" placeholder="e.g. Senior Coordinator" required />
+            <Input id="designation" defaultValue={employee.designation} required />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="joiningDate">Joining Date *</Label>
-            <Input id="joiningDate" type="date" required />
+            <Input id="joiningDate" type="date" defaultValue={employee.joiningDate} required />
           </div>
 
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="address">Residential Address</Label>
-            <Input id="address" placeholder="123 Main St, City, Country" />
+            <Input id="address" defaultValue={employee.address} />
           </div>
 
           <div className="space-y-2 md:col-span-2">
             <Label htmlFor="emergencyContact">Emergency Contact *</Label>
-            <Input id="emergencyContact" placeholder="Name and Phone Number" required />
+            <Input id="emergencyContact" defaultValue={employee.emergencyContact} required />
           </div>
         </div>
 
@@ -136,7 +129,7 @@ export default function AddEmployeePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="role">System Role *</Label>
-            <Select required defaultValue="Employee">
+            <Select required defaultValue={employee.role}>
               <SelectTrigger id="role">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
@@ -146,13 +139,13 @@ export default function AddEmployeePage() {
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground mt-1">
-              Admins have unrestricted system access including employee management.
+              Admins have unrestricted system access.
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">Initial Status</Label>
-            <Select required defaultValue="Active">
+            <Label htmlFor="status">System Status</Label>
+            <Select required defaultValue={employee.status}>
               <SelectTrigger id="status">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -163,53 +156,6 @@ export default function AddEmployeePage() {
                 <SelectItem value="On Leave">On Leave</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </div>
-
-        <div className="my-6 border-t border-border" />
-
-        <h3 className="font-medium text-lg mb-4">Account Setup</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="username">Username</Label>
-            <Input id="username" placeholder="jdoe" />
-            <p className="text-xs text-muted-foreground mt-1">
-              Auto-generated if left blank.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Temporary Password *</Label>
-            <div className="flex space-x-2">
-              <Input 
-                id="password" 
-                defaultValue={tempPassword} 
-                className="font-mono"
-                required
-              />
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="icon"
-                onClick={() => copyToClipboard(tempPassword)}
-                title="Copy password"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              The employee will be forced to reset this upon first login.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password *</Label>
-            <Input 
-              id="confirmPassword" 
-              defaultValue={tempPassword} 
-              className="font-mono"
-              required
-            />
           </div>
         </div>
       </FormLayout>
