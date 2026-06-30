@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { notFound, useRouter, useParams } from "next/navigation"
-import { 
-  Building, Mail, Phone, Calendar, Clock, KeyRound, 
+import {
+  Building, Mail, Phone, Calendar, Clock, KeyRound,
   UserX, Pencil, Briefcase, MapPin, User, Activity,
   Package, FileCheck, CheckCircle2, AlertCircle, Trash2
 } from "lucide-react"
@@ -26,11 +26,11 @@ import { AuthService } from "@/lib/auth"
 export default function EmployeeDetailsPage() {
   const router = useRouter()
   const params = useParams()
-  
+
   // Safely extract the ID from params
   const id = params?.id as string
   const employee = mockEmployees.find((e) => e.id === id)
-  
+
   // Dialog States
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
@@ -55,8 +55,8 @@ export default function EmployeeDetailsPage() {
   if (!employee) return null
 
   const handleDeactivate = () => {
-    setTimeout(() => {
     setIsProcessing(true)
+
     setTimeout(() => {
       setIsProcessing(false)
       setDeactivateOpen(false)
@@ -67,6 +67,7 @@ export default function EmployeeDetailsPage() {
 
   const handleDelete = () => {
     setIsProcessing(true)
+
     setTimeout(() => {
       setIsProcessing(false)
       setDeleteOpen(false)
@@ -82,7 +83,7 @@ export default function EmployeeDetailsPage() {
 
   return (
     <div className="flex flex-col gap-8 pb-10">
-      <PageHeader 
+      <PageHeader
         title="Employee Details"
         description={`View and manage profile for ${employee.id}`}
         action={
@@ -112,7 +113,7 @@ export default function EmployeeDetailsPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-6 border-t border-border">
             <div className="flex items-start gap-3">
               <Mail className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
@@ -210,7 +211,7 @@ export default function EmployeeDetailsPage() {
           <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="personal" className="space-y-6">
           <Card>
             <CardHeader>
@@ -255,7 +256,7 @@ export default function EmployeeDetailsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="shipments">
           <Card>
             <CardHeader>
@@ -271,7 +272,7 @@ export default function EmployeeDetailsPage() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="documents">
           <Card>
             <CardHeader>
@@ -326,8 +327,8 @@ export default function EmployeeDetailsPage() {
           <Button variant="outline" onClick={() => setResetOpen(true)}>
             <KeyRound className="mr-2 h-4 w-4" /> Reset Password
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             className="text-warning border-warning hover:bg-warning/10 hover:text-warning"
             onClick={() => setDeactivateOpen(true)}
             disabled={employee.status === "Inactive"}
@@ -335,8 +336,8 @@ export default function EmployeeDetailsPage() {
             <UserX className="mr-2 h-4 w-4" /> Deactivate Account
           </Button>
         </div>
-        <Button 
-          variant="destructive" 
+        <Button
+          variant="destructive"
           onClick={() => setDeleteOpen(true)}
         >
           <Trash2 className="mr-2 h-4 w-4" /> Delete Employee
@@ -344,7 +345,7 @@ export default function EmployeeDetailsPage() {
       </div>
 
       {/* Action Dialogs */}
-      <ConfirmationDialog 
+      <ConfirmationDialog
         open={deactivateOpen}
         onOpenChange={setDeactivateOpen}
         title="Deactivate Account"
@@ -355,7 +356,7 @@ export default function EmployeeDetailsPage() {
         onCancel={() => setDeactivateOpen(false)}
       />
 
-      <ConfirmationDialog 
+      <ConfirmationDialog
         open={resetOpen}
         onOpenChange={setResetOpen}
         title="Reset Password"
@@ -366,7 +367,7 @@ export default function EmployeeDetailsPage() {
         onCancel={() => setResetOpen(false)}
       />
 
-      <ConfirmationDialog 
+      <ConfirmationDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         title="Delete Employee"
