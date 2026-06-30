@@ -48,19 +48,12 @@ export default function AddEmployeePage() {
   const copyToClipboard = (text: string) => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(text)
-      // Visual feedback could go here
+      // Visual feedback could go here, omitting for simplicity
     }
   }
 
   // Pre-generated mock password
-  const [tempPassword, setTempPassword] = useState("")
-
-  useEffect(() => {
-    const initData = async () => {
-      setTempPassword("TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase())
-    }
-    initData()
-  }, [])
+  const tempPassword = "TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase()
 
   return (
     <div className="flex flex-col gap-8 pb-10">
@@ -108,26 +101,6 @@ export default function AddEmployeePage() {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="designation">Designation *</Label>
-            <Input id="designation" placeholder="e.g. Senior Coordinator" required />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="joiningDate">Joining Date *</Label>
-            <Input id="joiningDate" type="date" required />
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="address">Residential Address</Label>
-            <Input id="address" placeholder="123 Main St, City, Country" />
-          </div>
-
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="emergencyContact">Emergency Contact *</Label>
-            <Input id="emergencyContact" placeholder="Name and Phone Number" required />
-          </div>
         </div>
 
         <div className="my-6 border-t border-border" />
@@ -159,8 +132,6 @@ export default function AddEmployeePage() {
               <SelectContent>
                 <SelectItem value="Active">Active</SelectItem>
                 <SelectItem value="Inactive">Inactive</SelectItem>
-                <SelectItem value="Probation">Probation</SelectItem>
-                <SelectItem value="On Leave">On Leave</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -170,7 +141,7 @@ export default function AddEmployeePage() {
 
         <h3 className="font-medium text-lg mb-4">Account Setup</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2 md:col-span-2">
+          <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <Input id="username" placeholder="jdoe" />
             <p className="text-xs text-muted-foreground mt-1">
@@ -179,13 +150,13 @@ export default function AddEmployeePage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Temporary Password *</Label>
+            <Label htmlFor="password">Temporary Password</Label>
             <div className="flex space-x-2">
               <Input 
                 id="password" 
-                defaultValue={tempPassword} 
-                className="font-mono"
-                required
+                value={tempPassword} 
+                readOnly 
+                className="bg-muted font-mono"
               />
               <Button 
                 type="button" 
@@ -200,16 +171,6 @@ export default function AddEmployeePage() {
             <p className="text-xs text-muted-foreground mt-1">
               The employee will be forced to reset this upon first login.
             </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password *</Label>
-            <Input 
-              id="confirmPassword" 
-              defaultValue={tempPassword} 
-              className="font-mono"
-              required
-            />
           </div>
         </div>
       </FormLayout>
