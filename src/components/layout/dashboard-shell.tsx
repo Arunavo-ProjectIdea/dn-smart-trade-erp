@@ -17,10 +17,13 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
   const [role, setRole] = React.useState<Role>(propRole)
 
   React.useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user) {
-      setRole(user.role)
+    const initRole = async () => {
+      const user = AuthService.getCurrentUser()
+      if (user) {
+        setRole(user.role)
+      }
     }
+    initRole()
   }, [])
 
   return (
