@@ -14,6 +14,8 @@ interface DashboardShellProps {
 
 export function DashboardShell({ children, role: propRole = "Admin" }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = React.useState(true)
+  
   const [role] = React.useState<Role>(() => {
     const user = AuthService.getCurrentUser();
     return user ? user.role : propRole;
@@ -28,12 +30,23 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
       </Sheet>
 
       {/* Static sidebar for desktop */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <Sidebar role={role} className="border-r" />
+      <div 
+        className={`hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${
+          desktopSidebarOpen ? "lg:w-72" : "lg:w-20"
+        }`}
+      >
+        <Sidebar role={role} isCollapsed={!desktopSidebarOpen} className="border-r" />
       </div>
 
-      <div className="lg:pl-72 flex flex-col min-h-screen">
-        <TopNav onMenuClick={() => setSidebarOpen(true)} />
+      <div 
+        className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
+          desktopSidebarOpen ? "lg:pl-72" : "lg:pl-20"
+        }`}
+      >
+        <TopNav 
+          onMenuClick={() => setSidebarOpen(true)} 
+          onDesktopMenuClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
+        />
 
         <main className="flex-1 py-10">
           <div className="px-4 sm:px-6 lg:px-8">

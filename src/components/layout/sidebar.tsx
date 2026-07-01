@@ -24,9 +24,10 @@ export type Role = "Admin" | "Employee" | "Client"
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   role?: Role
   onClose?: () => void
+  isCollapsed?: boolean
 }
 
-export function Sidebar({ className, role = "Admin", onClose, ...props }: SidebarProps) {
+export function Sidebar({ className, role = "Admin", onClose, isCollapsed = false, ...props }: SidebarProps) {
   const pathname = usePathname()
 
   const getNavigation = (role: Role) => {
@@ -72,13 +73,13 @@ export function Sidebar({ className, role = "Admin", onClose, ...props }: Sideba
   const navigation = getNavigation(role)
 
   return (
-    <div className={cn("flex h-full flex-col gap-y-5 bg-sidebar px-6 pb-4", className)} {...props}>
-      <div className="flex h-16 shrink-0 items-center">
-        <div className="flex items-center gap-2 font-bold text-primary text-xl tracking-tight">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+    <div className={cn("flex h-full flex-col gap-y-5 bg-sidebar pb-4 transition-all duration-300", isCollapsed ? "px-2" : "px-6", className)} {...props}>
+      <div className={cn("flex h-16 shrink-0 items-center", isCollapsed ? "justify-center" : "")}>
+        <div className={cn("flex items-center font-bold text-primary tracking-tight transition-all duration-300", isCollapsed ? "text-sm gap-0" : "text-xl gap-2")}>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
             <BarChart3 className="h-5 w-5 text-primary-foreground" />
           </div>
-          DN Smart Trade
+          {!isCollapsed && <span className="truncate whitespace-nowrap">DN Smart Trade</span>}
         </div>
       </div>
       <nav className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
@@ -99,11 +100,13 @@ export function Sidebar({ className, role = "Admin", onClose, ...props }: Sideba
                     <Link
                       href={item.href}
                       onClick={() => onClose && onClose()}
+                      title={isCollapsed ? item.name : undefined}
                       className={cn(
                         isActive
                           ? "text-sidebar-accent-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-                        "relative z-10 group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-all duration-200 hover:translate-x-1 active:scale-[0.98]"
+                        "relative z-10 group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-all duration-200 hover:translate-x-1 active:scale-[0.98]",
+                        isCollapsed && "justify-center"
                       )}
                     >
                       <item.icon
@@ -113,7 +116,7 @@ export function Sidebar({ className, role = "Admin", onClose, ...props }: Sideba
                         )}
                         aria-hidden="true"
                       />
-                      {item.name}
+                      {!isCollapsed && <span className="truncate whitespace-nowrap">{item.name}</span>}
                     </Link>
                   </li>
                 )
@@ -124,13 +127,17 @@ export function Sidebar({ className, role = "Admin", onClose, ...props }: Sideba
             <Link
               href="/help"
               onClick={() => onClose && onClose()}
-              className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 hover:translate-x-1 active:scale-[0.98]"
+              title={isCollapsed ? "Documentation" : undefined}
+              className={cn(
+                "group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200 hover:translate-x-1 active:scale-[0.98]",
+                isCollapsed && "justify-center"
+              )}
             >
               <FileText
                 className="h-5 w-5 shrink-0 text-muted-foreground group-hover:text-sidebar-accent-foreground"
                 aria-hidden="true"
               />
-              Documentation
+              {!isCollapsed && <span className="truncate whitespace-nowrap">Documentation</span>}
             </Link>
           </li>
         </ul>
