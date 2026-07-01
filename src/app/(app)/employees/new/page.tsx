@@ -16,11 +16,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService } from "@/lib/auth"
+import { AuthService, UserRole } from "@/lib/auth"
+import { mockEmployees } from "@/lib/mock-data/employees"
+import { useToast } from "@/components/ui/use-toast"
+import { StatusType } from "@/components/erp/status-badge"
 
 export default function AddEmployeePage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    department: "Logistics",
+    role: "Employee" as UserRole,
+    status: "Active" as StatusType,
+    username: "",
+  })
 
   // Client-side role protection
   useEffect(() => {
@@ -30,13 +44,41 @@ export default function AddEmployeePage() {
     }
   }, [router])
 
+  const handleChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Mock API call delay
+    // Generate new ID based on existing mock data length (simplistic but works for mock)
+    const newId = `EMP-${1000 + mockEmployees.length + 1}`
+    
+    const newEmployee = {
+      id: newId,
+      fullName: formData.fullName,
+      email: formData.email,
+      phone: formData.phone,
+      department: formData.department,
+      role: formData.role,
+      status: formData.status,
+      username: formData.username || formData.email.split('@')[0],
+      lastLogin: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      assignedClients: 0,
+      activeShipments: 0,
+      documentsProcessed: 0,
+    }
+
+    mockEmployees.push(newEmployee)
+
     setTimeout(() => {
       setIsSubmitting(false)
+      toast({
+        title: "Employee Created",
+        description: `${newEmployee.fullName} has been successfully added.`,
+      })
       router.push("/employees")
     }, 800)
   }
@@ -48,7 +90,10 @@ export default function AddEmployeePage() {
   const copyToClipboard = (text: string) => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(text)
-      // Visual feedback could go here, omitting for simplicity
+      toast({
+        title: "Copied to clipboard",
+        description: "Password copied to clipboard.",
+      })
     }
   }
 
@@ -73,22 +118,46 @@ export default function AddEmployeePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name *</Label>
-            <Input id="fullName" placeholder="e.g. John Doe" required />
+            <Input 
+              id="fullName" 
+              placeholder="e.g. John Doe" 
+              value={formData.fullName}
+              onChange={(e) => handleChange("fullName", e.target.value)}
+              required 
+            />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="email">Work Email *</Label>
-            <Input id="email" type="email" placeholder="john.doe@dnsmarttrade.com" required />
+            <Input 
+              id="email" 
+              type="email" 
+              placeholder="john.doe@dnsmarttrade.com" 
+              value={formData.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+              required 
+            />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="phone">Phone Number *</Label>
-            <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" required />
+            <Input 
+              id="phone" 
+              type="tel" 
+              placeholder="+1 (555) 000-0000" 
+              value={formData.phone}
+              onChange={(e) => handleChange("phone", e.target.value)}
+              required 
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="department">Department *</Label>
-            <Select required defaultValue="Logistics">
+            <Select 
+              required 
+              value={formData.department}
+              onValueChange={(val) => handleChange("department", val)}
+            >
               <SelectTrigger id="department">
                 <SelectValue placeholder="Select department" />
               </SelectTrigger>
@@ -109,7 +178,11 @@ export default function AddEmployeePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="role">System Role *</Label>
-            <Select required defaultValue="Employee">
+            <Select 
+              required 
+              value={formData.role}
+              onValueChange={(val) => handleChange("role", val as UserRole)}
+            >
               <SelectTrigger id="role">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
@@ -125,7 +198,11 @@ export default function AddEmployeePage() {
 
           <div className="space-y-2">
             <Label htmlFor="status">Initial Status</Label>
-            <Select required defaultValue="Active">
+            <Select 
+              required 
+              value={formData.status}
+              onValueChange={(val) => handleChange("status", val as StatusType)}
+            >
               <SelectTrigger id="status">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
@@ -143,7 +220,12 @@ export default function AddEmployeePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input id="username" placeholder="jdoe" />
+            <Input 
+              id="username" 
+              placeholder="jdoe" 
+              value={formData.username}
+              onChange={(e) => handleChange("username", e.target.value)}
+            />
             <p className="text-xs text-muted-foreground mt-1">
               Auto-generated if left blank.
             </p>
