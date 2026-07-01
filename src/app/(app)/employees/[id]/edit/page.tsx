@@ -20,7 +20,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { AuthService } from "@/lib/auth"
 
 export default function EditEmployeePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+  const unwrappedParams = use(params)
+  const id = decodeURIComponent(unwrappedParams.id)
   const router = useRouter()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)

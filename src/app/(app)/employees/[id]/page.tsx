@@ -19,17 +19,20 @@ import { mockEmployees } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 import { AuthService } from "@/lib/auth"
+import { use } from "react"
 
 interface EmployeeDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps) {
+  const unwrappedParams = use(params)
+  const id = decodeURIComponent(unwrappedParams.id)
   const { toast } = useToast()
   const router = useRouter()
-  const employee = mockEmployees.find((e) => e.id === params.id)
+  const employee = mockEmployees.find((e) => e.id === id)
   
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
