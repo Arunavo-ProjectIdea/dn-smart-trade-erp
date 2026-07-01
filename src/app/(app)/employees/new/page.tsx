@@ -156,7 +156,7 @@ export default function AddEmployeePage() {
             <Select 
               required 
               value={formData.department}
-              onValueChange={(val) => handleChange("department", val)}
+              onValueChange={(val) => val && handleChange("department", val)}
             >
               <SelectTrigger id="department">
                 <SelectValue placeholder="Select department" />
@@ -181,7 +181,7 @@ export default function AddEmployeePage() {
             <Select 
               required 
               value={formData.role}
-              onValueChange={(val) => handleChange("role", val as UserRole)}
+              onValueChange={(val) => val && handleChange("role", val as UserRole)}
             >
               <SelectTrigger id="role">
                 <SelectValue placeholder="Select role" />
@@ -201,7 +201,7 @@ export default function AddEmployeePage() {
             <Select 
               required 
               value={formData.status}
-              onValueChange={(val) => handleChange("status", val as StatusType)}
+              onValueChange={(val) => val && handleChange("status", val as StatusType)}
             >
               <SelectTrigger id="status">
                 <SelectValue placeholder="Select status" />
