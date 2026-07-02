@@ -65,8 +65,8 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
           onMenuClick={() => setSidebarOpen(true)} 
         />
 
-        <main className="flex-1 py-10">
-          <div className="px-4 sm:px-6 lg:px-8">
+        <main className="flex-1 py-8">
+          <div className="px-4 sm:px-6 lg:px-8 max-w-[1600px] mx-auto">
             {children}
           </div>
         </main>

@@ -12,17 +12,8 @@ import { DataTable } from "@/components/erp/data-table";
 import { mockDocumentsList } from "@/lib/mock-data/document";
 import { useToast } from "@/components/ui/use-toast";
 
-const getStatusColor = (status: BOEStatus) => {
-  switch (status) {
-    case 'Draft': return 'bg-gray-100 text-gray-800 border-gray-200';
-    case 'Submitted': return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'Under Review': return 'bg-amber-100 text-amber-800 border-amber-200';
-    case 'Approved': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    case 'Rejected': return 'bg-red-100 text-red-800 border-red-200';
-    case 'Completed': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-    default: return 'bg-gray-100 text-gray-800 border-gray-200';
-  }
-};
+import { PageHeader } from "@/components/erp/page-header";
+import { StatusBadge } from "@/components/erp/status-badge";
 
 export default async function BOEDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { toast } = useToast();
@@ -50,13 +41,7 @@ export default async function BOEDetailsPage({ params }: { params: Promise<{ id:
       header: "Status", 
       accessorKey: "status" as keyof typeof boeDocs[0],
       cell: (item: typeof boeDocs[0]) => (
-        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
-          item.status === 'Approved' ? 'bg-success/10 text-success' : 
-          item.status === 'Pending Review' ? 'bg-warning/10 text-warning' : 
-          'bg-muted text-muted-foreground'
-        }`}>
-          {item.status}
-        </span>
+          <StatusBadge status={item.status as any} />
       )
     },
     { 
@@ -71,25 +56,26 @@ export default async function BOEDetailsPage({ params }: { params: Promise<{ id:
   };
 
   return (
-    <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full">
-      {/* Header Actions */}
+    <div className="flex flex-col gap-8 max-w-7xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/boe" className={buttonVariants({ variant: "outline", size: "icon" })}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <div>
+          <div className="flex flex-col">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight">{boe.boeNumber}</h1>
-              <Badge className={getStatusColor(boe.status)} variant="outline">
-                {boe.status}
-              </Badge>
+              <PageHeader 
+                title={boe.boeNumber} 
+                className="mb-0 gap-0"
+              />
+              <StatusBadge status={boe.status as any} className="mt-1" />
             </div>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground">
               Created on {new Date(boe.createdAt).toLocaleDateString()}
             </p>
           </div>
         </div>
+        
         <div className="flex flex-wrap items-center gap-2">
           <Link href={`/boe/${boe.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
              <Edit className="mr-2 h-4 w-4" /> Edit

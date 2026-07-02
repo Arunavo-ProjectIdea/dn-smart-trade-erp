@@ -123,17 +123,17 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
   ]
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title={client.companyName}
         description={`Client ID: ${client.id} • ${client.clientType}`}
         action={
           <div className="flex items-center gap-3">
-            <StatusBadge status={client.status} className="text-sm px-3 py-1" />
-            <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "outline" })}>
+            <StatusBadge status={client.status} className="text-sm px-3 py-1 shadow-sm" />
+            <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "outline", className: "shadow-sm" })}>
               Edit Client
             </Link>
-            <Link href={`/shipments/create?clientId=${client.id}`} className={buttonVariants({ variant: "default" })}>
+            <Link href={`/shipments/create?clientId=${client.id}`} className={buttonVariants({ variant: "default", className: "shadow-sm" })}>
               New Shipment
             </Link>
           </div>
@@ -142,8 +142,8 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Contact Info Card */}
-        <Card className="md:col-span-2">
-          <CardHeader>
+        <Card className="md:col-span-2 shadow-sm">
+          <CardHeader className="pb-4 border-b border-border/50 mb-4">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Building2 className="h-5 w-5 text-primary" />
               Client Information
@@ -196,38 +196,44 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
         {/* Summary Metrics */}
         <div className="grid gap-4">
           <Link href={`/shipments?client=${client.companyName}&status=In Transit`} className="block group">
-            <Card className="transition-all hover:border-primary/50 hover:shadow-md">
+            <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Active Shipments</CardTitle>
-                <Truck className="h-4 w-4 text-primary" />
+                <div className="size-8 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
+                  <Truck className="size-4" />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{client.activeShipments}</div>
-                <p className="text-xs text-muted-foreground">Currently in transit</p>
+                <p className="text-xs text-muted-foreground mt-1">Currently in transit</p>
               </CardContent>
             </Card>
           </Link>
           <Link href={`/shipments?client=${client.companyName}`} className="block group">
-            <Card className="transition-all hover:border-primary/50 hover:shadow-md">
+            <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Total Shipments</CardTitle>
-                <Truck className="h-4 w-4 text-muted-foreground" />
+                <div className="size-8 bg-muted rounded-full flex items-center justify-center text-muted-foreground shadow-inner">
+                  <Truck className="size-4" />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{client.totalShipments}</div>
-                <p className="text-xs text-muted-foreground">Historical records</p>
+                <p className="text-xs text-muted-foreground mt-1">Historical records</p>
               </CardContent>
             </Card>
           </Link>
           <Link href={`/documents?client=${client.id}`} className="block group">
-            <Card className="transition-all hover:border-primary/50 hover:shadow-md">
+            <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Total Documents</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
+                <div className="size-8 bg-muted rounded-full flex items-center justify-center text-muted-foreground shadow-inner">
+                  <FileText className="size-4" />
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{client.totalDocuments}</div>
-                <p className="text-xs text-muted-foreground">Invoices & Certificates</p>
+                <p className="text-xs text-muted-foreground mt-1">Invoices & Certificates</p>
               </CardContent>
             </Card>
           </Link>
@@ -236,15 +242,23 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
 
       {/* Tabs Section */}
       <Tabs defaultValue="shipments" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 max-w-[500px]">
-          <TabsTrigger value="shipments">Shipments</TabsTrigger>
-          <TabsTrigger value="boe">BOE</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-          <TabsTrigger value="activity">Recent Activity</TabsTrigger>
+        <TabsList className="w-full justify-start border-b border-border/50 rounded-none h-auto p-0 bg-transparent mb-6 overflow-x-auto">
+          <TabsTrigger value="shipments" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
+            Shipments
+          </TabsTrigger>
+          <TabsTrigger value="boe" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
+            BOE
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
+            Documents
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
+            Recent Activity
+          </TabsTrigger>
         </TabsList>
-        <TabsContent value="shipments" className="mt-6">
-          <Card>
-            <CardHeader>
+        <TabsContent value="shipments" className="mt-0 animate-in fade-in duration-300">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/50 mb-4">
               <CardTitle>Shipment History</CardTitle>
             </CardHeader>
             <CardContent>
@@ -257,9 +271,9 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="boe" className="mt-6">
-          <Card>
-            <CardHeader>
+        <TabsContent value="boe" className="mt-0 animate-in fade-in duration-300">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/50 mb-4">
               <CardTitle>Bill of Entry</CardTitle>
             </CardHeader>
             <CardContent>
@@ -272,9 +286,9 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="documents" className="mt-6">
-          <Card>
-            <CardHeader>
+        <TabsContent value="documents" className="mt-0 animate-in fade-in duration-300">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/50 mb-4">
               <CardTitle>Uploaded Documents</CardTitle>
             </CardHeader>
             <CardContent>
@@ -287,24 +301,24 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="activity" className="mt-6">
-          <Card>
-            <CardHeader>
+        <TabsContent value="activity" className="mt-0 animate-in fade-in duration-300">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/50 mb-4">
               <CardTitle>Recent Activities</CardTitle>
             </CardHeader>
-            <CardContent className="h-40 flex flex-col justify-center gap-4 text-sm border-t pt-6">
-              <div className="flex gap-4 items-center">
-                <div className="p-2 bg-primary/10 rounded-full"><Activity className="h-4 w-4 text-primary" /></div>
+            <CardContent className="flex flex-col gap-4 text-sm pt-2">
+              <div className="flex gap-4 items-center bg-muted/20 p-3 rounded-lg border border-border/50">
+                <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center shadow-inner shrink-0"><Activity className="size-5 text-primary" /></div>
                 <div>
-                  <p className="font-medium">Client Profile Updated</p>
-                  <p className="text-muted-foreground text-xs">Oct 20, 2026 by Admin User</p>
+                  <p className="font-medium text-foreground">Client Profile Updated</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Oct 20, 2026 by Admin User</p>
                 </div>
               </div>
-              <div className="flex gap-4 items-center">
-                <div className="p-2 bg-primary/10 rounded-full"><FileText className="h-4 w-4 text-primary" /></div>
+              <div className="flex gap-4 items-center bg-muted/20 p-3 rounded-lg border border-border/50">
+                <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center shadow-inner shrink-0"><FileText className="size-5 text-primary" /></div>
                 <div>
-                  <p className="font-medium">Commercial Invoice Uploaded</p>
-                  <p className="text-muted-foreground text-xs">Oct 15, 2026 by Jane Smith</p>
+                  <p className="font-medium text-foreground">Commercial Invoice Uploaded</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">Oct 15, 2026 by Jane Smith</p>
                 </div>
               </div>
             </CardContent>

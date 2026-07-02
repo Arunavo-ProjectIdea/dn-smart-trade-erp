@@ -89,7 +89,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
   ]
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-[-1rem]">
         <Link href="/shipments" className="hover:underline">Shipments</Link>
         <ChevronRight className="h-4 w-4" />
@@ -127,52 +127,52 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <Truck className="h-5 w-5" />
+            <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
+              <Truck className="size-6" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Carrier</p>
-              <p className="font-medium">{shipment.shippingLine}</p>
+              <p className="text-sm text-muted-foreground font-medium">Carrier</p>
+              <p className="font-semibold text-foreground text-lg">{shipment.shippingLine}</p>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <MapPin className="h-5 w-5" />
+            <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
+              <MapPin className="size-6" />
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Route</p>
-              <p className="font-medium truncate max-w-[150px]" title={`${shipment.loadingPort} → ${shipment.dischargePort}`}>
-                {shipment.loadingPort} → {shipment.dischargePort}
+            <div className="overflow-hidden">
+              <p className="text-sm text-muted-foreground font-medium">Route</p>
+              <p className="font-semibold text-foreground truncate max-w-[150px]" title={`${shipment.loadingPort} → ${shipment.dischargePort}`}>
+                {shipment.loadingPort} <span className="text-muted-foreground font-normal mx-1">→</span> {shipment.dischargePort}
               </p>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <Calendar className="h-5 w-5" />
+            <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
+              <Calendar className="size-6" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">ETA</p>
-              <p className="font-medium">{new Date(shipment.eta).toLocaleDateString()}</p>
+              <p className="text-sm text-muted-foreground font-medium">ETA</p>
+              <p className="font-semibold text-foreground">{new Date(shipment.eta).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
             </div>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
-            <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-              <Package className="h-5 w-5" />
+            <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
+              <Package className="size-6" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Container</p>
-              <p className="font-medium">{shipment.containerNumber || "Pending"}</p>
+              <p className="text-sm text-muted-foreground font-medium">Container</p>
+              <p className="font-semibold text-foreground">{shipment.containerNumber || "Pending"}</p>
             </div>
           </CardContent>
         </Card>
@@ -182,79 +182,79 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         <div className="lg:col-span-2 flex flex-col gap-6">
           
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-              <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2">
+            <TabsList className="w-full justify-start border-b border-border/50 rounded-none h-auto p-0 bg-transparent mb-6 overflow-x-auto">
+              <TabsTrigger value="overview" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
                 Overview
               </TabsTrigger>
-              <TabsTrigger value="cargo" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2">
+              <TabsTrigger value="cargo" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
                 Cargo Details
               </TabsTrigger>
-              <TabsTrigger value="customs" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2">
+              <TabsTrigger value="customs" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
                 Customs
               </TabsTrigger>
-              <TabsTrigger value="boe" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2">
+              <TabsTrigger value="boe" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
                 BOE ({shipmentBoes.length})
               </TabsTrigger>
-              <TabsTrigger value="documents" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2">
+              <TabsTrigger value="documents" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
                 Documents ({shipmentDocs.length})
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="overview" className="mt-6 space-y-6">
-              <Card>
-                <CardHeader>
+            <TabsContent value="overview" className="space-y-6 mt-0 animate-in fade-in duration-300">
+              <Card className="shadow-sm">
+                <CardHeader className="pb-4 border-b border-border/50 mb-4">
                   <CardTitle>Shipment Information</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Vessel Name / Voyage</p>
-                    <p className="font-medium">{shipment.vesselName} / {shipment.voyageNumber}</p>
+                <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Vessel Name / Voyage</p>
+                    <p className="font-medium text-foreground">{shipment.vesselName} / {shipment.voyageNumber}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Transport Type</p>
-                    <p className="font-medium">{shipment.transportType}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Transport Type</p>
+                    <p className="font-medium text-foreground">{shipment.transportType}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Incoterms</p>
-                    <p className="font-medium">{shipment.incoterms}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Incoterms</p>
+                    <p className="font-medium text-foreground">{shipment.incoterms}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Container Type</p>
-                    <p className="font-medium">{shipment.containerSize} {shipment.containerType}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Container Type</p>
+                    <p className="font-medium text-foreground">{shipment.containerSize} {shipment.containerType}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Departure Date (ETD)</p>
-                    <p className="font-medium">{new Date(shipment.etd).toLocaleDateString()}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Departure Date (ETD)</p>
+                    <p className="font-medium text-foreground">{new Date(shipment.etd).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Arrival Date (ETA)</p>
-                    <p className="font-medium">{new Date(shipment.eta).toLocaleDateString()}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Arrival Date (ETA)</p>
+                    <p className="font-medium text-foreground">{new Date(shipment.eta).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
+              <Card className="shadow-sm">
+                <CardHeader className="pb-4 border-b border-border/50 mb-4">
                   <CardTitle>Client Information</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                  <div className="md:col-span-2">
-                    <p className="text-sm text-muted-foreground">Client Entity</p>
-                    <Link href={`/clients/${shipment.clientId}`} className="font-medium text-primary hover:underline flex items-center mt-1">
-                      {shipment.clientName} <ChevronRight className="h-4 w-4 ml-1" />
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2 flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Client Entity</p>
+                    <Link href={`/clients/${shipment.clientId}`} className="font-medium text-primary hover:underline flex items-center w-fit">
+                      {shipment.clientName} <ChevronRight className="size-4 ml-1" />
                     </Link>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Importer</p>
-                    <p className="font-medium">{shipment.importer}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Importer</p>
+                    <p className="font-medium text-foreground">{shipment.importer}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Exporter</p>
-                    <p className="font-medium">{shipment.exporter}</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Exporter</p>
+                    <p className="font-medium text-foreground">{shipment.exporter}</p>
                   </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm text-muted-foreground">Consignee</p>
-                    <p className="font-medium">{shipment.consignee}</p>
+                  <div className="md:col-span-2 flex flex-col gap-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Consignee</p>
+                    <p className="font-medium text-foreground">{shipment.consignee}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -401,8 +401,8 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         
         {/* Sidebar */}
         <div className="flex flex-col gap-6">
-          <Card>
-            <CardHeader>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/50 mb-4">
               <CardTitle>Tracking Timeline</CardTitle>
               <CardDescription>Lifecycle of the shipment</CardDescription>
             </CardHeader>
@@ -411,22 +411,22 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-4 border-b border-border/50 mb-4">
               <CardTitle>Assigned Personnel</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-primary/20 rounded-full flex items-center justify-center font-bold text-primary">
+              <div className="flex items-center gap-4 bg-muted/20 p-3 rounded-lg border border-border/50">
+                <div className="size-10 bg-primary/20 rounded-full flex items-center justify-center font-bold text-primary shrink-0 shadow-inner">
                   {shipment.assignedEmployeeName.split(' ').map(n => n[0]).join('')}
                 </div>
                 <div>
-                  <p className="font-medium">
-                    <Link href={`/employees/${shipment.assignedEmployeeId}`} className="hover:underline text-primary">
+                  <p className="font-medium text-foreground">
+                    <Link href={`/employees/${shipment.assignedEmployeeId}`} className="hover:underline hover:text-primary transition-colors">
                       {shipment.assignedEmployeeName}
                     </Link>
                   </p>
-                  <p className="text-sm text-muted-foreground">Logistics Coordinator</p>
+                  <p className="text-xs text-muted-foreground font-medium">Logistics Coordinator</p>
                 </div>
               </div>
             </CardContent>

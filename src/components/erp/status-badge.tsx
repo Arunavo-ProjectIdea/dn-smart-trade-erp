@@ -13,6 +13,10 @@ export type StatusType =
   | "Customs Clearance"
   | "Delivered"
   | "Delayed"
+  | "Draft"
+  | "Submitted"
+  | "Under Review"
+  | "Approved"
 
 interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   status: StatusType
@@ -24,11 +28,14 @@ export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
       case "Active":
       case "Completed":
       case "Delivered":
+      case "Approved":
         return "bg-success/10 text-success hover:bg-success/20 border-success/20"
       case "Pending":
       case "In Clearance":
       case "Customs Clearance":
       case "In Transit":
+      case "Submitted":
+      case "Under Review":
         return "bg-warning/10 text-warning hover:bg-warning/20 border-warning/20"
       case "Inactive":
       case "Rejected":

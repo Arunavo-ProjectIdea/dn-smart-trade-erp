@@ -58,12 +58,15 @@ export function DataTable<T>({
   const filteredData = React.useMemo(() => {
     if (!searchKey || !searchQuery) return data
 
+    const lowerQuery = searchQuery.toLowerCase()
+
     return data.filter((item) => {
-      const value = item[searchKey]
-      if (typeof value === "string") {
-        return value.toLowerCase().includes(searchQuery.toLowerCase())
-      }
-      return false
+      return Object.values(item as object).some((value) => {
+        if (typeof value === "string" || typeof value === "number") {
+          return String(value).toLowerCase().includes(lowerQuery)
+        }
+        return false
+      })
     })
   }, [data, searchKey, searchQuery])
 
@@ -103,8 +106,8 @@ export function DataTable<T>({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex flex-1 items-center space-x-2 w-full sm:w-auto">
           {searchKey && (
-            <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="relative w-full sm:max-w-sm group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 placeholder={searchPlaceholder}
                 value={searchQuery}
@@ -112,7 +115,7 @@ export function DataTable<T>({
                   setSearchQuery(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="pl-8 bg-card"
+                className="pl-9 bg-muted/30 border-muted/50 focus-visible:bg-background rounded-full transition-all duration-300 focus-visible:ring-2 shadow-sm"
               />
             </div>
           )}
@@ -162,7 +165,7 @@ export function DataTable<T>({
           <TableBody>
             {paginatedData.length > 0 ? (
               paginatedData.map((item, rowIndex) => (
-                <TableRow key={rowIndex}>
+                <TableRow key={rowIndex} className="group">
                   {columns.map((col, colIndex) => (
                     <TableCell key={colIndex}>
                       {col.cell

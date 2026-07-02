@@ -14,12 +14,12 @@ export default function EditShipmentPage({ params }: { params: Promise<{ id: str
 
   if (!shipment) {
     return (
-      <div className="flex flex-col gap-8 pb-10">
+      <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
         <PageHeader title="Shipment Not Found" />
-        <Card>
+        <Card className="shadow-sm">
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <AlertCircle className="h-10 w-10 text-destructive mb-4" />
-            <h3 className="text-lg font-medium">No shipment found with ID: {id}</h3>
+            <AlertCircle className="size-12 text-destructive mb-4 opacity-50" />
+            <h3 className="text-xl font-medium">No shipment found with ID: {id}</h3>
           </CardContent>
         </Card>
       </div>
@@ -27,7 +27,7 @@ export default function EditShipmentPage({ params }: { params: Promise<{ id: str
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title={`Edit Shipment ${shipment.shipmentNumber}`} 
         description="Modify shipment information and customs details."
