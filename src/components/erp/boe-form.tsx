@@ -64,7 +64,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-in fade-in duration-500 pb-10">
       {/* Stepper */}
       <div className="w-full py-4">
         <div className="flex items-center justify-between relative">
@@ -111,23 +111,23 @@ export function BOEForm({ initialData }: BOEFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="space-y-2">
                 <Label htmlFor="clientName">Client Name</Label>
-                <Input id="clientName" value={formData.importer.clientName} onChange={(e) => setFormData({...formData, importer: {...formData.importer, clientName: e.target.value}})} placeholder="e.g. Acme Corp" />
+                <Input id="clientName" className="bg-background shadow-sm" value={formData.importer.clientName} onChange={(e) => setFormData({...formData, importer: {...formData.importer, clientName: e.target.value}})} placeholder="e.g. Acme Corp" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="companyName">Registered Company Name</Label>
-                <Input id="companyName" value={formData.importer.companyName} onChange={(e) => setFormData({...formData, importer: {...formData.importer, companyName: e.target.value}})} placeholder="e.g. Acme International Ltd." />
+                <Input id="companyName" className="bg-background shadow-sm" value={formData.importer.companyName} onChange={(e) => setFormData({...formData, importer: {...formData.importer, companyName: e.target.value}})} placeholder="e.g. Acme International Ltd." />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="bin">Business Identification Number (BIN)</Label>
-                <Input id="bin" value={formData.importer.bin} onChange={(e) => setFormData({...formData, importer: {...formData.importer, bin: e.target.value}})} placeholder="BIN" />
+                <Input id="bin" className="bg-background shadow-sm" value={formData.importer.bin} onChange={(e) => setFormData({...formData, importer: {...formData.importer, bin: e.target.value}})} placeholder="BIN" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tin">Tax Identification Number (TIN)</Label>
-                <Input id="tin" value={formData.importer.tin} onChange={(e) => setFormData({...formData, importer: {...formData.importer, tin: e.target.value}})} placeholder="TIN" />
+                <Input id="tin" className="bg-background shadow-sm" value={formData.importer.tin} onChange={(e) => setFormData({...formData, importer: {...formData.importer, tin: e.target.value}})} placeholder="TIN" />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="address">Full Address</Label>
-                <Input id="address" value={formData.importer.address} onChange={(e) => setFormData({...formData, importer: {...formData.importer, address: e.target.value}})} placeholder="Street address, City, Country" />
+                <Input id="address" className="bg-background shadow-sm" value={formData.importer.address} onChange={(e) => setFormData({...formData, importer: {...formData.importer, address: e.target.value}})} placeholder="Street address, City, Country" />
               </div>
             </div>
           )}
@@ -137,27 +137,27 @@ export function BOEForm({ initialData }: BOEFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="space-y-2">
                 <Label htmlFor="shipmentId">Shipment Reference ID</Label>
-                <Input id="shipmentId" value={formData.shipment.shipmentId} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, shipmentId: e.target.value}})} placeholder="e.g. SHP-1001" />
+                <Input id="shipmentId" className="bg-background shadow-sm" value={formData.shipment.shipmentId} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, shipmentId: e.target.value}})} placeholder="e.g. SHP-1001" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="port">Port of Entry</Label>
-                <Input id="port" value={formData.shipment.port} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, port: e.target.value}})} placeholder="e.g. Chittagong Port" />
+                <Input id="port" className="bg-background shadow-sm" value={formData.shipment.port} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, port: e.target.value}})} placeholder="e.g. Chittagong Port" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="countryOfOrigin">Country of Origin</Label>
-                <Input id="countryOfOrigin" value={formData.shipment.countryOfOrigin} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, countryOfOrigin: e.target.value}})} placeholder="e.g. China" />
+                <Input id="countryOfOrigin" className="bg-background shadow-sm" value={formData.shipment.countryOfOrigin} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, countryOfOrigin: e.target.value}})} placeholder="e.g. China" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="carrier">Carrier / Vessel Name</Label>
-                <Input id="carrier" value={formData.shipment.carrier} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, carrier: e.target.value}})} placeholder="e.g. Maersk" />
+                <Input id="carrier" className="bg-background shadow-sm" value={formData.shipment.carrier} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, carrier: e.target.value}})} placeholder="e.g. Maersk" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="containerNumber">Container Number</Label>
-                <Input id="containerNumber" value={formData.shipment.containerNumber} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, containerNumber: e.target.value}})} placeholder="Container no." />
+                <Input id="containerNumber" className="bg-background shadow-sm" value={formData.shipment.containerNumber} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, containerNumber: e.target.value}})} placeholder="Container no." />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="arrivalDate">Arrival Date</Label>
-                <Input id="arrivalDate" type="date" value={formData.shipment.arrivalDate.split('T')[0] || ''} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, arrivalDate: e.target.value}})} />
+                <Input id="arrivalDate" type="date" className="bg-background shadow-sm" value={formData.shipment.arrivalDate.split('T')[0] || ''} onChange={(e) => setFormData({...formData, shipment: {...formData.shipment, arrivalDate: e.target.value}})} />
               </div>
             </div>
           )}
@@ -171,7 +171,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Product Description</Label>
-                      <Input value={product.productName} onChange={(e) => {
+                      <Input className="bg-background shadow-sm" value={product.productName} onChange={(e) => {
                         const newProducts = [...formData.products];
                         newProducts[index].productName = e.target.value;
                         setFormData({...formData, products: newProducts});
@@ -179,7 +179,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
                     </div>
                     <div className="space-y-2">
                       <Label>HS Code</Label>
-                      <Input value={product.hsCode} onChange={(e) => {
+                      <Input className="bg-background shadow-sm" value={product.hsCode} onChange={(e) => {
                         const newProducts = [...formData.products];
                         newProducts[index].hsCode = e.target.value;
                         setFormData({...formData, products: newProducts});
@@ -187,7 +187,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
                     </div>
                     <div className="space-y-2">
                       <Label>Quantity</Label>
-                      <Input type="number" value={product.quantity || ''} onChange={(e) => {
+                      <Input type="number" className="bg-background shadow-sm" value={product.quantity || ''} onChange={(e) => {
                         const newProducts = [...formData.products];
                         newProducts[index].quantity = Number(e.target.value);
                         setFormData({...formData, products: newProducts});
@@ -195,7 +195,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
                     </div>
                     <div className="space-y-2">
                       <Label>Unit</Label>
-                      <Input value={product.unit} onChange={(e) => {
+                      <Input className="bg-background shadow-sm" value={product.unit} onChange={(e) => {
                         const newProducts = [...formData.products];
                         newProducts[index].unit = e.target.value;
                         setFormData({...formData, products: newProducts});
@@ -204,12 +204,12 @@ export function BOEForm({ initialData }: BOEFormProps) {
                     <div className="space-y-2">
                       <Label>Declared Value</Label>
                       <div className="flex items-center gap-2">
-                        <Input value={product.currency} className="w-20" onChange={(e) => {
+                        <Input value={product.currency} className="w-20 bg-background shadow-sm" onChange={(e) => {
                           const newProducts = [...formData.products];
                           newProducts[index].currency = e.target.value;
                           setFormData({...formData, products: newProducts});
                         }} />
-                        <Input type="number" className="flex-1" value={product.declaredValue || ''} onChange={(e) => {
+                        <Input type="number" className="flex-1 bg-background shadow-sm" value={product.declaredValue || ''} onChange={(e) => {
                           const newProducts = [...formData.products];
                           newProducts[index].declaredValue = Number(e.target.value);
                           setFormData({...formData, products: newProducts});
@@ -230,27 +230,27 @@ export function BOEForm({ initialData }: BOEFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-right-4 duration-300">
               <div className="space-y-2">
                 <Label htmlFor="importDuty">Import Duty (ID)</Label>
-                <Input id="importDuty" type="number" value={formData.duties.importDuty || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, importDuty: Number(e.target.value)}})} placeholder="0.00" />
+                <Input id="importDuty" type="number" className="bg-background shadow-sm" value={formData.duties.importDuty || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, importDuty: Number(e.target.value)}})} placeholder="0.00" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="vat">Value Added Tax (VAT)</Label>
-                <Input id="vat" type="number" value={formData.duties.vat || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, vat: Number(e.target.value)}})} placeholder="0.00" />
+                <Input id="vat" type="number" className="bg-background shadow-sm" value={formData.duties.vat || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, vat: Number(e.target.value)}})} placeholder="0.00" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ait">Advance Income Tax (AIT)</Label>
-                <Input id="ait" type="number" value={formData.duties.ait || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, ait: Number(e.target.value)}})} placeholder="0.00" />
+                <Input id="ait" type="number" className="bg-background shadow-sm" value={formData.duties.ait || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, ait: Number(e.target.value)}})} placeholder="0.00" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="at">Advance Tax (AT)</Label>
-                <Input id="at" type="number" value={formData.duties.at || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, at: Number(e.target.value)}})} placeholder="0.00" />
+                <Input id="at" type="number" className="bg-background shadow-sm" value={formData.duties.at || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, at: Number(e.target.value)}})} placeholder="0.00" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="otherCharges">Other Charges / Fees</Label>
-                <Input id="otherCharges" type="number" value={formData.duties.otherCharges || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, otherCharges: Number(e.target.value)}})} placeholder="0.00" />
+                <Input id="otherCharges" type="number" className="bg-background shadow-sm" value={formData.duties.otherCharges || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, otherCharges: Number(e.target.value)}})} placeholder="0.00" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="grandTotal">Grand Total</Label>
-                <Input id="grandTotal" type="number" className="border-primary font-bold" value={formData.duties.grandTotal || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, grandTotal: Number(e.target.value)}})} placeholder="0.00" />
+                <Input id="grandTotal" type="number" className="border-primary font-bold bg-background shadow-sm" value={formData.duties.grandTotal || ''} onChange={(e) => setFormData({...formData, duties: {...formData.duties, grandTotal: Number(e.target.value)}})} placeholder="0.00" />
               </div>
             </div>
           )}

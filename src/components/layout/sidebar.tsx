@@ -77,26 +77,37 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
 
   return (
     <div className={cn("flex h-full flex-col gap-y-5 bg-sidebar pb-4 transition-all duration-300", isCollapsed ? "px-1" : "px-6", className)} {...props}>
-      <div className={cn("flex h-16 shrink-0 items-center transition-all duration-300", isCollapsed ? "justify-center gap-1" : "justify-between")}>
-        <div className={cn("flex items-center font-bold text-primary tracking-tight transition-all duration-300", isCollapsed ? "gap-0" : "text-xl gap-2")}>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
+      <div className={cn("flex h-16 shrink-0 items-center transition-all duration-300", isCollapsed ? "justify-center" : "justify-between")}>
+        <div className={cn("flex items-center gap-3 transition-all duration-300 w-full rounded-md hover:bg-sidebar-accent p-2 cursor-pointer", isCollapsed ? "justify-center" : "")}>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm">
             <BarChart3 className="h-5 w-5 text-primary-foreground" />
           </div>
-          {!isCollapsed && <span className="truncate whitespace-nowrap">DN Smart Trade</span>}
+          {!isCollapsed && (
+            <div className="flex flex-col flex-1 overflow-hidden">
+              <span className="truncate whitespace-nowrap font-semibold text-sm leading-tight">DN Smart Trade</span>
+              <span className="truncate whitespace-nowrap text-xs text-muted-foreground">Enterprise Workspace</span>
+            </div>
+          )}
         </div>
 
-        {onToggleCollapse && (
+        {onToggleCollapse && !isCollapsed && (
           <button
             onClick={onToggleCollapse}
-            aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-transparent text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer"
+            aria-label="Collapse Sidebar"
+            title="Collapse Sidebar"
+            className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer absolute right-[-16px] top-4 border border-border bg-background shadow-sm z-50 hover:shadow-md"
           >
-            {isCollapsed ? (
-              <PanelLeftOpen className="h-5 w-5" aria-hidden="true" />
-            ) : (
-              <PanelLeftClose className="h-5 w-5" aria-hidden="true" />
-            )}
+            <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+          </button>
+        )}
+        {onToggleCollapse && isCollapsed && (
+          <button
+            onClick={onToggleCollapse}
+            aria-label="Expand Sidebar"
+            title="Expand Sidebar"
+            className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer absolute right-[-16px] top-4 border border-border bg-background shadow-sm z-50 hover:shadow-md"
+          >
+            <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
       </div>

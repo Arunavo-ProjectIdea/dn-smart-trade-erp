@@ -7,7 +7,7 @@ import { Building, Mail, Phone, Calendar, Clock, KeyRound, UserX, Pencil, Briefc
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -65,23 +65,23 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title={employee.fullName} 
         description={`Employee ID: ${employee.id}`}
         action={
           <div className="flex items-center gap-3">
-            <StatusBadge status={employee.status} />
-            <Link href={`/employees/${employee.id}/edit`} className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-              <Pencil className="mr-2 h-4 w-4" /> Edit
+            <StatusBadge status={employee.status} className="shadow-sm" />
+            <Link href={`/employees/${employee.id}/edit`} className={buttonVariants({ variant: "outline", className: "shadow-sm" })}>
+              <Pencil className="mr-2 size-4" /> Edit
             </Link>
           </div>
         }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2">
-          <CardHeader>
+        <Card className="md:col-span-2 shadow-sm">
+          <CardHeader className="pb-4 border-b border-border/50 mb-4">
             <CardTitle>Employee Information</CardTitle>
             <CardDescription>Personal and departmental details.</CardDescription>
           </CardHeader>
@@ -122,8 +122,8 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4 border-b border-border/50 mb-4">
             <CardTitle>Account Information</CardTitle>
             <CardDescription>System access and credentials.</CardDescription>
           </CardHeader>
@@ -158,8 +158,8 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
 
       <div className="grid gap-4 md:grid-cols-3">
         <Link href={`/clients?employee=${employee.id}`} className="block group">
-          <Card className="transition-all hover:border-primary/50 hover:shadow-md h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50 h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
                 Assigned Clients
               </CardTitle>
@@ -170,8 +170,8 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           </Card>
         </Link>
         <Link href={`/shipments?employee=${employee.id}`} className="block group">
-          <Card className="transition-all hover:border-primary/50 hover:shadow-md h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50 h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
                 Active Shipments
               </CardTitle>
@@ -182,8 +182,8 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           </Card>
         </Link>
         <Link href={`/documents?employee=${employee.id}`} className="block group">
-          <Card className="transition-all hover:border-primary/50 hover:shadow-md h-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50 h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
                 Documents Processed
               </CardTitle>
@@ -198,15 +198,16 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
       <div className="my-2 border-t border-border" />
 
       <div className="flex flex-wrap gap-4">
-        <Button variant="default" onClick={() => setResetOpen(true)}>
-          <KeyRound className="mr-2 h-4 w-4" /> Reset Password
+        <Button variant="default" onClick={() => setResetOpen(true)} className="shadow-sm">
+          <KeyRound className="mr-2 size-4" /> Reset Password
         </Button>
         <Button 
           variant="destructive" 
           onClick={() => setDeactivateOpen(true)}
           disabled={employee.status === "Inactive"}
+          className="shadow-sm"
         >
-          <UserX className="mr-2 h-4 w-4" /> Deactivate Account
+          <UserX className="mr-2 size-4" /> Deactivate Account
         </Button>
       </div>
 

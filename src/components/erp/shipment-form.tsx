@@ -111,8 +111,8 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
     <div className="flex flex-col lg:flex-row gap-8">
       {/* Sidebar Progress */}
       <div className="w-full lg:w-64 shrink-0">
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4">
             <CardTitle className="text-lg">Steps</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -128,17 +128,17 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                       type="button"
                       onClick={() => setCurrentStep(stepNum)}
                       disabled={!isEditing && stepNum > currentStep + 1}
-                      className={`w-full flex items-center justify-between p-3 rounded-md text-left transition-colors ${
+                      className={`w-full flex items-center justify-between p-3 rounded-[10px] text-left transition-all duration-200 ${
                         isActive 
-                          ? "bg-primary text-primary-foreground font-medium" 
+                          ? "bg-primary text-primary-foreground font-medium shadow-sm scale-[1.02]" 
                           : isCompleted 
-                            ? "hover:bg-muted text-foreground" 
-                            : "text-muted-foreground cursor-not-allowed opacity-60"
+                            ? "hover:bg-muted/60 text-foreground hover:scale-[1.01]" 
+                            : "text-muted-foreground cursor-not-allowed opacity-50"
                       }`}
                     >
                       <span className="flex items-center gap-3">
-                        <span className={`flex items-center justify-center h-6 w-6 rounded-full text-xs font-semibold ${
-                          isActive ? "bg-primary-foreground text-primary" : "bg-muted-foreground/20"
+                        <span className={`flex items-center justify-center h-6 w-6 rounded-full text-xs font-semibold transition-colors ${
+                          isActive ? "bg-primary-foreground text-primary" : isCompleted ? "bg-primary/20 text-primary" : "bg-muted-foreground/20"
                         }`}>
                           {isCompleted ? <Check className="h-3 w-3" /> : stepNum}
                         </span>
@@ -156,10 +156,10 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
 
       {/* Main Form Area */}
       <div className="flex-1">
-        <Card className="min-h-[500px] flex flex-col">
-          <CardHeader>
-            <CardTitle>{stepTitles[currentStep - 1]}</CardTitle>
-            <CardDescription>
+        <Card className="min-h-[500px] flex flex-col shadow-sm hover:shadow-md transition-shadow duration-300">
+          <CardHeader className="pb-4 border-b border-border/50 mb-6">
+            <CardTitle className="text-2xl">{stepTitles[currentStep - 1]}</CardTitle>
+            <CardDescription className="text-sm">
               Step {currentStep} of {totalSteps}
             </CardDescription>
           </CardHeader>
@@ -375,35 +375,38 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
 
             {/* STEP 6: Review */}
             {currentStep === 6 && (
-              <div className="space-y-6">
-                <div className="bg-muted p-4 rounded-md">
-                  <h4 className="font-semibold mb-2">Review Shipment Details</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div><span className="text-muted-foreground">Client:</span> {formData.clientName || "Not selected"}</div>
-                    <div><span className="text-muted-foreground">Shipment No:</span> {formData.shipmentNumber || "Not provided"}</div>
-                    <div><span className="text-muted-foreground">Route:</span> {formData.loadingPort || "?"} → {formData.dischargePort || "?"}</div>
-                    <div><span className="text-muted-foreground">ETA:</span> {formData.eta || "Not provided"}</div>
-                    <div><span className="text-muted-foreground">Carrier:</span> {formData.shippingLine || "Not provided"}</div>
-                    <div><span className="text-muted-foreground">Status:</span> {formData.status}</div>
+              <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                <div className="bg-muted/30 p-6 rounded-[14px] border border-border/50">
+                  <h4 className="font-semibold text-lg mb-4 text-foreground">Review Shipment Details</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Client</span> <span className="font-medium text-base">{formData.clientName || "Not selected"}</span></div>
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Shipment No</span> <span className="font-medium text-base">{formData.shipmentNumber || "Not provided"}</span></div>
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Route</span> <span className="font-medium text-base">{formData.loadingPort || "?"} → {formData.dischargePort || "?"}</span></div>
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">ETA</span> <span className="font-medium text-base">{formData.eta || "Not provided"}</span></div>
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Carrier</span> <span className="font-medium text-base">{formData.shippingLine || "Not provided"}</span></div>
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Status</span> <span className="font-medium text-base">{formData.status}</span></div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 border p-4 rounded-md bg-warning/10 text-warning border-warning/20">
-                  <p className="text-sm font-medium">Verify all information before final submission. Generating a shipment will update dashboard metrics and alert assigned personnel.</p>
+                <div className="flex items-start gap-3 border p-4 rounded-[14px] bg-warning/10 text-warning-foreground border-warning/20">
+                  <div className="rounded-full bg-warning/20 p-1 mt-0.5">
+                    <Check className="size-4 text-warning" />
+                  </div>
+                  <p className="text-sm font-medium leading-relaxed text-warning">Verify all information before final submission. Generating a shipment will update dashboard metrics and alert assigned personnel.</p>
                 </div>
               </div>
             )}
 
           </CardContent>
-          <CardFooter className="flex justify-between border-t p-6">
-            <Button variant="outline" onClick={handlePrev} disabled={currentStep === 1}>
+          <CardFooter className="flex justify-between border-t border-border/50 p-6 bg-muted/5 rounded-b-[14px]">
+            <Button variant="outline" onClick={handlePrev} disabled={currentStep === 1} className="shadow-sm">
               Previous
             </Button>
-            <div className="flex gap-2">
-              <Button variant="outline">Save Draft</Button>
+            <div className="flex gap-3">
+              <Button variant="outline" className="shadow-sm">Save Draft</Button>
               {currentStep < totalSteps ? (
-                <Button onClick={handleNext}>Next Step <ChevronRight className="ml-2 h-4 w-4" /></Button>
+                <Button onClick={handleNext} className="shadow-sm">Next Step <ChevronRight className="ml-2 h-4 w-4" /></Button>
               ) : (
-                <Button onClick={handleSubmit}><Save className="mr-2 h-4 w-4" /> {isEditing ? 'Save Changes' : 'Submit Shipment'}</Button>
+                <Button onClick={handleSubmit} className="shadow-sm"><Save className="mr-2 h-4 w-4" /> {isEditing ? 'Save Changes' : 'Submit Shipment'}</Button>
               )}
             </div>
           </CardFooter>

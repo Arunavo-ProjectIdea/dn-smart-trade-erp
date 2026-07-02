@@ -76,13 +76,13 @@ export default function ClientsPage() {
     {
       header: "Actions",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Link 
             href={`/clients/${item.id}`}
             className={buttonVariants({ variant: "ghost", size: "icon" })}
             title="View Details"
           >
-            <Eye className="h-4 w-4" />
+            <Eye className="size-4" />
             <span className="sr-only">View</span>
           </Link>
           <Link 
@@ -90,7 +90,7 @@ export default function ClientsPage() {
             className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
             title="Edit Client"
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="size-4" />
             <span className="sr-only">Edit</span>
           </Link>
           <Button 
@@ -100,7 +100,7 @@ export default function ClientsPage() {
             title="Delete Client"
             onClick={() => setDeleteDialogId(item.id)}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="size-4" />
             <span className="sr-only">Delete</span>
           </Button>
         </div>
@@ -109,13 +109,13 @@ export default function ClientsPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 animate-in fade-in duration-500">
       <PageHeader 
         title="Clients" 
         description="Manage your client accounts and their details."
         action={
-          <Link href="/clients/new" className={buttonVariants({ variant: "default" })}>
-            <Plus className="mr-2 h-4 w-4" /> Add Client
+          <Link href="/clients/new" className={buttonVariants({ variant: "default", className: "shadow-sm" })}>
+            <Plus className="mr-2 size-4" /> Add Client
           </Link>
         }
       />
@@ -124,7 +124,7 @@ export default function ClientsPage() {
         columns={columns} 
         data={data} 
         searchKey="companyName"
-        searchPlaceholder="Search by company name..."
+        searchPlaceholder="Search clients..."
         emptyStateTitle="No clients found"
         emptyStateDescription="Get started by adding a new client to the system."
       />

@@ -2,32 +2,18 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/erp/status-badge";
 import { useToast } from "@/components/ui/use-toast";
+import { PageHeader } from "@/components/erp/page-header";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Search, FileSpreadsheet, MoreHorizontal, Download, Printer, Archive, Trash2, Edit, ChevronDown, ChevronUp } from "lucide-react";
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BOEStatus } from "@/lib/types/boe";
-
-const getStatusColor = (status: BOEStatus) => {
-  switch (status) {
-    case 'Draft': return 'bg-gray-100 text-gray-800 hover:bg-gray-100/80';
-    case 'Submitted': return 'bg-blue-100 text-blue-800 hover:bg-blue-100/80';
-    case 'Under Review': return 'bg-amber-100 text-amber-800 hover:bg-amber-100/80';
-    case 'Approved': return 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80';
-    case 'Rejected': return 'bg-red-100 text-red-800 hover:bg-red-100/80';
-    case 'Completed': return 'bg-indigo-100 text-indigo-800 hover:bg-indigo-100/80';
-    default: return 'bg-gray-100 text-gray-800 hover:bg-gray-100/80';
-  }
-};
+import { StatusBadge } from "@/components/erp/status-badge";
 
 function BOEContent() {
   const { toast } = useToast();
@@ -118,18 +104,16 @@ function BOEContent() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bill of Entry</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage customs declarations and bill of entry records.
-          </p>
-        </div>
-        <Link href="/boe/create" className={buttonVariants()}>
-          <Plus className="mr-2 h-4 w-4" /> Create BOE
-        </Link>
-      </div>
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
+      <PageHeader 
+        title="Bill of Entry" 
+        description="Manage customs declarations and bill of entry records."
+        action={
+          <Link href="/boe/create" className={buttonVariants()}>
+            <Plus className="mr-2 h-4 w-4" /> Create BOE
+          </Link>
+        }
+      />
       
       <Card>
         <CardHeader>
@@ -143,20 +127,23 @@ function BOEContent() {
               <Input 
                 type="search" 
                 placeholder="Search BOE number or client..." 
-                className="pl-8" 
+                className="pl-9 bg-background shadow-sm" 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="flex items-center gap-2 border rounded-md px-3 py-1.5 bg-background">
-                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Status:</span>
+              <div className="flex items-center gap-2">
                 <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
-                  <SelectTrigger className="w-[140px] h-7 border-0 p-0 focus:ring-0">
-                    <SelectValue placeholder="All Statuses" />
+                  <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+                      <div className="h-4 w-px bg-border mx-1"></div>
+                      <SelectValue placeholder="All" />
+                    </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="Draft">Draft</SelectItem>
                     <SelectItem value="Submitted">Submitted</SelectItem>
                     <SelectItem value="Under Review">Under Review</SelectItem>
@@ -167,14 +154,17 @@ function BOEContent() {
                 </Select>
               </div>
               
-              <div className="flex items-center gap-2 border rounded-md px-3 py-1.5 bg-background hidden md:flex">
-                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Client:</span>
+              <div className="flex items-center gap-2 hidden md:flex">
                 <Select value={clientFilter} onValueChange={(val) => setClientFilter(val || "all")}>
-                  <SelectTrigger className="w-[140px] h-7 border-0 p-0 focus:ring-0">
-                    <SelectValue placeholder="All Clients" />
+                  <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</span>
+                      <div className="h-4 w-px bg-border mx-1"></div>
+                      <SelectValue placeholder="All" />
+                    </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Clients</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     {Array.from(new Set(mockBOEList.map(b => b.importer.clientName))).map(c => (
                       <SelectItem key={c} value={c}>{c}</SelectItem>
                     ))}
@@ -238,9 +228,7 @@ function BOEContent() {
                     <TableCell>{boe.shipment.port}</TableCell>
                     <TableCell>{boe.products[0]?.hsCode || 'N/A'}</TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(boe.status)} variant="outline">
-                        {boe.status}
-                      </Badge>
+                      <StatusBadge status={boe.status as any} />
                     </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal)}

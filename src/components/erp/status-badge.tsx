@@ -13,6 +13,9 @@ export type StatusType =
   | "Customs Clearance"
   | "Delivered"
   | "Delayed"
+  | "Draft"
+  | "Submitted"
+  | "Under Review"
   | "Pending Review"
   | "Approved"
   | "Archived"
@@ -33,6 +36,8 @@ export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
       case "In Clearance":
       case "Customs Clearance":
       case "In Transit":
+      case "Submitted":
+      case "Under Review":
       case "Pending Review":
         return "bg-warning/10 text-warning hover:bg-warning/20 border-warning/20"
       case "Inactive":
