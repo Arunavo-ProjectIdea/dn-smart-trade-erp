@@ -15,6 +15,19 @@ interface DashboardShellProps {
 export function DashboardShell({ children, role: propRole = "Admin" }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = React.useState(false)
   const [desktopSidebarOpen, setDesktopSidebarOpen] = React.useState(true)
+
+  React.useEffect(() => {
+    const savedState = localStorage.getItem("sidebarCollapsed")
+    if (savedState !== null) {
+      setDesktopSidebarOpen(savedState === "false")
+    }
+  }, [])
+
+  const toggleDesktopSidebar = () => {
+    const newState = !desktopSidebarOpen
+    setDesktopSidebarOpen(newState)
+    localStorage.setItem("sidebarCollapsed", String(!newState))
+  }
   
   const [role] = React.useState<Role>(() => {
     const user = AuthService.getCurrentUser();
@@ -32,20 +45,24 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
       {/* Static sidebar for desktop */}
       <div 
         className={`hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${
-          desktopSidebarOpen ? "lg:w-72" : "lg:w-20"
+          desktopSidebarOpen ? "lg:w-[280px]" : "lg:w-[80px]"
         }`}
       >
-        <Sidebar role={role} isCollapsed={!desktopSidebarOpen} className="border-r" />
+        <Sidebar 
+          role={role} 
+          isCollapsed={!desktopSidebarOpen} 
+          onToggleCollapse={toggleDesktopSidebar}
+          className="border-r" 
+        />
       </div>
 
       <div 
         className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
-          desktopSidebarOpen ? "lg:pl-72" : "lg:pl-20"
+          desktopSidebarOpen ? "lg:pl-[280px]" : "lg:pl-[80px]"
         }`}
       >
         <TopNav 
           onMenuClick={() => setSidebarOpen(true)} 
-          onDesktopMenuClick={() => setDesktopSidebarOpen(!desktopSidebarOpen)}
         />
 
         <main className="flex-1 py-10">
