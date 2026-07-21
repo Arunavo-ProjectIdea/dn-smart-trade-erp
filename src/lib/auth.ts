@@ -59,7 +59,9 @@ export const AuthService = {
       if (savedRole && mockUsers[savedRole]) {
         return mockUsers[savedRole]
       }
+      return null
     }
-    return mockUsers.Admin
+    // For SSR, assume null (logged out) to allow client to redirect
+    return null
   }
 }

@@ -1,6 +1,5 @@
 "use client"
 
-import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { PageHeader } from "@/components/erp/page-header"
 import { KPICards } from "@/components/reports/kpi-cards"
 import { ChartsSection } from "@/components/reports/charts-section"
@@ -8,21 +7,16 @@ import { FilterPanel, FilterState } from "@/components/reports/filter-panel"
 import { ReportTabs } from "@/components/reports/report-tabs"
 import { AnalyticsInsights } from "@/components/reports/analytics-insights"
 import { AuthService } from "@/lib/auth"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ShieldAlert } from "lucide-react"
 
 export default function ReportsPage() {
-  const [userRole, setUserRole] = useState<string | null>(null)
-  const [filters, setFilters] = useState<FilterState | null>(null)
-
-  useEffect(() => {
-    // In a real app, this would be an authenticated session check
-    const user = AuthService.getCurrentUser()
-    if (user) {
-      setUserRole(user.role)
-    }
-  }, [])
+  const [filters, setFilters] = useState<FilterState | null>(null);
+  const [userRole] = useState<string | null>(() => {
+    const user = AuthService.getCurrentUser();
+    return user ? user.role : null;
+  });
 
   // Show nothing while checking role (or loading state)
   if (!userRole) return null

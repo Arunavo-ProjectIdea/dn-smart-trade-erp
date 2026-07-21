@@ -16,22 +16,27 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { mockEmployees } from "@/lib/mock-data/employees"
+import { useToast } from "@/components/ui/use-toast"
+import Link from "next/link"
 import { AuthService } from "@/lib/auth"
+import { use } from "react"
 
 interface EmployeeDetailsPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps) {
+  const unwrappedParams = use(params)
+  const id = decodeURIComponent(unwrappedParams.id)
+  const { toast } = useToast()
   const router = useRouter()
-  const employee = mockEmployees.find((e) => e.id === params.id)
+  const employee = mockEmployees.find((e) => e.id === id)
   
-  // Dialog States
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
-  const [isDeactivating, setIsDeactivating] = useState(false)
+
 
   // Client-side role protection
   useEffect(() => {
@@ -46,39 +51,37 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   }
 
   const handleDeactivate = () => {
-    setIsDeactivating(true)
     setTimeout(() => {
-      setIsDeactivating(false)
       setDeactivateOpen(false)
-      alert("Employee deactivated successfully.")
+      toast({ title: "Employee deactivated", description: "Employee deactivated successfully." })
       // In a real app we'd redirect or mutate the data
       router.push("/employees")
     }, 800)
   }
 
   const handleResetPassword = () => {
-    alert(`Password reset link sent to ${employee.email}`)
+    toast({ title: "Password Reset", description: `Password reset link sent to ${employee.email}` })
     setResetOpen(false)
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title={employee.fullName} 
         description={`Employee ID: ${employee.id}`}
         action={
           <div className="flex items-center gap-3">
-            <StatusBadge status={employee.status} />
-            <Button variant="outline" onClick={() => alert("Edit mode mock")}>
-              <Pencil className="mr-2 h-4 w-4" /> Edit
-            </Button>
+            <StatusBadge status={employee.status} className="shadow-sm" />
+            <Link href={`/employees/${employee.id}/edit`} className={buttonVariants({ variant: "outline", className: "shadow-sm" })}>
+              <Pencil className="mr-2 size-4" /> Edit
+            </Link>
           </div>
         }
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2">
-          <CardHeader>
+        <Card className="md:col-span-2 shadow-sm">
+          <CardHeader className="pb-4 border-b border-border/50 mb-4">
             <CardTitle>Employee Information</CardTitle>
             <CardDescription>Personal and departmental details.</CardDescription>
           </CardHeader>
@@ -119,8 +122,8 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-4 border-b border-border/50 mb-4">
             <CardTitle>Account Information</CardTitle>
             <CardDescription>System access and credentials.</CardDescription>
           </CardHeader>
@@ -154,50 +157,57 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Assigned Clients
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{employee.assignedClients}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Shipments
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{employee.activeShipments}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Documents Processed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{employee.documentsProcessed}</div>
-          </CardContent>
-        </Card>
+        <Link href={`/clients?employee=${employee.id}`} className="block group">
+          <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50 h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
+                Assigned Clients
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{employee.assignedClients}</div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href={`/shipments?employee=${employee.id}`} className="block group">
+          <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50 h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
+                Active Shipments
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{employee.activeShipments}</div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href={`/documents?employee=${employee.id}`} className="block group">
+          <Card className="transition-all duration-300 shadow-sm hover:shadow-md hover:border-primary/50 h-full">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">
+                Documents Processed
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{employee.documentsProcessed}</div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="my-2 border-t border-border" />
 
       <div className="flex flex-wrap gap-4">
-        <Button variant="default" onClick={() => setResetOpen(true)}>
-          <KeyRound className="mr-2 h-4 w-4" /> Reset Password
+        <Button variant="default" onClick={() => setResetOpen(true)} className="shadow-sm">
+          <KeyRound className="mr-2 size-4" /> Reset Password
         </Button>
         <Button 
           variant="destructive" 
           onClick={() => setDeactivateOpen(true)}
           disabled={employee.status === "Inactive"}
+          className="shadow-sm"
         >
-          <UserX className="mr-2 h-4 w-4" /> Deactivate Account
+          <UserX className="mr-2 size-4" /> Deactivate Account
         </Button>
       </div>
 

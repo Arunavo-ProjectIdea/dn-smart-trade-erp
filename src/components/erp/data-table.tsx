@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { Search, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useToast } from "@/components/ui/use-toast"
 
 import {
   Table,
@@ -47,6 +48,7 @@ export function DataTable<T>({
   emptyStateTitle = "No data found",
   emptyStateDescription = "There are no records to display matching your criteria.",
 }: DataTableProps<T>) {
+  const { toast } = useToast()
   const [searchQuery, setSearchQuery] = React.useState("")
   const [sortConfig, setSortConfig] = React.useState<{ key: keyof T; direction: "asc" | "desc" } | null>(null)
   const [currentPage, setCurrentPage] = React.useState(1)
@@ -56,12 +58,15 @@ export function DataTable<T>({
   const filteredData = React.useMemo(() => {
     if (!searchKey || !searchQuery) return data
 
+    const lowerQuery = searchQuery.toLowerCase()
+
     return data.filter((item) => {
-      const value = item[searchKey]
-      if (typeof value === "string") {
-        return value.toLowerCase().includes(searchQuery.toLowerCase())
-      }
-      return false
+      return Object.values(item as object).some((value) => {
+        if (typeof value === "string" || typeof value === "number") {
+          return String(value).toLowerCase().includes(lowerQuery)
+        }
+        return false
+      })
     })
   }, [data, searchKey, searchQuery])
 
@@ -101,8 +106,8 @@ export function DataTable<T>({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex flex-1 items-center space-x-2 w-full sm:w-auto">
           {searchKey && (
-            <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <div className="relative w-full sm:max-w-sm group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 placeholder={searchPlaceholder}
                 value={searchQuery}
@@ -110,17 +115,17 @@ export function DataTable<T>({
                   setSearchQuery(e.target.value)
                   setCurrentPage(1)
                 }}
-                className="pl-8 bg-card"
+                className="pl-9 bg-muted/30 border-muted/50 focus-visible:bg-background rounded-full transition-all duration-300 focus-visible:ring-2 shadow-sm"
               />
             </div>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="bg-card">
+          <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
             <Download className="mr-2 h-4 w-4" />
             CSV
           </Button>
-          <Button variant="outline" size="sm" className="bg-card">
+          <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export Excel", description: "Exporting data..." })}>
             <Download className="mr-2 h-4 w-4" />
             Excel
           </Button>
@@ -160,7 +165,7 @@ export function DataTable<T>({
           <TableBody>
             {paginatedData.length > 0 ? (
               paginatedData.map((item, rowIndex) => (
-                <TableRow key={rowIndex}>
+                <TableRow key={rowIndex} className="group">
                   {columns.map((col, colIndex) => (
                     <TableCell key={colIndex}>
                       {col.cell

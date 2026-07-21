@@ -138,7 +138,8 @@ export function ChartsSection() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
                 <YAxis tickFormatter={(value) => `$${value/1000}k`} />
-                <Tooltip formatter={(value: any) => [`$${Number(value || 0).toLocaleString()}`, "Revenue"]} />
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+                <Tooltip formatter={(value: any) => [`$${Number(value)?.toLocaleString() || '0'}`, "Revenue"]} />
                 <Area type="monotone" dataKey="revenue" stroke="#10b981" fillOpacity={1} fill="url(#colorRevenue)" />
               </AreaChart>
             </ResponsiveContainer>

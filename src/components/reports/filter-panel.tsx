@@ -13,6 +13,7 @@ import {
 import { Download, FileText, Filter, RotateCcw } from "lucide-react"
 
 import { useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
 export interface FilterState {
   dateRange: string
@@ -28,7 +29,7 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({ onApply }: FilterPanelProps) {
-  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { toast } = useToast()
   
   // Filter states
   const [dateRange, setDateRange] = useState("this-month")
@@ -39,10 +40,7 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
   const [country, setCountry] = useState("all")
 
   const handleExport = (type: string) => {
-    setToastMessage(`Successfully generated ${type} report! Download starting...`)
-    setTimeout(() => {
-      setToastMessage(null)
-    }, 3000)
+    toast({ title: "Export Started", description: `Successfully generated ${type} report! Download starting...` })
   }
 
   const handleApply = () => {
@@ -191,20 +189,6 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
           </div>
         </div>
       </CardContent>
-
-      {/* Mock Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-4 right-4 z-50 animate-in slide-in-from-bottom-5 fade-in duration-300">
-          <div className="bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3">
-            <div className="bg-green-500/50 rounded-full p-1">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <p className="font-medium text-sm">{toastMessage}</p>
-          </div>
-        </div>
-      )}
     </Card>
   )
 }

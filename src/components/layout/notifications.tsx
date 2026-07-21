@@ -1,5 +1,6 @@
 import { Bell } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
+import Link from "next/link"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,13 +14,11 @@ import {
 export function Notifications() {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger render={
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
-          <span className="sr-only">Toggle notifications</span>
-        </Button>
-      } />
+      <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "relative cursor-pointer" })}>
+        <Bell className="h-5 w-5 text-muted-foreground" />
+        <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
+        <span className="sr-only">Toggle notifications</span>
+      </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80" align="end">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
@@ -43,7 +42,7 @@ export function Notifications() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-center justify-center text-primary cursor-pointer">
+        <DropdownMenuItem render={<Link href="/notifications" />} className="text-center justify-center text-primary cursor-pointer">
           View all notifications
         </DropdownMenuItem>
       </DropdownMenuContent>

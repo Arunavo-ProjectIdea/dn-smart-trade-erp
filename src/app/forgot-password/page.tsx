@@ -1,8 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { BarChart3, ArrowLeft } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -18,12 +20,23 @@ import { Label } from "@/components/ui/label"
 
 export default function ForgotPasswordPage() {
   const router = useRouter()
+  const { toast } = useToast()
+  const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleResetPassword = (e: React.FormEvent) => {
     e.preventDefault()
-    // Mock logic: Show a success message or redirect back to login
-    alert("If this email exists in our system, you will receive a password reset link shortly.")
-    router.push("/login")
+    setIsSubmitting(true)
+    
+    // Mock logic
+    setTimeout(() => {
+      setIsSubmitting(false)
+      toast({ 
+        title: "Reset Link Sent", 
+        description: "If this email exists in our system, you will receive a password reset link shortly." 
+      })
+      router.push("/login")
+    }, 1500)
   }
 
   return (
