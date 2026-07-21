@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle, faSearch, faPlus, faUsers, faBriefcase, faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faSearch, faPlus, faUsers, faBriefcase, faFileExcel, faTruck } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -30,7 +30,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
         onClick={onMenuClick}
       >
         <span className="sr-only">Open sidebar</span>
-        <FontAwesomeIcon icon={faCircle} className="h-6 w-6" aria-hidden="true" />
+        <FontAwesomeIcon icon={faBars} className="h-5 w-5" aria-hidden="true" />
       </Button>
 
       {/* Separator */}
@@ -68,7 +68,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
               <DropdownMenuGroup>
                 <Link href="/shipments/create" className="w-full">
                   <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faTruck} className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>New Shipment</span>
                   </DropdownMenuItem>
                 </Link>
