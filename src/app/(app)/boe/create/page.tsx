@@ -2,7 +2,8 @@ import Link from "next/link";
 import { BOEForm } from "@/components/erp/boe-form";
 import { PageHeader } from "@/components/erp/page-header";
 import { buttonVariants } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 export default function CreateBOEPage() {
   return (
@@ -10,7 +11,7 @@ export default function CreateBOEPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/boe" className={buttonVariants({ variant: "outline", size: "icon" })}>
-            <ArrowLeft className="h-4 w-4" />
+            <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
           </Link>
           <PageHeader 
             title="Create Bill of Entry" 

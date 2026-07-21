@@ -1,4 +1,5 @@
-import { Bell } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { buttonVariants } from "@/components/ui/button"
 import Link from "next/link"
 import {
@@ -15,7 +16,7 @@ export function Notifications() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon", className: "relative cursor-pointer" })}>
-        <Bell className="h-5 w-5 text-muted-foreground" />
+        <FontAwesomeIcon icon={faBell} className="h-5 w-5 text-muted-foreground" />
         <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
         <span className="sr-only">Toggle notifications</span>
       </DropdownMenuTrigger>

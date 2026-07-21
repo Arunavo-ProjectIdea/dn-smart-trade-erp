@@ -1,4 +1,5 @@
-import { PanelLeft, Search, Plus, Truck, Users, Briefcase, FileSpreadsheet } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle, faSearch, faPlus, faUsers, faBriefcase, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -29,7 +30,7 @@ export function TopNav({ onMenuClick }: TopNavProps) {
         onClick={onMenuClick}
       >
         <span className="sr-only">Open sidebar</span>
-        <PanelLeft className="h-6 w-6" aria-hidden="true" />
+        <FontAwesomeIcon icon={faCircle} className="h-6 w-6" aria-hidden="true" />
       </Button>
 
       {/* Separator */}
@@ -40,11 +41,11 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           <DynamicBreadcrumbs />
           
           <div className="hidden md:flex relative w-full max-w-md items-center">
-            <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+            <FontAwesomeIcon icon={faSearch} className="absolute left-3 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search or type a command..."
-              className="h-9 w-full rounded-md border border-border bg-muted/50 pl-10 pr-12 text-sm outline-none transition-colors focus:bg-background focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
+              className="h-9 w-full rounded-md border border-input bg-background/50 pl-10 pr-12 text-sm shadow-sm outline-none transition-all focus:border-ring focus:ring-3 focus:ring-ring/50 focus:shadow-md placeholder:text-muted-foreground"
               readOnly
             />
             <div className="absolute right-2 flex items-center gap-1">
@@ -57,8 +58,8 @@ export function TopNav({ onMenuClick }: TopNavProps) {
 
         <div className="flex items-center gap-x-4 lg:gap-x-6">
           <DropdownMenu>
-            <DropdownMenuTrigger className="hidden lg:flex h-9 border border-border bg-background shadow-sm hover:bg-accent/50 gap-2 items-center px-3 rounded-md text-sm font-medium">
-              <Plus className="h-4 w-4" />
+            <DropdownMenuTrigger className="hidden lg:flex h-9 border border-input bg-background/50 shadow-sm transition-all hover:border-border/80 hover:bg-accent/50 focus-visible:ring-3 focus-visible:ring-ring/50 gap-2 items-center px-3 rounded-md text-sm font-medium outline-none">
+              <FontAwesomeIcon icon={faPlus} className="h-4 w-4" />
               <span>Create</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
@@ -67,25 +68,25 @@ export function TopNav({ onMenuClick }: TopNavProps) {
               <DropdownMenuGroup>
                 <Link href="/shipments/create" className="w-full">
                   <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <Truck className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>New Shipment</span>
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/clients/new" className="w-full">
                   <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faUsers} className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>New Client</span>
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/employees/new" className="w-full">
                   <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faBriefcase} className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>New Employee</span>
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/boe/create" className="w-full">
                   <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faFileExcel} className="mr-2 h-4 w-4 text-muted-foreground" />
                     <span>New Bill of Entry</span>
                   </DropdownMenuItem>
                 </Link>

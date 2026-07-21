@@ -8,22 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  UploadCloud, 
-  File, 
-  X, 
-  CheckCircle2, 
-  Loader2, 
-  FileText, 
-  FileSpreadsheet, 
-  FileCheck, 
-  Image as ImageIcon,
-  Building2,
-  Package,
-  FileCode,
-  Tag,
-  Info
-} from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle, faFile, faXmark, faCircleCheck, faSpinner, faFileLines, faFileExcel, faBuilding, faBox, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { DocumentType } from "@/lib/types/document";
 
 interface FileWithProgress extends File {
@@ -160,11 +146,11 @@ export function DocumentUploadForm() {
 
   const getFileIcon = (fileName: string) => {
     const ext = fileName.split('.').pop()?.toLowerCase() || '';
-    if (ext === 'pdf') return <FileText className="h-5 w-5 text-red-500" />;
-    if (['xlsx', 'xls', 'csv'].includes(ext)) return <FileSpreadsheet className="h-5 w-5 text-emerald-500" />;
-    if (['docx', 'doc'].includes(ext)) return <FileCheck className="h-5 w-5 text-blue-500" />;
-    if (['jpg', 'jpeg', 'png'].includes(ext)) return <ImageIcon className="h-5 w-5 text-purple-500" />;
-    return <File className="h-5 w-5 text-muted-foreground" />;
+    if (ext === 'pdf') return <FontAwesomeIcon icon={faFileLines} className="h-5 w-5 text-red-500" />;
+    if (['xlsx', 'xls', 'csv'].includes(ext)) return <FontAwesomeIcon icon={faFileExcel} className="h-5 w-5 text-emerald-500" />;
+    if (['docx', 'doc'].includes(ext)) return <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-blue-500" />;
+    if (['jpg', 'jpeg', 'png'].includes(ext)) return <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-purple-500" />;
+    return <FontAwesomeIcon icon={faFile} className="h-5 w-5 text-muted-foreground" />;
   };
 
   return (
@@ -210,7 +196,7 @@ export function DocumentUploadForm() {
             <div className={`h-16 w-16 rounded-2xl flex items-center justify-center mb-4 transition-transform duration-300 ${
               isDragging ? "bg-primary text-primary-foreground scale-110" : "bg-primary/10 text-primary"
             }`}>
-              <UploadCloud className="h-8 w-8" />
+              <FontAwesomeIcon icon={faCircle} className="h-8 w-8" />
             </div>
 
             <h3 className="text-lg font-semibold mb-1">
@@ -235,16 +221,16 @@ export function DocumentUploadForm() {
             {/* Type badge indicators */}
             <div className="flex items-center gap-2 mt-6">
               <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-red-500/10 text-red-600 font-medium">
-                <FileText className="h-3 w-3" /> PDF
+                <FontAwesomeIcon icon={faFileLines} className="h-3 w-3" /> PDF
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 font-medium">
-                <FileSpreadsheet className="h-3 w-3" /> Excel
+                <FontAwesomeIcon icon={faFileExcel} className="h-3 w-3" /> Excel
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 font-medium">
-                <FileCheck className="h-3 w-3" /> Word
+                <FontAwesomeIcon icon={faCircle} className="h-3 w-3" /> Word
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 font-medium">
-                <ImageIcon className="h-3 w-3" /> Images
+                <FontAwesomeIcon icon={faCircle} className="h-3 w-3" /> Images
               </span>
             </div>
           </div>
@@ -283,7 +269,7 @@ export function DocumentUploadForm() {
                       
                       {file.status === 'completed' ? (
                         <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-500/10 px-2.5 py-1 rounded-full">
-                          <CheckCircle2 className="h-4 w-4" /> Ready
+                          <FontAwesomeIcon icon={faCircleCheck} className="h-4 w-4" /> Ready
                         </div>
                       ) : file.status === 'uploading' ? (
                         <span className="text-xs font-mono font-semibold text-primary">{Math.round(file.progress || 0)}%</span>
@@ -295,7 +281,7 @@ export function DocumentUploadForm() {
                           onClick={() => removeFile(idx)} 
                           disabled={isUploading}
                         >
-                          <X className="h-4 w-4" />
+                          <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
                         </Button>
                       )}
                     </div>
@@ -330,9 +316,9 @@ export function DocumentUploadForm() {
             className="rounded-xl px-6 min-w-[160px] shadow-sm"
           >
             {isUploading ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Uploading...</>
+              <><FontAwesomeIcon icon={faSpinner} className="mr-2 h-4 w-4 animate-spin fa-spin" /> Uploading...</>
             ) : (
-              <><UploadCloud className="mr-2 h-4 w-4" /> Upload {files.length > 0 ? `(${files.length})` : ''}</>
+              <><FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Upload {files.length > 0 ? `(${files.length})` : ''}</>
             )}
           </Button>
         </CardFooter>
@@ -348,7 +334,7 @@ export function DocumentUploadForm() {
         <CardContent className="p-6 flex-1 space-y-5">
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 font-medium">
-              <FileText className="h-3.5 w-3.5 text-primary" /> Document Type
+              <FontAwesomeIcon icon={faFileLines} className="h-3.5 w-3.5 text-primary" /> Document Type
             </Label>
             <Select 
               value={metadata.type} 
@@ -368,7 +354,7 @@ export function DocumentUploadForm() {
 
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 font-medium">
-              <Building2 className="h-3.5 w-3.5 text-primary" /> Associated Client (Optional)
+              <FontAwesomeIcon icon={faBuilding} className="h-3.5 w-3.5 text-primary" /> Associated Client (Optional)
             </Label>
             <Select 
               value={metadata.clientId} 
@@ -389,7 +375,7 @@ export function DocumentUploadForm() {
 
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 font-medium">
-              <Package className="h-3.5 w-3.5 text-primary" /> Associated Shipment (Optional)
+              <FontAwesomeIcon icon={faBox} className="h-3.5 w-3.5 text-primary" /> Associated Shipment (Optional)
             </Label>
             <Select 
               value={metadata.shipmentId} 
@@ -409,7 +395,7 @@ export function DocumentUploadForm() {
 
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 font-medium">
-              <FileCode className="h-3.5 w-3.5 text-primary" /> Bill of Entry ID (Optional)
+              <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 text-primary" /> Bill of Entry ID (Optional)
             </Label>
             <Select 
               value={metadata.boeId} 
@@ -429,7 +415,7 @@ export function DocumentUploadForm() {
 
           <div className="space-y-2">
             <Label className="flex items-center gap-1.5 font-medium">
-              <Tag className="h-3.5 w-3.5 text-primary" /> Tags
+              <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 text-primary" /> Tags
             </Label>
             <Input 
               placeholder="e.g. Invoice, Urgent, Machinery" 
@@ -453,7 +439,7 @@ export function DocumentUploadForm() {
           </div>
           
           <div className="bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-300 p-3.5 rounded-xl flex gap-2.5 items-start mt-4 text-xs">
-            <Info className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
+            <FontAwesomeIcon icon={faInfoCircle} className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
             <p>Metadata entered here will be linked to all files uploaded in this batch.</p>
           </div>
         </CardContent>

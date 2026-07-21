@@ -3,7 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ChevronRight, Home } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronRight, faCircle } from "@fortawesome/free-solid-svg-icons";
 
 import {
   Breadcrumb,
@@ -30,12 +31,12 @@ export function DynamicBreadcrumbs() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink render={<Link href="/" />}>
-            <Home className="h-4 w-4" />
+            <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
             <span className="sr-only">Home</span>
           </BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator>
-          <ChevronRight className="h-4 w-4" />
+          <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
         </BreadcrumbSeparator>
         {pathSegments.map((segment, index) => {
           const href = `/${pathSegments.slice(0, index + 1).join('/')}`
@@ -55,7 +56,7 @@ export function DynamicBreadcrumbs() {
               </BreadcrumbItem>
               {!isLast && (
                 <BreadcrumbSeparator>
-                  <ChevronRight className="h-4 w-4" />
+                  <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
                 </BreadcrumbSeparator>
               )}
             </React.Fragment>

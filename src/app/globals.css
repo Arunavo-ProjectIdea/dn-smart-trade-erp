@@ -46,18 +46,27 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+  --shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.04), 0px 4px 12px rgba(0, 0, 0, 0.02);
+  --shadow-float: 0px 8px 24px rgba(0, 0, 0, 0.08);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @layer base {
-  :root, .dark {
-    --background: #FAFAFA;
+  :root {
+    --background: #FCFCFD;
     --foreground: #09090B;
     --card: #FFFFFF;
     --card-foreground: #09090B;
@@ -81,13 +90,13 @@
     --error-foreground: #FFFFFF;
     --border: #E4E4E7;
     --input: #E4E4E7;
-    --ring: #FE7F2D;
+    --ring: rgba(254, 127, 45, 0.5);
     --chart-1: #FE7F2D;
     --chart-2: #10B981;
     --chart-3: #F59E0B;
     --chart-4: #E4E4E7;
     --chart-5: #EF4444;
-    --radius: 14px;
+    --radius: 0.75rem;
     --sidebar: #FFFFFF;
     --sidebar-foreground: #09090B;
     --sidebar-primary: #FE7F2D;
@@ -95,16 +104,98 @@
     --sidebar-accent: #F4F4F5;
     --sidebar-accent-foreground: #18181B;
     --sidebar-border: #E4E4E7;
-    --sidebar-ring: #FE7F2D;
+    --sidebar-ring: rgba(254, 127, 45, 0.5);
+  }
+
+  .dark {
+    --background: #09090B;
+    --foreground: #FAFAFA;
+    --card: #121214;
+    --card-foreground: #FAFAFA;
+    --popover: #121214;
+    --popover-foreground: #FAFAFA;
+    --primary: #FE7F2D;
+    --primary-foreground: #FFFFFF;
+    --secondary: #27272A;
+    --secondary-foreground: #FAFAFA;
+    --muted: #27272A;
+    --muted-foreground: #A1A1AA;
+    --accent: #27272A;
+    --accent-foreground: #FAFAFA;
+    --destructive: #7F1D1D;
+    --destructive-foreground: #FECACA;
+    --success: #064E3B;
+    --success-foreground: #A7F3D0;
+    --warning: #78350F;
+    --warning-foreground: #FDE68A;
+    --error: #7F1D1D;
+    --error-foreground: #FECACA;
+    --border: #27272A;
+    --input: #27272A;
+    --ring: rgba(254, 127, 45, 0.3);
+    --chart-1: #FE7F2D;
+    --chart-2: #10B981;
+    --chart-3: #F59E0B;
+    --chart-4: #E4E4E7;
+    --chart-5: #EF4444;
+    --sidebar: #121214;
+    --sidebar-foreground: #FAFAFA;
+    --sidebar-primary: #FE7F2D;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #27272A;
+    --sidebar-accent-foreground: #FAFAFA;
+    --sidebar-border: #27272A;
+    --sidebar-ring: rgba(254, 127, 45, 0.3);
   }
 
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
   html {
     @apply font-sans;
+  }
+  
+  /* Scrollbar Polish */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
+}
+
+/* Base Headings Typography */
+@layer utilities {
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-semibold text-foreground;
+  }
+  p {
+    @apply leading-relaxed;
+  }
+
+  button, [role="button"], a {
+    transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  }
+  
+  @media (hover: hover) and (pointer: fine) {
+    button:active, [role="button"]:active {
+      transform: scale(0.97);
+    }
+  }
+
+  .theme-transition * {
+    transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease;
   }
 }

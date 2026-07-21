@@ -1,7 +1,8 @@
 "use client"
 
 import { use } from "react"
-import { MapPin, Truck, Calendar, Package, FileText, ChevronRight } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationDot, faCircle, faCalendar, faBox, faFileLines, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge, StatusType } from "@/components/erp/status-badge"
@@ -91,7 +92,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
     <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground mb-[-1rem]">
         <Link href="/shipments" className="hover:underline">Shipments</Link>
-        <ChevronRight className="h-4 w-4" />
+        <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
         <span className="text-foreground font-medium">{shipment.shipmentNumber}</span>
       </div>
 
@@ -129,7 +130,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
-              <Truck className="size-6" />
+              <FontAwesomeIcon icon={faCircle} className="size-6" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground font-medium">Carrier</p>
@@ -141,7 +142,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
-              <MapPin className="size-6" />
+              <FontAwesomeIcon icon={faLocationDot} className="size-6" />
             </div>
             <div className="overflow-hidden">
               <p className="text-sm text-muted-foreground font-medium">Route</p>
@@ -155,7 +156,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
-              <Calendar className="size-6" />
+              <FontAwesomeIcon icon={faCalendar} className="size-6" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground font-medium">ETA</p>
@@ -167,7 +168,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
           <CardContent className="p-4 flex items-center gap-4">
             <div className="size-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
-              <Package className="size-6" />
+              <FontAwesomeIcon icon={faBox} className="size-6" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground font-medium">Container</p>
@@ -240,7 +241,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
                   <div className="md:col-span-2 flex flex-col gap-1">
                     <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Client Entity</p>
                     <Link href={`/clients/${shipment.clientId}`} className="font-medium text-primary hover:underline flex items-center w-fit">
-                      {shipment.clientName} <ChevronRight className="size-4 ml-1" />
+                      {shipment.clientName} <FontAwesomeIcon icon={faChevronRight} className="size-4 ml-1" />
                     </Link>
                   </div>
                   <div className="flex flex-col gap-1">
@@ -341,7 +342,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
                     <p className="text-sm text-muted-foreground">Linked BOE</p>
                     {shipment.boeId ? (
                       <Link href={`/boe/${shipment.boeId}`} className="font-medium text-primary hover:underline text-lg flex items-center mt-1">
-                        <FileText className="h-5 w-5 mr-2" /> {shipment.boeNumber}
+                        <FontAwesomeIcon icon={faFileLines} className="h-5 w-5 mr-2" /> {shipment.boeNumber}
                       </Link>
                     ) : (
                       <p className="font-medium text-muted-foreground italic">No BOE linked yet.</p>

@@ -10,7 +10,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
-import { Download, FileText, Filter, RotateCcw } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload, faFileLines, faFilter, faCircle } from "@fortawesome/free-solid-svg-icons";
 
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
@@ -169,21 +170,21 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
           <div className="flex gap-2 w-full sm:w-auto">
             <Button variant="default" className="w-full sm:w-auto" onClick={handleApply}>
-              <Filter className="mr-2 h-4 w-4" />
+              <FontAwesomeIcon icon={faFilter} className="mr-2 h-4 w-4" />
               Apply Filters
             </Button>
             <Button variant="outline" className="w-full sm:w-auto" onClick={handleReset}>
-              <RotateCcw className="mr-2 h-4 w-4" />
+              <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" />
               Reset
             </Button>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button variant="outline" onClick={() => handleExport("PDF")} className="w-full sm:w-auto">
-              <FileText className="mr-2 h-4 w-4" />
+              <FontAwesomeIcon icon={faFileLines} className="mr-2 h-4 w-4" />
               Export PDF
             </Button>
             <Button variant="outline" onClick={() => handleExport("Excel")} className="w-full sm:w-auto">
-              <Download className="mr-2 h-4 w-4" />
+              <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" />
               Export Excel
             </Button>
           </div>

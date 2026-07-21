@@ -6,7 +6,8 @@ import { buttonVariants } from "@/components/ui/button"
 import { AuthService } from "@/lib/auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { LogOut, Settings, User } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,11 +60,11 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => router.push("/profile")}>
-            <User className="mr-2 h-4 w-4" />
+            <FontAwesomeIcon icon={faUser} className="mr-2 h-4 w-4" />
             Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/settings")}>
-            <Settings className="mr-2 h-4 w-4" />
+            <FontAwesomeIcon icon={faGear} className="mr-2 h-4 w-4" />
             Settings
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -72,7 +73,7 @@ export function UserNav() {
           variant="destructive"
           render={<button type="button" onClick={handleLogout} />}
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <FontAwesomeIcon icon={faArrowRightFromBracket} className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

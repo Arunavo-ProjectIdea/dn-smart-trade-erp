@@ -2,11 +2,12 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Search, MapPin, Download, FileText, ChevronDown, ChevronUp, Package } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faSearch, faLocationDot, faDownload, faFileLines, faChevronDown, faChevronUp, faBox, faCircle, faCalendar } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { mockShipmentsList } from "@/lib/mock-data/shipment";
@@ -18,6 +19,7 @@ function ShipmentsContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [statusFilter, setStatusFilter] = useState<string>(searchParams.get("status") || "all");
   const [portFilter, setPortFilter] = useState<string>("all");
   const [clientFilter, setClientFilter] = useState<string>(searchParams.get("client") || "all");
@@ -49,8 +51,8 @@ function ShipmentsContent() {
   };
 
   const getSortIcon = (key: string) => {
-    if (sortConfig?.key !== key) return <ChevronDown className="h-4 w-4 opacity-20" />;
-    return sortConfig.direction === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
+    if (sortConfig?.key !== key) return <FontAwesomeIcon icon={faChevronDown} className="h-4 w-4 opacity-20" />;
+    return sortConfig.direction === "asc" ? <FontAwesomeIcon icon={faChevronUp} className="h-4 w-4" /> : <FontAwesomeIcon icon={faChevronDown} className="h-4 w-4" />;
   };
 
   const uniquePorts = Array.from(new Set(mockShipmentsList.flatMap(s => [s.loadingPort, s.dischargePort]))).filter(Boolean);
@@ -117,28 +119,31 @@ function ShipmentsContent() {
             Track and manage active shipments globally.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          <div className="hidden sm:flex items-center rounded-lg border border-border p-1 bg-muted/30 mr-2">
+            <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
+              <FontAwesomeIcon icon={faCircle} className="size-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
+              <FontAwesomeIcon icon={faCircle} className="size-4" />
+            </Button>
+          </div>
           <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
-            <Download className="mr-2 size-4" /> Export CSV
+            <FontAwesomeIcon icon={faDownload} className="mr-2 size-4" /> Export CSV
           </Button>
           <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export PDF", description: "Exporting data..." })}>
-            <FileText className="mr-2 size-4" /> Export PDF
+            <FontAwesomeIcon icon={faFileLines} className="mr-2 size-4" /> Export PDF
           </Button>
           <Link href="/shipments/create" className={buttonVariants({ variant: "default", className: "w-full sm:w-auto shadow-sm" })}>
-            <Plus className="mr-2 size-4" /> New Shipment
+            <FontAwesomeIcon icon={faPlus} className="mr-2 size-4" /> New Shipment
           </Link>
         </div>
       </div>
       
-      <Card className="shadow-sm hover:shadow-md transition-shadow duration-300">
-        <CardHeader className="pb-4">
-          <CardTitle>Active Shipments</CardTitle>
-          <CardDescription>Overview of all shipments and their current statuses.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6 bg-muted/20 p-4 rounded-[14px] border border-border/50">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-muted/20 p-4 rounded-xl border border-border/50">
             <div className="relative w-full md:max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input 
                 type="search" 
                 placeholder="Search by ID, Client, Container..." 
@@ -196,9 +201,12 @@ function ShipmentsContent() {
             </div>
           </div>
           
-          <Table className="min-w-[1000px]">
-            <TableHeader>
-              <TableRow>
+          {viewMode === "table" ? (
+            <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
+              <div className="relative w-full overflow-auto">
+                <Table className="min-w-[1000px]">
+                  <TableHeader className="bg-muted/50">
+                    <TableRow className="hover:bg-transparent">
                 <TableHead className="w-[160px] cursor-pointer hover:bg-muted/60 transition-colors" onClick={() => handleSort('shipment')}>
                   <div className="flex items-center gap-1.5">Shipment {getSortIcon('shipment')}</div>
                 </TableHead>
@@ -225,7 +233,7 @@ function ShipmentsContent() {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center h-48">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <Package className="size-10 mb-4 opacity-20" />
+                      <FontAwesomeIcon icon={faBox} className="size-10 mb-4 opacity-20" />
                       <p className="text-lg font-medium text-foreground">No shipments found</p>
                       <p className="text-sm">Try adjusting your filters or search terms.</p>
                     </div>
@@ -233,7 +241,7 @@ function ShipmentsContent() {
                 </TableRow>
               ) : (
                 filteredShipments.map((shipment) => (
-                  <TableRow key={shipment.id} className="group">
+                  <TableRow key={shipment.id} className="group hover:bg-muted/50 transition-colors duration-200">
                     <TableCell className="font-medium">
                       <Link href={`/shipments/${shipment.id}`} className="text-primary hover:underline font-semibold flex flex-col gap-0.5">
                         {shipment.shipmentNumber}
@@ -251,12 +259,12 @@ function ShipmentsContent() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <MapPin className="size-3.5" /> <span className="text-foreground font-medium">{shipment.loadingPort}</span>
+                        <FontAwesomeIcon icon={faLocationDot} className="size-3.5" /> <span className="text-foreground font-medium">{shipment.loadingPort}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <MapPin className="size-3.5" /> <span className="text-foreground font-medium">{shipment.dischargePort}</span>
+                        <FontAwesomeIcon icon={faLocationDot} className="size-3.5" /> <span className="text-foreground font-medium">{shipment.dischargePort}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground font-medium">
@@ -273,7 +281,7 @@ function ShipmentsContent() {
                       </div>
                       <div className="flex justify-end gap-2 group-hover:hidden text-muted-foreground">
                         <Button variant="ghost" size="icon" className="size-8 pointer-events-none" tabIndex={-1}>
-                          <ChevronDown className="size-4" />
+                          <FontAwesomeIcon icon={faChevronDown} className="size-4" />
                         </Button>
                       </div>
                     </TableCell>
@@ -282,8 +290,72 @@ function ShipmentsContent() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-2">
+              {filteredShipments.map((shipment) => (
+                <Card key={shipment.id} className="group relative transition-all duration-300 hover:shadow-card hover:border-border/80 flex flex-col">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <FontAwesomeIcon icon={faCircle} className="size-5" />
+                      </div>
+                      <StatusBadge status={shipment.status as StatusType} />
+                    </div>
+                    <CardTitle className="mt-4 truncate">
+                      <Link href={`/shipments/${shipment.id}`} className="hover:underline hover:text-primary transition-colors flex flex-col">
+                        <span>{shipment.shipmentNumber}</span>
+                        {shipment.containerNumber && (
+                          <span className="text-xs text-muted-foreground font-normal mt-1">
+                            Container: {shipment.containerNumber}
+                          </span>
+                        )}
+                      </Link>
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      <span className="font-medium text-foreground">{shipment.clientName}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-6 flex-1">
+                    <div className="space-y-4 text-sm">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Origin</span>
+                          <div className="flex items-center gap-2 font-medium">
+                            <FontAwesomeIcon icon={faLocationDot} className="size-3.5 text-muted-foreground" />
+                            <span className="truncate">{shipment.loadingPort}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Destination</span>
+                          <div className="flex items-center gap-2 font-medium">
+                            <FontAwesomeIcon icon={faLocationDot} className="size-3.5 text-muted-foreground" />
+                            <span className="truncate">{shipment.dischargePort}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="pt-2 border-t border-border/50 flex items-center gap-2">
+                        <FontAwesomeIcon icon={faCalendar} className="size-4 text-muted-foreground" />
+                        <span className="text-muted-foreground">ETA:</span>
+                        <span className="font-medium text-foreground">
+                          {new Date(shipment.eta).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="pt-0 flex items-center justify-end border-t border-border/40 bg-muted/10 p-4 rounded-b-[14px]">
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(shipment.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10">Delete</Button>
+                      <Link href={`/shipments/${shipment.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>Edit</Link>
+                      <Link href={`/shipments/${shipment.id}`} className={buttonVariants({ variant: "default", size: "sm", className: "shadow-sm" })}>View</Link>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
+      </div>
     </div>
   );
 }

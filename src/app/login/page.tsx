@@ -2,7 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { BarChart3, Briefcase, LayoutDashboard, Users, ArrowRight } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle, faBriefcase, faTableColumns, faUsers, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -58,7 +59,7 @@ export default function LoginPage() {
         >
           <motion.div variants={itemVariants} className="flex flex-col">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary mb-6 shadow-lg shadow-primary/20">
-              <BarChart3 className="h-6 w-6 text-primary-foreground" />
+              <FontAwesomeIcon icon={faCircle} className="h-6 w-6 text-primary-foreground" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-foreground">
               Welcome Back
@@ -119,7 +120,7 @@ export default function LoginPage() {
               </div>
               <Button type="submit" className="w-full h-11 text-sm shadow-md group">
                 Sign In
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </form>
 
@@ -142,7 +143,7 @@ export default function LoginPage() {
                 type="button"
               >
                 <div className="flex items-center justify-center w-6 h-6 rounded bg-primary/10 mr-3">
-                  <LayoutDashboard className="h-3.5 w-3.5 text-primary" />
+                  <FontAwesomeIcon icon={faTableColumns} className="h-3.5 w-3.5 text-primary" />
                 </div>
                 <span className="font-medium">Login as Admin</span>
               </Button>
@@ -153,7 +154,7 @@ export default function LoginPage() {
                 type="button"
               >
                 <div className="flex items-center justify-center w-6 h-6 rounded bg-blue-500/10 mr-3">
-                  <Briefcase className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                  <FontAwesomeIcon icon={faBriefcase} className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <span className="font-medium">Login as Employee</span>
               </Button>
@@ -164,7 +165,7 @@ export default function LoginPage() {
                 type="button"
               >
                 <div className="flex items-center justify-center w-6 h-6 rounded bg-green-500/10 mr-3">
-                  <Users className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                  <FontAwesomeIcon icon={faUsers} className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                 </div>
                 <span className="font-medium">Login as Client</span>
               </Button>

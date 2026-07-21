@@ -2,30 +2,8 @@
 
 import { use, useState } from "react"
 import Link from "next/link"
-import { 
-  ArrowLeft, 
-  Download, 
-  Check, 
-  X, 
-  Archive, 
-  Pencil, 
-  FileText, 
-  Calendar, 
-  User, 
-  Building2, 
-  Package, 
-  Tag, 
-  ZoomIn, 
-  ZoomOut, 
-  RotateCw, 
-  Maximize2, 
-  Minimize2, 
-  History, 
-  Clock, 
-  HardDrive, 
-  ChevronRight,
-  ShieldCheck
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faDownload, faCheck, faXmark, faCircle, faFileLines, faCalendar, faUser, faBuilding, faBox, faClock, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -102,7 +80,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
         <Link href="/documents" className="hover:text-foreground hover:underline transition-colors">
           Documents
         </Link>
-        <ChevronRight className="h-4 w-4" />
+        <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
         <span className="text-foreground font-medium">{documentItem.id}</span>
       </div>
 
@@ -113,7 +91,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
             href="/documents" 
             className={buttonVariants({ variant: "outline", size: "icon" })}
           >
-            <ArrowLeft className="h-4 w-4" />
+            <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
           </Link>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
@@ -135,10 +113,10 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
 
         <div className="flex items-center gap-2.5">
           <Button variant="outline" onClick={() => alert("Edit metadata mode mock")}>
-            <Pencil className="mr-2 h-4 w-4" /> Edit Metadata
+            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Edit Metadata
           </Button>
           <Button variant="default" onClick={() => handleDownload()}>
-            <Download className="mr-2 h-4 w-4" /> Download File
+            <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Download File
           </Button>
         </div>
       </div>
@@ -154,7 +132,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
             {/* Preview Toolbar */}
             <CardHeader className="p-4 bg-muted/40 border-b flex flex-row items-center justify-between gap-2 space-y-0">
               <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
+                <FontAwesomeIcon icon={faFileLines} className="h-5 w-5 text-primary" />
                 <CardTitle className="text-base font-semibold">Document Preview</CardTitle>
                 <span className="text-xs text-muted-foreground font-mono hidden sm:inline">
                   ({documentItem.type})
@@ -170,7 +148,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                   onClick={handleZoomOut}
                   title="Zoom Out"
                 >
-                  <ZoomOut className="h-3.5 w-3.5" />
+                  <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />
                 </Button>
                 <span className="text-xs font-mono px-2 text-muted-foreground min-w-[42px] text-center">
                   {zoomLevel}%
@@ -182,7 +160,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                   onClick={handleZoomIn}
                   title="Zoom In"
                 >
-                  <ZoomIn className="h-3.5 w-3.5" />
+                  <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />
                 </Button>
                 <div className="h-4 w-px bg-border my-auto mx-1" />
                 <Button 
@@ -192,7 +170,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                   onClick={handleRotate}
                   title="Rotate 90°"
                 >
-                  <RotateCw className="h-3.5 w-3.5" />
+                  <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />
                 </Button>
                 <Button 
                   variant="ghost" 
@@ -201,7 +179,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                   onClick={toggleFullscreen}
                   title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 >
-                  {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+                  {isFullscreen ? <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" /> : <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />}
                 </Button>
               </div>
             </CardHeader>
@@ -305,14 +283,14 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
             {/* Bottom Preview Control bar */}
             <div className="p-3 bg-muted/20 border-t flex items-center justify-between text-xs">
               <span className="text-muted-foreground flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" /> Secure Viewer (Read-only Preview)
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-emerald-500" /> Secure Viewer (Read-only Preview)
               </span>
               <div className="flex items-center gap-3">
                 <span className="text-muted-foreground font-mono">
                   Page {currentPage} / {totalPages}
                 </span>
                 <Button size="sm" variant="outline" className="h-8 rounded-lg" onClick={() => handleDownload()}>
-                  <Download className="mr-1.5 h-3.5 w-3.5" /> Download PDF
+                  <FontAwesomeIcon icon={faDownload} className="mr-1.5 h-3.5 w-3.5" /> Download PDF
                 </Button>
               </div>
             </div>
@@ -331,7 +309,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
               <div className="space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b">
                   <span className="text-muted-foreground flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" /> Document Type:
+                    <FontAwesomeIcon icon={faFileLines} className="h-4 w-4 text-primary" /> Document Type:
                   </span>
                   <Badge variant="outline" className="font-mono text-xs">
                     {documentItem.type}
@@ -340,35 +318,35 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
 
                 <div className="flex items-center justify-between pb-2 border-b">
                   <span className="text-muted-foreground flex items-center gap-2">
-                    <Tag className="h-4 w-4 text-primary" /> Category:
+                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary" /> Category:
                   </span>
                   <span className="font-medium text-foreground">{documentItem.category}</span>
                 </div>
 
                 <div className="flex items-center justify-between pb-2 border-b">
                   <span className="text-muted-foreground flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-primary" /> Client:
+                    <FontAwesomeIcon icon={faBuilding} className="h-4 w-4 text-primary" /> Client:
                   </span>
                   <span className="font-medium text-foreground truncate max-w-[150px]">{documentItem.clientName}</span>
                 </div>
 
                 <div className="flex items-center justify-between pb-2 border-b">
                   <span className="text-muted-foreground flex items-center gap-2">
-                    <Package className="h-4 w-4 text-primary" /> Shipment ID:
+                    <FontAwesomeIcon icon={faBox} className="h-4 w-4 text-primary" /> Shipment ID:
                   </span>
                   <span className="font-mono font-medium text-primary">{documentItem.shipmentId}</span>
                 </div>
 
                 <div className="flex items-center justify-between pb-2 border-b">
                   <span className="text-muted-foreground flex items-center gap-2">
-                    <HardDrive className="h-4 w-4 text-primary" /> File Size:
+                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary" /> File Size:
                   </span>
                   <span className="font-mono font-medium text-foreground">{documentItem.fileSize}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground flex items-center gap-2">
-                    <User className="h-4 w-4 text-primary" /> Uploaded By:
+                    <FontAwesomeIcon icon={faUser} className="h-4 w-4 text-primary" /> Uploaded By:
                   </span>
                   <span className="font-medium text-foreground">{documentItem.uploadedBy}</span>
                 </div>
@@ -410,7 +388,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                 onClick={() => handleStatusChange("Approved")}
                 className="w-full justify-start rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-200 shadow-sm"
               >
-                <Check className={`mr-2 h-4 w-4 ${isUpdating === "Approved" ? "animate-ping" : ""}`} />
+                <FontAwesomeIcon icon={faCheck} className={`mr-2 h-4 w-4 ${isUpdating === "Approved" ? "animate-ping" : ""}`} />
                 {isUpdating === "Approved" ? "Approving..." : "Approve Document"}
               </Button>
 
@@ -420,7 +398,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                 onClick={() => handleStatusChange("Rejected")}
                 className="w-full justify-start rounded-xl transition-all duration-200 shadow-sm"
               >
-                <X className={`mr-2 h-4 w-4 ${isUpdating === "Rejected" ? "animate-ping" : ""}`} />
+                <FontAwesomeIcon icon={faXmark} className={`mr-2 h-4 w-4 ${isUpdating === "Rejected" ? "animate-ping" : ""}`} />
                 {isUpdating === "Rejected" ? "Rejecting..." : "Reject Document"}
               </Button>
 
@@ -430,7 +408,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                 onClick={() => handleStatusChange("Archived")}
                 className="w-full justify-start rounded-xl transition-all duration-200"
               >
-                <Archive className={`mr-2 h-4 w-4 ${isUpdating === "Archived" ? "animate-ping" : ""}`} />
+                <FontAwesomeIcon icon={faCircle} className={`mr-2 h-4 w-4 ${isUpdating === "Archived" ? "animate-ping" : ""}`} />
                 {isUpdating === "Archived" ? "Archiving..." : "Archive Document"}
               </Button>
             </CardContent>
@@ -442,10 +420,10 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
               <CardHeader className="p-5 border-b pb-0">
                 <TabsList className="grid w-full grid-cols-2 rounded-xl">
                   <TabsTrigger value="versions" className="rounded-lg text-xs font-semibold">
-                    <History className="mr-1.5 h-3.5 w-3.5" /> Version History
+                    <FontAwesomeIcon icon={faCircle} className="mr-1.5 h-3.5 w-3.5" /> Version History
                   </TabsTrigger>
                   <TabsTrigger value="activity" className="rounded-lg text-xs font-semibold">
-                    <Clock className="mr-1.5 h-3.5 w-3.5" /> Activity Log
+                    <FontAwesomeIcon icon={faClock} className="mr-1.5 h-3.5 w-3.5" /> Activity Log
                   </TabsTrigger>
                 </TabsList>
               </CardHeader>
@@ -482,7 +460,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                             onClick={() => handleDownload(ver.versionNumber)}
                             title={`Download ${ver.versionNumber}`}
                           >
-                            <Download className="h-4 w-4" />
+                            <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
                           </Button>
                         </div>
                       ))}
@@ -509,10 +487,10 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                           <p className="text-xs font-semibold text-foreground">{act.action}</p>
                           <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                             <span className="flex items-center gap-1">
-                              <User className="h-3 w-3" /> {act.actor}
+                              <FontAwesomeIcon icon={faUser} className="h-3 w-3" /> {act.actor}
                             </span>
                             <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" /> {act.date}
+                              <FontAwesomeIcon icon={faCalendar} className="h-3 w-3" /> {act.date}
                             </span>
                           </div>
                         </div>

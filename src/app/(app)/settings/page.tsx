@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Building2, ShieldCheck, Bell, Link as LinkIcon, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBuilding, faCircle, faBell, faLink, faEye, faEyeSlash, faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState } from "react"
 
@@ -75,19 +76,19 @@ export default function SettingsPage() {
       <Tabs defaultValue="organization" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="organization" className="flex items-center gap-2">
-            <Building2 className="size-4" />
+            <FontAwesomeIcon icon={faBuilding} className="size-4" />
             <span>Organization</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <ShieldCheck className="size-4" />
+            <FontAwesomeIcon icon={faCircle} className="size-4" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
-            <Bell className="size-4" />
+            <FontAwesomeIcon icon={faBell} className="size-4" />
             <span>Notifications</span>
           </TabsTrigger>
           <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <LinkIcon className="size-4" />
+            <FontAwesomeIcon icon={faLink} className="size-4" />
             <span>Integrations</span>
           </TabsTrigger>
         </TabsList>
@@ -250,7 +251,7 @@ export default function SettingsPage() {
                       onClick={() => setShowApiKey(!showApiKey)}
                       className="flex items-center gap-2"
                     >
-                      {showApiKey ? <EyeOff className="size-4"/> : <Eye className="size-4"/>}
+                      {showApiKey ? <FontAwesomeIcon icon={faEyeSlash} className="size-4"/> : <FontAwesomeIcon icon={faEye} className="size-4"/>}
                       {showApiKey ? "Hide" : "Reveal"}
                     </Button>
                     <Button 
@@ -259,7 +260,7 @@ export default function SettingsPage() {
                       onClick={handleRegenerateApiKey}
                       className="flex items-center gap-2"
                     >
-                      <RefreshCw className="size-4"/>
+                      <FontAwesomeIcon icon={faRotateRight} className="size-4"/>
                       Regenerate
                     </Button>
                   </div>

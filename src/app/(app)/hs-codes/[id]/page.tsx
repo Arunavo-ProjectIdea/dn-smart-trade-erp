@@ -3,21 +3,8 @@
 import { useState } from "react"
 import { notFound, useRouter, useParams } from "next/navigation"
 import Link from "next/link"
-import { 
-  Calculator, 
-  ArrowLeft, 
-  CheckCircle2, 
-  ShieldAlert, 
-  FileText, 
-  Copy, 
-  Check, 
-  Tag, 
-  Percent, 
-  Scale, 
-  Info,
-  ExternalLink,
-  ArrowRight
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalculator, faArrowLeft, faCircleCheck, faShieldHalved, faFileLines, faCircle, faCheck, faInfoCircle, faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 import { Button } from "@/components/ui/button"
 import {
@@ -69,7 +56,7 @@ export default function HSCodeDetailsPage() {
             onClick={() => router.push("/hs-codes")}
             className="h-10 w-10 rounded-xl border-border/80 hover:bg-primary/10 hover:text-primary transition-colors"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <FontAwesomeIcon icon={faArrowLeft} className="h-5 w-5" />
           </Button>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -77,10 +64,10 @@ export default function HSCodeDetailsPage() {
                 {hsCodeData.code}
               </h1>
               <span className="text-xs font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/25 px-3 py-1 rounded-full flex items-center gap-1.5">
-                <Tag className="h-3.5 w-3.5" /> {hsCodeData.category}
+                <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" /> {hsCodeData.category}
               </span>
               <span className="text-xs font-mono font-medium bg-muted text-muted-foreground border border-border/60 px-2.5 py-1 rounded-full flex items-center gap-1">
-                <Scale className="h-3 w-3" /> UOM: {hsCodeData.uom}
+                <FontAwesomeIcon icon={faCircle} className="h-3 w-3" /> UOM: {hsCodeData.uom}
               </span>
             </div>
             <p className="text-xs text-muted-foreground mt-1 font-medium">
@@ -97,11 +84,11 @@ export default function HSCodeDetailsPage() {
           >
             {copied ? (
               <>
-                <Check className="h-4 w-4 text-emerald-500" /> Copied Code
+                <FontAwesomeIcon icon={faCheck} className="h-4 w-4 text-emerald-500" /> Copied Code
               </>
             ) : (
               <>
-                <Copy className="h-4 w-4 text-muted-foreground" /> Copy Code
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-muted-foreground" /> Copy Code
               </>
             )}
           </Button>
@@ -109,7 +96,7 @@ export default function HSCodeDetailsPage() {
             onClick={() => router.push(`/duty-calculator?hsCode=${hsCodeData.code}`)}
             className="h-10 text-xs font-semibold gap-2 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700 text-primary-foreground shadow-md shadow-primary/20"
           >
-            <Calculator className="h-4 w-4" /> Calculate Duty
+            <FontAwesomeIcon icon={faCalculator} className="h-4 w-4" /> Calculate Duty
           </Button>
         </div>
       </div>
@@ -123,7 +110,7 @@ export default function HSCodeDetailsPage() {
           <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/60 pb-4">
               <CardTitle className="text-lg font-bold flex items-center gap-2">
-                <Info className="h-5 w-5 text-primary" /> Product Classification Information
+                <FontAwesomeIcon icon={faInfoCircle} className="h-5 w-5 text-primary" /> Product Classification Information
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-5">
@@ -158,7 +145,7 @@ export default function HSCodeDetailsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg font-bold flex items-center gap-2">
-                    <Percent className="h-5 w-5 text-amber-500" /> Applicable Tariff & Tax Rates
+                    <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-amber-500" /> Applicable Tariff & Tax Rates
                   </CardTitle>
                   <CardDescription className="text-xs text-muted-foreground mt-1">
                     Current duty percentages applicable for customs clearance.
@@ -204,7 +191,7 @@ export default function HSCodeDetailsPage() {
               <div className="mt-5 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-lg">
-                    <Calculator className="h-5 w-5" />
+                    <FontAwesomeIcon icon={faCalculator} className="h-5 w-5" />
                   </div>
                   <div>
                     <p className="text-xs font-bold text-foreground">Estimated Total Effective Duty Rate</p>
@@ -225,7 +212,7 @@ export default function HSCodeDetailsPage() {
           <Card className="rounded-xl border-amber-500/30 bg-amber-500/5 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="pb-3 border-b border-amber-500/15">
               <CardTitle className="text-base font-bold flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                <ShieldAlert className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                <FontAwesomeIcon icon={faShieldHalved} className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 Import Policy Regulations
               </CardTitle>
             </CardHeader>
@@ -240,7 +227,7 @@ export default function HSCodeDetailsPage() {
           <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="pb-3 border-b border-border/60">
               <CardTitle className="text-base font-bold flex items-center gap-2">
-                <FileText className="h-5 w-5 text-primary" />
+                <FontAwesomeIcon icon={faFileLines} className="h-5 w-5 text-primary" />
                 Required Clearance Documents
               </CardTitle>
             </CardHeader>
@@ -249,7 +236,7 @@ export default function HSCodeDetailsPage() {
                 {hsCodeData.requiredDocuments.map((doc, idx) => (
                   <li key={idx} className="flex items-center gap-3 text-xs font-semibold text-foreground p-2.5 rounded-xl bg-background/60 border border-border/50">
                     <span className="p-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                      <CheckCircle2 className="h-4 w-4" />
+                      <FontAwesomeIcon icon={faCircleCheck} className="h-4 w-4" />
                     </span>
                     <span>{doc}</span>
                   </li>
@@ -267,10 +254,10 @@ export default function HSCodeDetailsPage() {
         <div className="space-y-4 pt-4 border-t border-border/60">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-              <Tag className="h-4 w-4 text-primary" /> Related HS Codes in &quot;{hsCodeData.category}&quot;
+              <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary" /> Related HS Codes in &quot;{hsCodeData.category}&quot;
             </h2>
             <Link href="/hs-codes" className="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
-              Browse All HS Codes <ArrowRight className="h-3.5 w-3.5" />
+              Browse All HS Codes <FontAwesomeIcon icon={faArrowRight} className="h-3.5 w-3.5" />
             </Link>
           </div>
 
@@ -292,7 +279,7 @@ export default function HSCodeDetailsPage() {
                   <div className="pt-2 border-t border-border/40 flex items-center justify-between">
                     <span className="text-[10px] text-muted-foreground">UOM: {rel.uom}</span>
                     <Link href={`/hs-codes/${rel.code}`} className="text-xs font-medium text-primary flex items-center gap-1 hover:underline">
-                      View <ExternalLink className="h-3 w-3" />
+                      View <FontAwesomeIcon icon={faCircle} className="h-3 w-3" />
                     </Link>
                   </div>
                 </CardContent>

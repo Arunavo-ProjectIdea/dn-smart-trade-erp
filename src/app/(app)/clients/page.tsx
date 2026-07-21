@@ -2,9 +2,11 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Eye, Pencil, Trash2, Plus } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faCircle, faTrash, faPlus, faBuilding, faEnvelope, faPhone, faLocationDot } from "@fortawesome/free-solid-svg-icons";
 
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { PageHeader } from "@/components/erp/page-header"
 import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
@@ -12,6 +14,7 @@ import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { mockClients, Client } from "@/lib/mock-data/clients"
 
 export default function ClientsPage() {
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table")
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null)
   
   // In a real app, this would use React Query or SWR and a mutation
@@ -80,7 +83,7 @@ export default function ClientsPage() {
             className={buttonVariants({ variant: "ghost", size: "icon" })}
             title="View Details"
           >
-            <Eye className="size-4" />
+            <FontAwesomeIcon icon={faEye} className="size-4" />
             <span className="sr-only">View</span>
           </Link>
           <Link 
@@ -88,7 +91,7 @@ export default function ClientsPage() {
             className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
             title="Edit Client"
           >
-            <Pencil className="size-4" />
+            <FontAwesomeIcon icon={faCircle} className="size-4" />
             <span className="sr-only">Edit</span>
           </Link>
           <Button 
@@ -98,7 +101,7 @@ export default function ClientsPage() {
             title="Delete Client"
             onClick={() => setDeleteDialogId(item.id)}
           >
-            <Trash2 className="size-4" />
+            <FontAwesomeIcon icon={faTrash} className="size-4" />
             <span className="sr-only">Delete</span>
           </Button>
         </div>
@@ -113,19 +116,86 @@ export default function ClientsPage() {
         description="Manage your client accounts and their details."
         action={
           <Link href="/clients/new" className={buttonVariants({ variant: "default", className: "shadow-sm" })}>
-            <Plus className="mr-2 size-4" /> Add Client
+            <FontAwesomeIcon icon={faPlus} className="mr-2 size-4" /> Add Client
           </Link>
         }
       />
       
-      <DataTable 
-        columns={columns} 
-        data={data} 
-        searchKey="companyName"
-        searchPlaceholder="Search clients..."
-        emptyStateTitle="No clients found"
-        emptyStateDescription="Get started by adding a new client to the system."
-      />
+      <div className="flex justify-end -mt-4 mb-2">
+        <div className="flex items-center rounded-lg border border-border p-1 bg-muted/30">
+          <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
+            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 mr-2" /> Table
+          </Button>
+          <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
+            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 mr-2" /> Grid
+          </Button>
+        </div>
+      </div>
+      
+      {viewMode === "table" ? (
+        <DataTable 
+          columns={columns} 
+          data={data} 
+          searchKey="companyName"
+          searchPlaceholder="Search clients..."
+          emptyStateTitle="No clients found"
+          emptyStateDescription="Get started by adding a new client to the system."
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {data.map((client) => (
+            <Card key={client.id} className="group relative transition-all duration-300 hover:shadow-card hover:border-border/80">
+              <CardHeader className="pb-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <FontAwesomeIcon icon={faBuilding} className="h-5 w-5" />
+                  </div>
+                  <StatusBadge status={client.status} />
+                </div>
+                <CardTitle className="mt-4 truncate">
+                  <Link href={`/clients/${client.id}`} className="hover:underline hover:text-primary transition-colors">
+                    {client.companyName}
+                  </Link>
+                </CardTitle>
+                <CardDescription className="flex items-center gap-2">
+                  <span className="font-mono text-xs">{client.id}</span>
+                  <span className="h-1 w-1 rounded-full bg-border" />
+                  <span>{client.clientType}</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-6">
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <FontAwesomeIcon icon={faEnvelope} className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{client.email}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <FontAwesomeIcon icon={faPhone} className="h-4 w-4 shrink-0" />
+                    <span>{client.phone}</span>
+                  </div>
+                  <div className="flex items-start gap-3 text-muted-foreground">
+                    <FontAwesomeIcon icon={faLocationDot} className="h-4 w-4 shrink-0 mt-0.5" />
+                    <span className="line-clamp-2">{client.address}</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-0 flex items-center justify-between border-t border-border/40 bg-muted/10 p-4 rounded-b-[14px]">
+                <div className="text-xs font-medium text-muted-foreground">
+                  Contact: <span className="text-foreground">{client.contactPerson}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Link href={`/clients/${client.id}`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8" })}>
+                    <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
+                  </Link>
+                  <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8 text-muted-foreground hover:text-foreground" })}>
+                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
+                  </Link>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <ConfirmationDialog 
         open={!!deleteDialogId}

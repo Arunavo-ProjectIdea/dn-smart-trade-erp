@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { AuthService } from "@/lib/auth"
-import { Loader2 } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -47,7 +48,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <FontAwesomeIcon icon={faSpinner} className="h-8 w-8 animate-spin text-primary fa-spin" />
           <p className="text-sm text-muted-foreground">Verifying access...</p>
         </div>
       </div>

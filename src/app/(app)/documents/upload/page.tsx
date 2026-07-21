@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft, ChevronRight } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { buttonVariants } from "@/components/ui/button"
 import { DocumentUploadForm } from "@/components/erp/document-upload-form"
 
@@ -13,7 +14,7 @@ export default function DocumentUploadPage() {
         <Link href="/documents" className="hover:text-foreground hover:underline transition-colors">
           Documents
         </Link>
-        <ChevronRight className="h-4 w-4" />
+        <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
         <span className="text-foreground font-medium">Upload Document</span>
       </div>
 
@@ -25,7 +26,7 @@ export default function DocumentUploadPage() {
             className={buttonVariants({ variant: "outline", size: "icon" })}
             title="Back to Documents"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
           </Link>
           <div className="space-y-1">
             <h1 className="text-3xl font-bold tracking-tight">

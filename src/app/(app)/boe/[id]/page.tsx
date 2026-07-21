@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button, buttonVariants } from "@/components/ui/button";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Edit, Download, Printer, Copy, FileText, CheckCircle2, Package, MapPin, Building2, Anchor, Trash2 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faPen, faDownload, faCircle, faFileLines, faCircleCheck, faBox, faLocationDot, faBuilding, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/erp/data-table";
@@ -61,7 +62,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/boe" className={buttonVariants({ variant: "outline", size: "icon" })}>
-            <ArrowLeft className="h-4 w-4" />
+            <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
           </Link>
           <div className="flex flex-col">
             <div className="flex items-center gap-3">
@@ -79,19 +80,19 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         
         <div className="flex flex-wrap items-center gap-2">
           <Link href={`/boe/${boe.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-             <Edit className="mr-2 h-4 w-4" /> Edit
+             <FontAwesomeIcon icon={faPen} className="mr-2 h-4 w-4" /> Edit
           </Link>
           <Button variant="outline" size="sm" onClick={() => toast({ title: "Duplicate", description: "This feature is coming soon." })}>
-            <Copy className="mr-2 h-4 w-4" /> Duplicate
+            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Duplicate
           </Button>
           <Button variant="outline" size="sm" onClick={() => toast({ title: "Download PDF", description: "PDF generation started." })}>
-            <Download className="mr-2 h-4 w-4" /> PDF
+            <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> PDF
           </Button>
           <Button variant="outline" size="sm" onClick={() => toast({ title: "Print", description: "Sending to printer..." })}>
-            <Printer className="mr-2 h-4 w-4" /> Print
+            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Print
           </Button>
           <Button variant="destructive" size="sm" onClick={() => toast({ title: "Delete", description: "This feature is coming soon." })}>
-            <Trash2 className="mr-2 h-4 w-4" /> Delete
+            <FontAwesomeIcon icon={faTrash} className="mr-2 h-4 w-4" /> Delete
           </Button>
         </div>
       </div>
@@ -101,7 +102,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Building2 className="h-4 w-4" /> Importer
+              <FontAwesomeIcon icon={faBuilding} className="h-4 w-4" /> Importer
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -123,7 +124,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Anchor className="h-4 w-4" /> Shipment Details
+              <FontAwesomeIcon icon={faCircle} className="h-4 w-4" /> Shipment Details
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -133,7 +134,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
               </Link>
             </div>
             <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
-              <MapPin className="h-3 w-3" /> {boe.shipment.port}
+              <FontAwesomeIcon icon={faLocationDot} className="h-3 w-3" /> {boe.shipment.port}
             </p>
             <div className="mt-4 flex flex-col gap-1 text-sm">
               <div className="flex justify-between">
@@ -151,7 +152,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         <Card className="bg-primary/5 border-primary/20">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-primary flex items-center gap-2">
-              <FileText className="h-4 w-4" /> Total Duties & Taxes
+              <FontAwesomeIcon icon={faFileLines} className="h-4 w-4" /> Total Duties & Taxes
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -201,7 +202,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
                     <TableRow key={product.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <Package className="h-4 w-4 text-muted-foreground" />
+                          <FontAwesomeIcon icon={faBox} className="h-4 w-4 text-muted-foreground" />
                           {product.productName}
                         </div>
                       </TableCell>
@@ -270,7 +271,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
                 {boe.timeline.map((event) => (
                   <div key={event.id} className="relative pl-8">
                     <div className="absolute -left-3.5 top-1 h-7 w-7 rounded-full bg-background border-2 border-primary flex items-center justify-center">
-                       <CheckCircle2 className="h-4 w-4 text-primary" />
+                       <FontAwesomeIcon icon={faCircleCheck} className="h-4 w-4 text-primary" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <div className="flex items-center gap-3">

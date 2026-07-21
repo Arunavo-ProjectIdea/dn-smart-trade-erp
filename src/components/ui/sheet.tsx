@@ -5,7 +5,8 @@ import { Dialog as SheetPrimitive } from "@base-ui/react/dialog"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { XIcon } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
 
 function Sheet({ ...props }: SheetPrimitive.Root.Props) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />
@@ -70,7 +71,7 @@ function SheetContent({
               />
             }
           >
-            <XIcon
+            <FontAwesomeIcon icon={faCircle}
             />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>

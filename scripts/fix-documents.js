@@ -1,0 +1,10 @@
+const fs = require('fs');
+let c = fs.readFileSync('src/app/(app)/documents/page.tsx', 'utf8');
+c = c.replace(/icon: FileText/g, 'icon: faFileLines');
+c = c.replace(/icon: FileSpreadsheet/g, 'icon: faFileExcel');
+c = c.replace(/icon: File/g, 'icon: faFile');
+c = c.replace(/icon: ImageIcon/g, 'icon: faFileLines');
+c = c.replace(/icon: Archive/g, 'icon: faFileLines');
+c = c.replace(/<typeInfo.icon /g, '<FontAwesomeIcon icon={typeInfo.icon} ');
+c = c.replace(/<FileIcon className="h-4 w-4" \/>/g, '<FontAwesomeIcon icon={faFileIcon} className="h-4 w-4" />');
+fs.writeFileSync('src/app/(app)/documents/page.tsx', c);

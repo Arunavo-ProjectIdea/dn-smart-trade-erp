@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Package, CheckCircle, DollarSign, FileText, Upload, TrendingUp, TrendingDown } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers, faBox, faFileLines, faUpload, faArrowTrendUp, faArrowTrendDown, faCircleCheck, faDollarSign } from "@fortawesome/free-solid-svg-icons";
 import { kpiData } from "@/lib/mock-data/reports"
 import Link from "next/link"
 
@@ -10,7 +11,7 @@ export function KPICards() {
       value: kpiData.totalClients.value,
       change: kpiData.totalClients.change,
       trend: kpiData.totalClients.trend,
-      icon: Users,
+      icon: faUsers,
       href: "/clients",
     },
     {
@@ -18,7 +19,7 @@ export function KPICards() {
       value: kpiData.activeShipments.value,
       change: kpiData.activeShipments.change,
       trend: kpiData.activeShipments.trend,
-      icon: Package,
+      icon: faBox,
       href: "/shipments",
     },
     {
@@ -26,7 +27,7 @@ export function KPICards() {
       value: kpiData.completedShipments.value,
       change: kpiData.completedShipments.change,
       trend: kpiData.completedShipments.trend,
-      icon: CheckCircle,
+      icon: faCircleCheck,
       href: "/shipments",
     },
     {
@@ -34,7 +35,7 @@ export function KPICards() {
       value: kpiData.revenueGenerated.value,
       change: kpiData.revenueGenerated.change,
       trend: kpiData.revenueGenerated.trend,
-      icon: DollarSign,
+      icon: faDollarSign,
       href: "/reports",
     },
     {
@@ -42,7 +43,7 @@ export function KPICards() {
       value: kpiData.boeProcessed.value,
       change: kpiData.boeProcessed.change,
       trend: kpiData.boeProcessed.trend,
-      icon: FileText,
+      icon: faFileLines,
       href: "/boe",
     },
     {
@@ -50,7 +51,7 @@ export function KPICards() {
       value: kpiData.documentsUploaded.value,
       change: kpiData.documentsUploaded.change,
       trend: kpiData.documentsUploaded.trend,
-      icon: Upload,
+      icon: faUpload,
       href: "/documents",
     },
   ]
@@ -58,22 +59,23 @@ export function KPICards() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {cards.map((card, index) => {
-        const Icon = card.icon
         const isUp = card.trend === "up"
         
         return (
-          <Link key={index} href={card.href} className="block transition-transform hover:scale-[1.02]">
-            <Card className="h-full rounded-xl border-border/60 shadow-sm hover:border-primary/50 hover:shadow-md transition-all">
+          <Link key={index} href={card.href} className="block group">
+            <Card className="h-full rounded-2xl border border-border/40 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 ease-out hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:-translate-y-1 hover:border-primary/20 hover:bg-card">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors duration-300">
                   {card.title}
                 </CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+                <div className="h-8 w-8 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
+                  <FontAwesomeIcon icon={card.icon} className="h-4 w-4" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{card.value}</div>
-                <p className={`text-xs flex items-center mt-1 ${isUp ? 'text-green-500' : 'text-red-500'}`}>
-                  {isUp ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
+                <div className="text-3xl font-semibold tracking-tight mt-1">{card.value}</div>
+                <p className={`text-xs flex items-center mt-3 font-medium ${isUp ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  <FontAwesomeIcon icon={isUp ? faArrowTrendUp : faArrowTrendDown} className="h-3 w-3 mr-1.5" />
                   {card.change} from last month
                 </p>
               </CardContent>

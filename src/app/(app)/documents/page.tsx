@@ -2,27 +2,8 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { 
-  Eye, 
-  Trash2, 
-  Plus, 
-  Download, 
-  LayoutGrid, 
-  List, 
-  Search, 
-  X, 
-  Filter, 
-  FileText, 
-  FileSpreadsheet, 
-  FileCheck, 
-  Image as ImageIcon, 
-  File, 
-  Building2, 
-  Package, 
-  Calendar, 
-  Tag, 
-  HardDrive
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faTrash, faPlus, faDownload, faCircle, faSearch, faXmark, faFilter, faFileLines, faFileExcel, faFile, faBuilding, faBox, faCalendar } from "@fortawesome/free-solid-svg-icons";
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { PageHeader } from "@/components/erp/page-header"
@@ -109,34 +90,34 @@ export default function DocumentsPage() {
     const t = type.toUpperCase()
     if (t === "PDF") {
       return {
-        icon: FileText,
+        icon: faFileLines,
         badgeStyle: "bg-red-500/10 text-red-600 border-red-200 dark:border-red-900/50",
         cardBorderStyle: "hover:border-red-500/30"
       }
     }
     if (t === "XLSX" || t === "EXCEL") {
       return {
-        icon: FileSpreadsheet,
+        icon: faFileExcel,
         badgeStyle: "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:border-emerald-900/50",
         cardBorderStyle: "hover:border-emerald-500/30"
       }
     }
     if (t === "DOCX" || t === "WORD") {
       return {
-        icon: FileCheck,
+        icon: faFileLines,
         badgeStyle: "bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-900/50",
         cardBorderStyle: "hover:border-blue-500/30"
       }
     }
     if (["JPG", "JPEG", "PNG"].includes(t)) {
       return {
-        icon: ImageIcon,
+        icon: faFileLines,
         badgeStyle: "bg-purple-500/10 text-purple-600 border-purple-200 dark:border-purple-900/50",
         cardBorderStyle: "hover:border-purple-500/30"
       }
     }
     return {
-      icon: File,
+      icon: faFile,
       badgeStyle: "bg-muted text-muted-foreground border-border",
       cardBorderStyle: "hover:border-primary/30"
     }
@@ -154,11 +135,11 @@ export default function DocumentsPage() {
       accessorKey: "name",
       sortable: true,
       cell: (item) => {
-        const { icon: FileIcon, badgeStyle } = getFileTypeIconAndStyle(item.type)
+        const { icon: faFileIcon, badgeStyle } = getFileTypeIconAndStyle(item.type)
         return (
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg border ${badgeStyle} shrink-0`}>
-              <FileIcon className="h-4 w-4" />
+              <FontAwesomeIcon icon={faFileIcon} className="h-4 w-4" />
             </div>
             <div className="min-w-0">
               <Link href={`/documents/${item.id}`} className="font-medium hover:text-primary hover:underline block truncate max-w-[240px]">
@@ -186,7 +167,7 @@ export default function DocumentsPage() {
       sortable: true,
       cell: (item) => (
         <div className="flex items-center gap-1.5 text-sm">
-          <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+          <FontAwesomeIcon icon={faBuilding} className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
           <span className="truncate max-w-[150px]">{item.clientName}</span>
         </div>
       )
@@ -224,7 +205,7 @@ export default function DocumentsPage() {
             className={buttonVariants({ variant: "ghost", size: "icon" })}
             title="View Details"
           >
-            <Eye className="h-4 w-4" />
+            <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
             <span className="sr-only">View</span>
           </Link>
           <Button 
@@ -234,7 +215,7 @@ export default function DocumentsPage() {
             title="Download Document"
             onClick={() => handleDownload(item)}
           >
-            <Download className="h-4 w-4" />
+            <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
             <span className="sr-only">Download</span>
           </Button>
           <Button 
@@ -244,7 +225,7 @@ export default function DocumentsPage() {
             title="Delete Document"
             onClick={() => setDeleteDialogId(item.id)}
           >
-            <Trash2 className="h-4 w-4" />
+            <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
             <span className="sr-only">Delete</span>
           </Button>
         </div>
@@ -260,10 +241,10 @@ export default function DocumentsPage() {
         action={
           <div className="flex items-center gap-3">
             <Button variant="outline" onClick={() => toast({ title: "Export Started", description: "Exporting documents directory listing..." })}>
-              <Download className="mr-2 h-4 w-4" /> Export List
+              <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Export List
             </Button>
             <Link href="/documents/upload" className={buttonVariants({ variant: "default" })}>
-              <Plus className="mr-2 h-4 w-4" /> Upload Document
+              <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" /> Upload Document
             </Link>
           </div>
         }
@@ -275,7 +256,7 @@ export default function DocumentsPage() {
           
           {/* Search Input */}
           <div className="relative flex-1 group">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <FontAwesomeIcon icon={faSearch} className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
             <Input 
               placeholder="Search by doc name, ID, client, shipment, or tags..."
               value={searchQuery}
@@ -287,7 +268,7 @@ export default function DocumentsPage() {
                 onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                <X className="h-4 w-4" />
+                <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -343,7 +324,7 @@ export default function DocumentsPage() {
                 onClick={() => setViewMode("grid")}
                 title="Grid View"
               >
-                <LayoutGrid className="h-4 w-4" />
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewMode === "table" ? "secondary" : "ghost"}
@@ -352,7 +333,7 @@ export default function DocumentsPage() {
                 onClick={() => setViewMode("table")}
                 title="Table View"
               >
-                <List className="h-4 w-4" />
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -362,30 +343,30 @@ export default function DocumentsPage() {
         {hasActiveFilters && (
           <div className="flex flex-wrap items-center gap-2 pt-2 border-t text-xs">
             <span className="text-muted-foreground flex items-center gap-1 font-medium">
-              <Filter className="h-3 w-3" /> Active Filters:
+              <FontAwesomeIcon icon={faFilter} className="h-3 w-3" /> Active Filters:
             </span>
             {searchQuery && (
               <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 rounded-lg">
                 Search: &quot;{searchQuery}&quot;
-                <X className="h-3 w-3 cursor-pointer" onClick={() => setSearchQuery("")} />
+                <FontAwesomeIcon icon={faXmark} className="h-3 w-3 cursor-pointer" onClick={() => setSearchQuery("")} />
               </Badge>
             )}
             {categoryFilter !== "all" && (
               <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 rounded-lg">
                 Category: {categoryFilter}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => setCategoryFilter("all")} />
+                <FontAwesomeIcon icon={faXmark} className="h-3 w-3 cursor-pointer" onClick={() => setCategoryFilter("all")} />
               </Badge>
             )}
             {typeFilter !== "all" && (
               <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 rounded-lg">
                 Type: {typeFilter}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => setTypeFilter("all")} />
+                <FontAwesomeIcon icon={faXmark} className="h-3 w-3 cursor-pointer" onClick={() => setTypeFilter("all")} />
               </Badge>
             )}
             {statusFilter !== "all" && (
               <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 rounded-lg">
                 Status: {statusFilter}
-                <X className="h-3 w-3 cursor-pointer" onClick={() => setStatusFilter("all")} />
+                <FontAwesomeIcon icon={faXmark} className="h-3 w-3 cursor-pointer" onClick={() => setStatusFilter("all")} />
               </Badge>
             )}
             <Button variant="link" size="sm" className="h-auto p-0 text-xs text-primary ml-1" onClick={clearFilters}>
@@ -407,7 +388,7 @@ export default function DocumentsPage() {
               </Button>
             ) : (
               <Link href="/documents/upload" className={buttonVariants({ variant: "default" })}>
-                <Plus className="mr-2 h-4 w-4" /> Upload Document
+                <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" /> Upload Document
               </Link>
             )
           }
@@ -415,7 +396,7 @@ export default function DocumentsPage() {
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredDocuments.map((doc) => {
-            const { icon: FileIcon, badgeStyle, cardBorderStyle } = getFileTypeIconAndStyle(doc.type)
+            const { icon: faFileIcon, badgeStyle, cardBorderStyle } = getFileTypeIconAndStyle(doc.type)
 
             return (
               <Card 
@@ -426,7 +407,7 @@ export default function DocumentsPage() {
                 <CardHeader className="p-5 pb-3">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className={`p-2.5 rounded-xl border ${badgeStyle} shrink-0 transition-transform duration-300 group-hover:scale-105`}>
-                      <FileIcon className="h-6 w-6" />
+                      <FontAwesomeIcon icon={faFileIcon} className="h-6 w-6" />
                     </div>
                     <div className="flex items-center gap-1.5">
                       <Badge variant="outline" className="font-mono text-[10px] font-semibold bg-muted/30">
@@ -453,7 +434,7 @@ export default function DocumentsPage() {
                   <div className="space-y-2 pt-2 border-t">
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span className="flex items-center gap-1.5">
-                        <Building2 className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                        <FontAwesomeIcon icon={faBuilding} className="h-3.5 w-3.5 text-primary/70 shrink-0" />
                         Client:
                       </span>
                       <span className="font-medium text-foreground truncate max-w-[130px]">{doc.clientName}</span>
@@ -461,7 +442,7 @@ export default function DocumentsPage() {
 
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span className="flex items-center gap-1.5">
-                        <Package className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                        <FontAwesomeIcon icon={faBox} className="h-3.5 w-3.5 text-primary/70 shrink-0" />
                         Shipment:
                       </span>
                       <span className="font-mono font-medium text-foreground">{doc.shipmentId}</span>
@@ -469,7 +450,7 @@ export default function DocumentsPage() {
 
                     <div className="flex items-center justify-between text-muted-foreground">
                       <span className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                        <FontAwesomeIcon icon={faCalendar} className="h-3.5 w-3.5 text-primary/70 shrink-0" />
                         Uploaded:
                       </span>
                       <span className="font-medium text-foreground">{doc.uploadDate}</span>
@@ -481,7 +462,7 @@ export default function DocumentsPage() {
                     <div className="flex flex-wrap gap-1 pt-1">
                       {doc.tags.slice(0, 3).map((tag, idx) => (
                         <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-muted/60 text-[10px] text-muted-foreground">
-                          <Tag className="h-2.5 w-2.5" />
+                          <FontAwesomeIcon icon={faCircle} className="h-2.5 w-2.5" />
                           {tag}
                         </span>
                       ))}
@@ -492,7 +473,7 @@ export default function DocumentsPage() {
                 {/* Footer action bar */}
                 <CardFooter className="p-4 bg-muted/10 border-t flex items-center justify-between gap-2">
                   <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                    <HardDrive className="h-3 w-3" />
+                    <FontAwesomeIcon icon={faCircle} className="h-3 w-3" />
                     {doc.fileSize}
                   </span>
 
@@ -502,7 +483,7 @@ export default function DocumentsPage() {
                       className={buttonVariants({ variant: "ghost", size: "icon" })}
                       title="View Details"
                     >
-                      <Eye className="h-4 w-4" />
+                      <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
                       <span className="sr-only">View</span>
                     </Link>
                     <Button
@@ -511,7 +492,7 @@ export default function DocumentsPage() {
                       onClick={() => handleDownload(doc)}
                       title="Download"
                     >
-                      <Download className="h-4 w-4" />
+                      <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
                       <span className="sr-only">Download</span>
                     </Button>
                     <Button
@@ -521,7 +502,7 @@ export default function DocumentsPage() {
                       onClick={() => setDeleteDialogId(doc.id)}
                       title="Delete"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
                     </Button>
                   </div>

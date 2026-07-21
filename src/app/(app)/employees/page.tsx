@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Eye, Pencil, UserX, Plus, KeyRound } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faCircle, faPlus, faBriefcase, faEnvelope, faCircleUser } from "@fortawesome/free-solid-svg-icons";
 
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { PageHeader } from "@/components/erp/page-header"
 import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
@@ -17,6 +19,7 @@ import { AuthService } from "@/lib/auth"
 export default function EmployeesPage() {
   const router = useRouter()
   const { toast } = useToast()
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table")
   const [data, setData] = useState<Employee[]>(mockEmployees)
   
   // Dialog States
@@ -93,7 +96,7 @@ export default function EmployeesPage() {
             className={buttonVariants({ variant: "ghost", size: "icon" })}
             title="View Employee"
           >
-            <Eye className="size-4" />
+            <FontAwesomeIcon icon={faEye} className="size-4" />
             <span className="sr-only">View</span>
           </Link>
           <Link 
@@ -101,7 +104,7 @@ export default function EmployeesPage() {
             className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
             title="Edit Employee"
           >
-            <Pencil className="size-4" />
+            <FontAwesomeIcon icon={faCircle} className="size-4" />
             <span className="sr-only">Edit</span>
           </Link>
           <Button 
@@ -111,7 +114,7 @@ export default function EmployeesPage() {
             title="Reset Password"
             onClick={() => setResetId(item.id)}
           >
-            <KeyRound className="size-4" />
+            <FontAwesomeIcon icon={faCircle} className="size-4" />
             <span className="sr-only">Reset Password</span>
           </Button>
           <Button 
@@ -122,7 +125,7 @@ export default function EmployeesPage() {
             disabled={item.status === 'Inactive'}
             onClick={() => setDeactivateId(item.id)}
           >
-            <UserX className="size-4" />
+            <FontAwesomeIcon icon={faCircle} className="size-4" />
             <span className="sr-only">Deactivate</span>
           </Button>
         </div>
@@ -137,19 +140,79 @@ export default function EmployeesPage() {
         description="Manage system access, roles, and profiles for all internal staff."
         action={
           <Link href="/employees/new" className={buttonVariants({ variant: "default", className: "shadow-sm" })}>
-            <Plus className="mr-2 size-4" /> Add Employee
+            <FontAwesomeIcon icon={faPlus} className="mr-2 size-4" /> Add Employee
           </Link>
         }
       />
       
-      <DataTable 
-        columns={columns} 
-        data={data} 
-        searchKey="fullName"
-        searchPlaceholder="Search employees..."
-        emptyStateTitle="No employees found"
-        emptyStateDescription="Get started by adding a new employee to the system."
-      />
+      <div className="flex justify-end -mt-4 mb-2">
+        <div className="flex items-center rounded-lg border border-border p-1 bg-muted/30">
+          <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
+            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 mr-2" /> Table
+          </Button>
+          <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
+            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 mr-2" /> Grid
+          </Button>
+        </div>
+      </div>
+
+      {viewMode === "table" ? (
+        <DataTable 
+          columns={columns} 
+          data={data} 
+          searchKey="fullName"
+          searchPlaceholder="Search employees..."
+          emptyStateTitle="No employees found"
+          emptyStateDescription="Get started by adding a new employee to the system."
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {data.map((emp) => (
+            <Card key={emp.id} className="group relative transition-all duration-300 hover:shadow-card hover:border-border/80">
+              <CardHeader className="pb-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <FontAwesomeIcon icon={faCircleUser} className="h-5 w-5" />
+                  </div>
+                  <StatusBadge status={emp.status} />
+                </div>
+                <CardTitle className="mt-4 truncate">
+                  <Link href={`/employees/${emp.id}`} className="hover:underline hover:text-primary transition-colors">
+                    {emp.fullName}
+                  </Link>
+                </CardTitle>
+                <CardDescription className="flex items-center gap-2">
+                  <span className="font-mono text-xs">{emp.id}</span>
+                  <span className="h-1 w-1 rounded-full bg-border" />
+                  <span className={emp.role === 'Admin' ? 'text-primary font-medium' : ''}>{emp.role}</span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-6">
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <FontAwesomeIcon icon={faEnvelope} className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{emp.email}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <FontAwesomeIcon icon={faBriefcase} className="h-4 w-4 shrink-0" />
+                    <span>{emp.department}</span>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-0 flex items-center justify-end border-t border-border/40 bg-muted/10 p-4 rounded-b-[14px]">
+                <div className="flex items-center gap-1">
+                  <Link href={`/employees/${emp.id}`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8 text-muted-foreground hover:text-foreground" })}>
+                    <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
+                  </Link>
+                  <Link href={`/employees/${emp.id}/edit`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8 text-muted-foreground hover:text-foreground" })}>
+                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
+                  </Link>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <ConfirmationDialog 
         open={!!deactivateId}
