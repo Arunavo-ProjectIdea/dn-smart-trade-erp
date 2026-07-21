@@ -10,13 +10,28 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { User, Lock, Settings, Activity } from "lucide-react"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useState, useRef } from "react"
 
 export default function ProfilePage() {
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string>("https://github.com/shadcn.png")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const [isSavingPersonal, setIsSavingPersonal] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [isSavingPreferences, setIsSavingPreferences] = useState(false)
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const url = URL.createObjectURL(file)
+      setAvatarPreview(url)
+    }
+  }
 
   const handleAvatarChange = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -95,16 +110,23 @@ export default function ProfilePage() {
               <CardDescription>Update how you appear to others.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center gap-6">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/png, image/jpeg, image/gif" 
+                onChange={handleFileChange} 
+              />
               <Avatar 
                 className="size-24 cursor-pointer hover:opacity-80 transition-opacity" 
-                onClick={handleAvatarChange}
+                onClick={handleAvatarClick}
               >
-                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarImage src={avatarPreview} />
                 <AvatarFallback>AU</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <Button variant="outline" onClick={handleAvatarChange} disabled={isUpdatingAvatar}>
-                  {isUpdatingAvatar ? "Uploading..." : "Change Avatar"}
+                  {isUpdatingAvatar ? "Uploading..." : "Save Avatar"}
                 </Button>
                 <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Max size of 2MB.</p>
               </div>
