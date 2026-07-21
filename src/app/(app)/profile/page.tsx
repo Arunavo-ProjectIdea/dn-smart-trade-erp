@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -7,8 +9,56 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { User, Lock, Settings, Activity } from "lucide-react"
+import { toast } from "sonner"
+import { useState } from "react"
 
 export default function ProfilePage() {
+  const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)
+  const [isSavingPersonal, setIsSavingPersonal] = useState(false)
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false)
+
+  const handleAvatarChange = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsUpdatingAvatar(true)
+    setTimeout(() => {
+      setIsUpdatingAvatar(false)
+      toast.success("Avatar updated successfully!")
+    }, 1000)
+  }
+
+  const handlePersonalSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingPersonal(true)
+    setTimeout(() => {
+      setIsSavingPersonal(false)
+      toast.success("Personal information saved successfully!")
+    }, 1000)
+  }
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsUpdatingPassword(true)
+    setTimeout(() => {
+      setIsUpdatingPassword(false)
+      toast.success("Password updated successfully!")
+    }, 1000)
+  }
+
+  const handlePreferencesSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingPreferences(true)
+    setTimeout(() => {
+      setIsSavingPreferences(false)
+      toast.success("Preferences saved successfully!")
+    }, 1000)
+  }
+
+  const handleEnable2FA = (e: React.MouseEvent) => {
+    e.preventDefault()
+    toast.info("Two-Factor Authentication setup instructions sent to your email.")
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full pb-10">
       <div>
@@ -50,66 +100,76 @@ export default function ProfilePage() {
                 <AvatarFallback>AU</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
-                <Button variant="outline">Change Avatar</Button>
+                <Button variant="outline" onClick={handleAvatarChange} disabled={isUpdatingAvatar}>
+                  {isUpdatingAvatar ? "Uploading..." : "Change Avatar"}
+                </Button>
                 <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Max size of 2MB.</p>
               </div>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Update your contact details and basic information.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" defaultValue="Admin" />
+            <form onSubmit={handlePersonalSubmit}>
+              <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>Update your contact details and basic information.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input id="firstName" defaultValue="Admin" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input id="lastName" defaultValue="User" required />
+                  </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" defaultValue="User" />
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input id="email" type="email" defaultValue="admin@dnsmarttrade.com" required />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" defaultValue="admin@dnsmarttrade.com" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" type="tel" defaultValue="+1 (555) 123-4567" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Save Changes</Button>
-            </CardFooter>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input id="phone" type="tel" defaultValue="+1 (555) 123-4567" required />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isSavingPersonal}>
+                  {isSavingPersonal ? "Saving..." : "Save Changes"}
+                </Button>
+              </CardFooter>
+            </form>
           </Card>
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Password</CardTitle>
-              <CardDescription>Change your password to keep your account secure.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="current">Current Password</Label>
-                <Input id="current" type="password" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new">New Password</Label>
-                <Input id="new" type="password" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm">Confirm New Password</Label>
-                <Input id="confirm" type="password" />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Update Password</Button>
-            </CardFooter>
+            <form onSubmit={handlePasswordSubmit}>
+              <CardHeader>
+                <CardTitle>Password</CardTitle>
+                <CardDescription>Change your password to keep your account secure.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current">Current Password</Label>
+                  <Input id="current" type="password" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new">New Password</Label>
+                  <Input id="new" type="password" required minLength={8} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm">Confirm New Password</Label>
+                  <Input id="confirm" type="password" required minLength={8} />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isUpdatingPassword}>
+                  {isUpdatingPassword ? "Updating..." : "Update Password"}
+                </Button>
+              </CardFooter>
+            </form>
           </Card>
           
           <Card>
@@ -123,7 +183,7 @@ export default function ProfilePage() {
                   <p className="font-medium">Authenticator App</p>
                   <p className="text-sm text-muted-foreground">Not configured</p>
                 </div>
-                <Button variant="outline">Enable</Button>
+                <Button variant="outline" onClick={handleEnable2FA}>Enable</Button>
               </div>
             </CardContent>
           </Card>
@@ -131,38 +191,42 @@ export default function ProfilePage() {
 
         <TabsContent value="preferences" className="space-y-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Notifications</CardTitle>
-              <CardDescription>Choose what updates you want to receive.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <Checkbox id="email-notif" defaultChecked />
-                <div className="space-y-1 leading-none">
-                  <Label htmlFor="email-notif">Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">Receive daily summaries and critical alerts.</p>
+            <form onSubmit={handlePreferencesSubmit}>
+              <CardHeader>
+                <CardTitle>Notifications</CardTitle>
+                <CardDescription>Choose what updates you want to receive.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="email-notif" defaultChecked />
+                  <div className="space-y-1 leading-none">
+                    <Label htmlFor="email-notif">Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">Receive daily summaries and critical alerts.</p>
+                  </div>
                 </div>
-              </div>
-              <Separator />
-              <div className="flex items-start space-x-3">
-                <Checkbox id="sms-notif" />
-                <div className="space-y-1 leading-none">
-                  <Label htmlFor="sms-notif">SMS Alerts</Label>
-                  <p className="text-sm text-muted-foreground">Get text messages for important events.</p>
+                <Separator />
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="sms-notif" />
+                  <div className="space-y-1 leading-none">
+                    <Label htmlFor="sms-notif">SMS Alerts</Label>
+                    <p className="text-sm text-muted-foreground">Get text messages for important events.</p>
+                  </div>
                 </div>
-              </div>
-              <Separator />
-              <div className="flex items-start space-x-3">
-                <Checkbox id="marketing" />
-                <div className="space-y-1 leading-none">
-                  <Label htmlFor="marketing">Marketing Emails</Label>
-                  <p className="text-sm text-muted-foreground">Receive promotional offers and product updates.</p>
+                <Separator />
+                <div className="flex items-start space-x-3">
+                  <Checkbox id="marketing" />
+                  <div className="space-y-1 leading-none">
+                    <Label htmlFor="marketing">Marketing Emails</Label>
+                    <p className="text-sm text-muted-foreground">Receive promotional offers and product updates.</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button>Save Preferences</Button>
-            </CardFooter>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isSavingPreferences}>
+                  {isSavingPreferences ? "Saving..." : "Save Preferences"}
+                </Button>
+              </CardFooter>
+            </form>
           </Card>
         </TabsContent>
 
