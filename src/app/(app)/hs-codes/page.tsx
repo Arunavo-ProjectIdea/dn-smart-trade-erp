@@ -551,7 +551,7 @@ export default function HSCodesPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-8 pb-12">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="Customs HS Code Database" 
         description="Comprehensive WCO Harmonized System classification, duty schedules, and intelligent search."
@@ -559,7 +559,7 @@ export default function HSCodesPage() {
 
       {/* 1. Statistics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total HS Codes</p>
@@ -576,7 +576,7 @@ export default function HSCodesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</p>
@@ -593,7 +593,7 @@ export default function HSCodesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Avg CD Duty Rate</p>
@@ -608,7 +608,7 @@ export default function HSCodesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Category</p>
@@ -676,7 +676,7 @@ export default function HSCodesPage() {
       </div>
 
       {/* 4. Search Bar & Filters */}
-      <Card className="shadow-md border-border/80 bg-card/80 backdrop-blur-xl">
+      <Card className="rounded-xl shadow-sm border-border/60 bg-card/80 backdrop-blur-xl">
         <CardContent className="p-5">
           <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
             
@@ -833,7 +833,7 @@ export default function HSCodesPage() {
         
         {/* Left Sidebar: Recent Searches */}
         <div className="lg:col-span-1 space-y-4">
-          <Card className="border-border/80 shadow-sm bg-card/70 backdrop-blur-xl">
+          <Card className="rounded-xl border-border/60 shadow-sm bg-card/70 backdrop-blur-xl">
             <CardHeader className="pb-3 border-b border-border/50">
               <CardTitle className="text-sm font-semibold flex items-center justify-between">
                 <span className="flex items-center gap-2">
@@ -887,7 +887,7 @@ export default function HSCodesPage() {
         <div className="lg:col-span-3 space-y-4">
           
           {/* Result Summary Bar */}
-          <div className="flex flex-wrap items-center justify-between bg-card/70 backdrop-blur-xl p-3.5 rounded-xl border border-border/80 shadow-sm gap-3">
+          <div className="flex flex-wrap items-center justify-between bg-card/70 backdrop-blur-xl p-3.5 rounded-xl border border-border/60 shadow-sm gap-3">
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <p className="font-semibold text-foreground flex items-center gap-2">
                 <span>Matching HS Codes:</span>
@@ -922,7 +922,7 @@ export default function HSCodesPage() {
 
           {/* Results Table / Skeleton / Empty */}
           {isLoading ? (
-            <Card className="border-border/80">
+            <Card className="rounded-xl border-border/60">
               <CardContent className="p-6 space-y-4">
                 <Skeleton className="h-10 w-full rounded-xl" />
                 <Skeleton className="h-14 w-full rounded-xl" />
@@ -932,7 +932,7 @@ export default function HSCodesPage() {
               </CardContent>
             </Card>
           ) : filteredData.length === 0 ? (
-            <Card className="border-dashed border-2 border-border/80 bg-card/50">
+            <Card className="rounded-xl border-dashed border-2 border-border/60 bg-card/50">
               <CardContent className="py-16 flex flex-col items-center justify-center text-center">
                 <div className="p-4 rounded-full bg-muted/60 mb-4">
                   <PackageSearch className="h-10 w-10 text-muted-foreground/50" />
@@ -947,7 +947,7 @@ export default function HSCodesPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="bg-card/70 backdrop-blur-xl rounded-2xl border border-border/80 shadow-sm overflow-hidden">
+            <div className="bg-card/70 backdrop-blur-xl rounded-xl border border-border/60 shadow-sm overflow-hidden">
               <DataTable 
                 columns={columns} 
                 data={filteredData}

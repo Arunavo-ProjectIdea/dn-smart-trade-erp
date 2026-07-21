@@ -2,7 +2,6 @@
 
 import { use } from "react"
 import { MapPin, Truck, Calendar, Package, FileText, ChevronRight } from "lucide-react"
-import { useRouter } from "next/navigation"
 
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge, StatusType } from "@/components/erp/status-badge"

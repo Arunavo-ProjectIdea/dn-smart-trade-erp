@@ -5,23 +5,13 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { 
   Calculator, 
   RefreshCcw, 
-  Search, 
   DollarSign, 
   Hash, 
   Globe, 
   Printer, 
   Copy, 
   Check, 
-  Percent, 
-  Scale, 
-  Tag, 
-  Info, 
-  ArrowRight,
-  ShieldCheck,
-  TrendingUp,
-  FileSpreadsheet,
-  CheckCircle2,
-  Sparkles
+  FileSpreadsheet
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -147,7 +137,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
   }, [results])
 
   return (
-    <div className="flex flex-col gap-8 pb-14">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="Customs Duty & Tariff Calculator" 
         description="Dynamic assessment of landed costs, customs duties, SD, VAT, AIT, and regulatory tariffs."
@@ -157,7 +147,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
         
         {/* Left Column: Calculation Inputs Form */}
         <div className="lg:col-span-5 space-y-6">
-          <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-md overflow-hidden">
+          <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/60 bg-muted/30 pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
@@ -351,7 +341,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
               {/* Hero Metric Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 
-                <Card className="bg-card/70 backdrop-blur-xl border-border/80 p-4 shadow-sm">
+                <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 p-4 shadow-sm">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Assessable Base (BDT)</p>
                   <p className="text-xl font-extrabold font-mono text-foreground mt-1.5">
                     {formatCurrency(results.baseValueBDT)}
@@ -359,7 +349,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                   <p className="text-[10px] text-muted-foreground mt-1">Landed items evaluation</p>
                 </Card>
 
-                <Card className="bg-amber-500/10 border-amber-500/25 p-4 shadow-sm">
+                <Card className="rounded-xl bg-amber-500/10 border-amber-500/25 p-4 shadow-sm">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">Total Duties & Taxes</p>
                   <p className="text-xl font-extrabold font-mono text-amber-600 dark:text-amber-400 mt-1.5">
                     {formatCurrency(results.totalTaxAmount)}
@@ -369,7 +359,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                   </p>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-card border-primary/30 p-4 shadow-sm">
+                <Card className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-card border-primary/30 p-4 shadow-sm">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">Grand Total Landed Cost</p>
                   <p className="text-xl font-extrabold font-mono text-primary mt-1.5">
                     {formatCurrency(results.grandTotalAmount)}
@@ -380,7 +370,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
               </div>
 
               {/* Detailed Breakdown Card */}
-              <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-md overflow-hidden">
+              <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
                 <CardHeader className="border-b border-border/60 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <CardTitle className="text-lg font-bold flex items-center gap-2">
@@ -531,7 +521,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
               </Card>
             </div>
           ) : (
-            <Card className="border-dashed border-2 border-border/80 bg-card/50">
+            <Card className="rounded-xl border-dashed border-2 border-border/60 bg-card/50">
               <CardContent className="py-20 flex flex-col items-center justify-center text-center">
                 <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
                   <Calculator className="h-12 w-12 text-primary/60" />

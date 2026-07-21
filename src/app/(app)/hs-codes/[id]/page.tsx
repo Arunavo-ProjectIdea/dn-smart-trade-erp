@@ -19,8 +19,7 @@ import {
   ArrowRight
 } from "lucide-react"
 
-import { PageHeader } from "@/components/erp/page-header"
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -59,10 +58,10 @@ export default function HSCodeDetailsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-14">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       
       {/* Hero Navigation & Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/70 backdrop-blur-xl p-6 rounded-2xl border border-border/80 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/70 backdrop-blur-xl p-6 rounded-xl border border-border/60 shadow-sm">
         <div className="flex items-center gap-4">
           <Button 
             variant="outline" 
@@ -121,7 +120,7 @@ export default function HSCodeDetailsPage() {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Product Information Card */}
-          <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
+          <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/60 pb-4">
               <CardTitle className="text-lg font-bold flex items-center gap-2">
                 <Info className="h-5 w-5 text-primary" /> Product Classification Information
@@ -154,7 +153,7 @@ export default function HSCodeDetailsPage() {
           </Card>
 
           {/* Tax Rates & Duties Card */}
-          <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
+          <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/60 pb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -223,7 +222,7 @@ export default function HSCodeDetailsPage() {
         <div className="lg:col-span-1 space-y-8">
           
           {/* Policy Notes */}
-          <Card className="border-amber-500/30 bg-amber-500/5 backdrop-blur-xl shadow-sm overflow-hidden">
+          <Card className="rounded-xl border-amber-500/30 bg-amber-500/5 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="pb-3 border-b border-amber-500/15">
               <CardTitle className="text-base font-bold flex items-center gap-2 text-amber-700 dark:text-amber-300">
                 <ShieldAlert className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -238,7 +237,7 @@ export default function HSCodeDetailsPage() {
           </Card>
 
           {/* Required Documents */}
-          <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
+          <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="pb-3 border-b border-border/60">
               <CardTitle className="text-base font-bold flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
@@ -277,7 +276,7 @@ export default function HSCodeDetailsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {relatedCodes.map((rel) => (
-              <Card key={rel.code} className="border-border/70 bg-card/70 backdrop-blur-xl hover:border-primary/40 transition-all duration-200 shadow-xs group">
+              <Card key={rel.code} className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl hover:border-primary/40 transition-all duration-200 shadow-sm group">
                 <CardContent className="p-4 flex flex-col justify-between h-full space-y-3">
                   <div>
                     <div className="flex items-center justify-between">

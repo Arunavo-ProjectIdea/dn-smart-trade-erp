@@ -64,7 +64,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full pb-10">
+    <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -93,7 +93,7 @@ export default function SettingsPage() {
         </TabsList>
 
         <TabsContent value="organization" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveOrganization}>
               <CardHeader>
                 <CardTitle>Organization Details</CardTitle>
@@ -139,7 +139,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleApplySecurity}>
               <CardHeader>
                 <CardTitle>Security Policies</CardTitle>
@@ -187,7 +187,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveAlerts}>
               <CardHeader>
                 <CardTitle>Alert Preferences</CardTitle>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="integrations" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveConfig}>
               <CardHeader>
                 <CardTitle>API Keys & Endpoints</CardTitle>

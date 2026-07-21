@@ -114,7 +114,7 @@ export function ReportTabs({ filters }: ReportTabsProps) {
       </TabsList>
       
       <TabsContent value="operational">
-        <Card>
+        <Card className="rounded-xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Recent Shipments</CardTitle>
             <CardDescription>
@@ -163,7 +163,7 @@ export function ReportTabs({ filters }: ReportTabsProps) {
       </TabsContent>
 
       <TabsContent value="financial">
-        <Card>
+        <Card className="rounded-xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Financial Summary</CardTitle>
             <CardDescription>
@@ -214,7 +214,7 @@ export function ReportTabs({ filters }: ReportTabsProps) {
       </TabsContent>
 
       <TabsContent value="performance">
-        <Card>
+        <Card className="rounded-xl border-border/60 shadow-sm">
           <CardHeader>
             <CardTitle>Performance Metrics</CardTitle>
             <CardDescription>

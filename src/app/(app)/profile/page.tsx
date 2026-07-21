@@ -100,7 +100,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full pb-10">
+    <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -129,7 +129,7 @@ export default function ProfilePage() {
         </TabsList>
 
         <TabsContent value="personal" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>Avatar & Public Profile</CardTitle>
               <CardDescription>Update how you appear to others.</CardDescription>
@@ -158,7 +158,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handlePersonalSubmit}>
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
@@ -194,7 +194,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handlePasswordSubmit}>
               <CardHeader>
                 <CardTitle>Password</CardTitle>
@@ -222,7 +222,7 @@ export default function ProfilePage() {
             </form>
           </Card>
           
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>Two-Factor Authentication</CardTitle>
               <CardDescription>Add an extra layer of security to your account.</CardDescription>
@@ -240,7 +240,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="preferences" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handlePreferencesSubmit}>
               <CardHeader>
                 <CardTitle>Notifications</CardTitle>
@@ -281,7 +281,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
               <CardDescription>Review your recent account actions.</CardDescription>

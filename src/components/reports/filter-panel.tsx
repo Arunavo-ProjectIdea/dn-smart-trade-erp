@@ -69,7 +69,7 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
   }
 
   return (
-    <Card>
+    <Card className="rounded-xl border-border/60 shadow-sm">
       <CardContent className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
           <div className="space-y-2">

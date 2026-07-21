@@ -24,14 +24,11 @@ import {
   Clock, 
   HardDrive, 
   ChevronRight,
-  Sparkles,
-  ShieldCheck,
-  FileCheck,
-  Share2
+  ShieldCheck
 } from "lucide-react"
 
 import { Button, buttonVariants } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { mockDocuments, DocumentStatus, DocumentActivity, DocumentVersion } from "@/lib/mock-data/documents"
 import { useToast } from "@/components/ui/use-toast"
@@ -48,14 +45,14 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
   const { toast } = useToast()
   const [status, setStatus] = useState<DocumentStatus>(documentItem.status)
   const [activities, setActivities] = useState<DocumentActivity[]>(documentItem.activities)
-  const [versions, setVersions] = useState<DocumentVersion[]>(documentItem.versions || [])
+  const [versions] = useState<DocumentVersion[]>(documentItem.versions || [])
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
 
   // Preview interactive controls state
   const [zoomLevel, setZoomLevel] = useState<number>(100)
   const [rotation, setRotation] = useState<number>(0)
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [currentPage] = useState<number>(1)
   const totalPages = 3
 
   const handleStatusChange = (newStatus: DocumentStatus) => {
@@ -151,7 +148,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
         
         {/* Left 2 Columns: Interactive Preview Section */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className={`flex flex-col overflow-hidden transition-all duration-300 rounded-2xl shadow-xs border ${
+          <Card className={`flex flex-col overflow-hidden transition-all duration-300 rounded-xl shadow-sm border-border/60 ${
             isFullscreen ? "fixed inset-4 z-50 h-[calc(100vh-2rem)] w-[calc(100vw-2rem)]" : "min-h-[680px]"
           }`}>
             {/* Preview Toolbar */}
@@ -293,7 +290,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
                   </div>
 
                   <p className="text-[11px] leading-relaxed italic text-muted-foreground/80">
-                    "{documentItem.description}"
+                    &quot;{documentItem.description}&quot;
                   </p>
                 </div>
 
@@ -326,7 +323,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
         <div className="space-y-6">
           
           {/* Metadata Card */}
-          <Card className="rounded-2xl shadow-xs border">
+          <Card className="rounded-xl shadow-sm border-border/60">
             <CardHeader className="p-5 border-b">
               <CardTitle className="text-lg font-bold">Document Information</CardTitle>
             </CardHeader>
@@ -402,7 +399,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
           </Card>
 
           {/* Workflow Action Buttons Card */}
-          <Card className="rounded-2xl shadow-xs border">
+          <Card className="rounded-xl shadow-sm border-border/60">
             <CardHeader className="p-5 border-b">
               <CardTitle className="text-lg font-bold">Workflow Review</CardTitle>
             </CardHeader>
@@ -440,7 +437,7 @@ export default function DocumentDetailsPage({ params }: { params: Promise<{ id: 
           </Card>
 
           {/* Tabs: Version History & Activity Audit Trail */}
-          <Card className="rounded-2xl shadow-xs border">
+          <Card className="rounded-xl shadow-sm border-border/60">
             <Tabs defaultValue="versions" className="w-full">
               <CardHeader className="p-5 border-b pb-0">
                 <TabsList className="grid w-full grid-cols-2 rounded-xl">

@@ -42,13 +42,13 @@ export default function ReportsPage() {
   }
 
   return (
-    <>
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="Reports & Analytics" 
         description="Comprehensive insights and performance metrics."
       />
       
-      <div className="space-y-6 mt-4">
+      <div className="space-y-6">
         <FilterPanel onApply={setFilters} />
         <KPICards />
         
@@ -64,6 +64,6 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

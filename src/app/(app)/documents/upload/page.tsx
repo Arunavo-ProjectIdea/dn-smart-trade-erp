@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ArrowLeft, UploadCloud, ChevronRight } from "lucide-react"
+import { ArrowLeft, ChevronRight } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { DocumentUploadForm } from "@/components/erp/document-upload-form"
 
@@ -18,8 +18,8 @@ export default function DocumentUploadPage() {
       </div>
 
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-6">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div className="flex items-start gap-4">
           <Link 
             href="/documents" 
             className={buttonVariants({ variant: "outline", size: "icon" })}
@@ -27,11 +27,11 @@ export default function DocumentUploadPage() {
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">
               Upload New Documents
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="text-muted-foreground">
               Add single or batch trade documents with metadata and client linkages.
             </p>
           </div>

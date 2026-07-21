@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Bot, User, Sparkles, CornerDownLeft, History, Command } from "lucide-react"
+import { Bot, Sparkles, CornerDownLeft, History, Command } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -45,7 +45,7 @@ export default function AIAssistantPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 h-[calc(100vh-8rem)]">
+    <div className="flex flex-col gap-6 h-[calc(100vh-8rem)] animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight text-foreground">AI Trade Assistant</h1>
         <p className="text-muted-foreground mt-2">
@@ -55,7 +55,7 @@ export default function AIAssistantPage() {
       
       <div className="flex flex-1 gap-6 overflow-hidden">
         {/* Sidebar: History */}
-        <Card className="hidden lg:flex flex-col w-80 bg-card border-border shadow-sm">
+        <Card className="hidden lg:flex flex-col w-80 bg-card rounded-xl border-border/60 shadow-sm">
           <CardHeader className="pb-4">
             <CardTitle className="text-sm flex items-center gap-2">
               <History className="h-4 w-4" />
@@ -76,7 +76,7 @@ export default function AIAssistantPage() {
         </Card>
 
         {/* Main Chat Interface */}
-        <Card className="flex flex-col flex-1 shadow-md border-border bg-card overflow-hidden">
+        <Card className="flex flex-col flex-1 rounded-xl shadow-sm border-border/60 bg-card overflow-hidden">
           <CardHeader className="border-b bg-muted/20 py-4">
             <CardTitle className="flex items-center gap-2 text-base">
               <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center">
