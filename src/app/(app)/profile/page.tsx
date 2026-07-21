@@ -21,6 +21,15 @@ export default function ProfilePage() {
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [isSavingPreferences, setIsSavingPreferences] = useState(false)
 
+  const [activities, setActivities] = useState<{action: string, date: string}[]>([
+    { action: "Logged in from Chrome (Windows)", date: new Date().toLocaleString() },
+    { action: "Enabled Two-Factor Authentication", date: "Oct 10, 2023, 10:00:00 AM" }
+  ])
+
+  const addActivity = (action: string) => {
+    setActivities(prev => [{ action, date: new Date().toLocaleString() }, ...prev])
+  }
+
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
   }
@@ -39,6 +48,7 @@ export default function ProfilePage() {
     setTimeout(() => {
       setIsUpdatingAvatar(false)
       toast.success("Avatar updated successfully!")
+      addActivity("Updated Profile Avatar")
     }, 1000)
   }
 
@@ -48,6 +58,7 @@ export default function ProfilePage() {
     setTimeout(() => {
       setIsSavingPersonal(false)
       toast.success("Personal information saved successfully!")
+      addActivity("Updated Personal Information")
     }, 1000)
   }
 
@@ -67,6 +78,7 @@ export default function ProfilePage() {
     setTimeout(() => {
       setIsUpdatingPassword(false)
       toast.success("Password updated successfully!")
+      addActivity("Changed Password")
       ;(e.target as HTMLFormElement).reset()
     }, 1000)
   }
@@ -77,12 +89,14 @@ export default function ProfilePage() {
     setTimeout(() => {
       setIsSavingPreferences(false)
       toast.success("Preferences saved successfully!")
+      addActivity("Updated Preferences")
     }, 1000)
   }
 
   const handleEnable2FA = (e: React.MouseEvent) => {
     e.preventDefault()
     toast.info("Two-Factor Authentication setup instructions sent to your email.")
+    addActivity("Initiated Two-Factor Authentication Setup")
   }
 
   return (
@@ -274,12 +288,7 @@ export default function ProfilePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  { action: "Logged in from Chrome (Windows)", date: "Today, 10:45 AM" },
-                  { action: "Updated Profile Avatar", date: "Yesterday, 2:30 PM" },
-                  { action: "Changed Password", date: "Oct 15, 2023" },
-                  { action: "Enabled Two-Factor Authentication", date: "Oct 10, 2023" }
-                ].map((item, i) => (
+                {activities.map((item, i) => (
                   <div key={i} className="flex justify-between items-center text-sm">
                     <span className="font-medium">{item.action}</span>
                     <span className="text-muted-foreground">{item.date}</span>
