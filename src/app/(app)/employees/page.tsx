@@ -11,10 +11,12 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { mockEmployees, Employee } from "@/lib/mock-data/employees"
+import { useToast } from "@/components/ui/use-toast"
 import { AuthService } from "@/lib/auth"
 
 export default function EmployeesPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [data, setData] = useState<Employee[]>(mockEmployees)
   
   // Dialog States
@@ -38,7 +40,7 @@ export default function EmployeesPage() {
 
   const handleResetPassword = () => {
     if (resetId) {
-      alert(`Password reset link sent to employee ID: ${resetId}`)
+      toast({ title: "Password Reset", description: `Password reset link sent to employee ID: ${resetId}` })
       setResetId(null)
     }
   }
@@ -85,25 +87,23 @@ export default function EmployeesPage() {
     {
       header: "Actions",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Link 
             href={`/employees/${item.id}`}
             className={buttonVariants({ variant: "ghost", size: "icon" })}
             title="View Employee"
           >
-            <Eye className="h-4 w-4" />
+            <Eye className="size-4" />
             <span className="sr-only">View</span>
           </Link>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-muted-foreground hover:text-foreground"
+          <Link 
+            href={`/employees/${item.id}/edit`}
+            className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
             title="Edit Employee"
-            onClick={() => alert("Edit mode mock")}
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="size-4" />
             <span className="sr-only">Edit</span>
-          </Button>
+          </Link>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -111,7 +111,7 @@ export default function EmployeesPage() {
             title="Reset Password"
             onClick={() => setResetId(item.id)}
           >
-            <KeyRound className="h-4 w-4" />
+            <KeyRound className="size-4" />
             <span className="sr-only">Reset Password</span>
           </Button>
           <Button 
@@ -122,7 +122,7 @@ export default function EmployeesPage() {
             disabled={item.status === 'Inactive'}
             onClick={() => setDeactivateId(item.id)}
           >
-            <UserX className="h-4 w-4" />
+            <UserX className="size-4" />
             <span className="sr-only">Deactivate</span>
           </Button>
         </div>
@@ -131,13 +131,13 @@ export default function EmployeesPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 animate-in fade-in duration-500">
       <PageHeader 
         title="Employee Management" 
         description="Manage system access, roles, and profiles for all internal staff."
         action={
-          <Link href="/employees/new" className={buttonVariants({ variant: "default" })}>
-            <Plus className="mr-2 h-4 w-4" /> Add Employee
+          <Link href="/employees/new" className={buttonVariants({ variant: "default", className: "shadow-sm" })}>
+            <Plus className="mr-2 size-4" /> Add Employee
           </Link>
         }
       />
@@ -146,7 +146,7 @@ export default function EmployeesPage() {
         columns={columns} 
         data={data} 
         searchKey="fullName"
-        searchPlaceholder="Search by employee name..."
+        searchPlaceholder="Search employees..."
         emptyStateTitle="No employees found"
         emptyStateDescription="Get started by adding a new employee to the system."
       />

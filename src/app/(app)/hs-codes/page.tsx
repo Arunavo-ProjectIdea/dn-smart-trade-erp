@@ -10,7 +10,7 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -34,7 +34,7 @@ import { mockHSCodes, HSCode } from "@/lib/mock-data/hs-codes"
 function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => void }) {
   const [productDesc, setProductDesc] = useState("")
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<{ hsCode: string; confidence: number; reason: string; category: string; duties: { cd: number, vat: number, rd: number, ait: number, estimatedTotal: number } } | null>(null)
 
   const handleAnalyze = () => {
     if (!productDesc.trim()) return
@@ -701,7 +701,7 @@ export default function HSCodesPage() {
                   </p>
                   <div className="h-4 w-px bg-border"></div>
                   <p className="text-muted-foreground">
-                    Keyword: <span className="text-foreground font-medium">"{appliedQuery}"</span>
+                    Keyword: <span className="text-foreground font-medium">&quot;{appliedQuery}&quot;</span>
                   </p>
                 </>
               )}

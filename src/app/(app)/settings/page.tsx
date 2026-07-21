@@ -1,69 +1,194 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Separator } from "@/components/ui/separator"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Building2, ShieldCheck, Bell, Link as LinkIcon } from "lucide-react"
 
 export default function SettingsPage() {
   return (
-    <div className="flex flex-col gap-8 max-w-4xl">
+    <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full pb-10">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
         <p className="text-muted-foreground mt-2">
-          Configure application preferences and system integrations.
+          Configure application preferences, security, and system integrations.
         </p>
       </div>
       
-      <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Information</CardTitle>
-            <CardDescription>Update the primary business details used on invoices and reports.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Company Name</label>
-              <Input defaultValue="DN Smart Trade Ltd." />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Registered Address</label>
-              <Input defaultValue="123 Logistics Avenue, Trade City" />
-            </div>
-            <Button>Save Details</Button>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Notifications & Alerts</CardTitle>
-            <CardDescription>Manage how and when you receive system alerts.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">Email Notifications</p>
-                <p className="text-sm text-muted-foreground">Receive daily digests and urgent alerts via email.</p>
-              </div>
-              <Button variant="outline">Configure</Button>
-            </div>
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div>
-                <p className="font-medium">SMS Alerts</p>
-                <p className="text-sm text-muted-foreground">Get text messages for critical shipment delays.</p>
-              </div>
-              <Button variant="outline">Configure</Button>
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="organization" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="organization" className="flex items-center gap-2">
+            <Building2 className="size-4" />
+            <span>Organization</span>
+          </TabsTrigger>
+          <TabsTrigger value="security" className="flex items-center gap-2">
+            <ShieldCheck className="size-4" />
+            <span>Security</span>
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <Bell className="size-4" />
+            <span>Notifications</span>
+          </TabsTrigger>
+          <TabsTrigger value="integrations" className="flex items-center gap-2">
+            <LinkIcon className="size-4" />
+            <span>Integrations</span>
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>API & Integrations</CardTitle>
-            <CardDescription>Connect to third-party logistics providers and customs portals.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline">Manage API Keys</Button>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="organization" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Organization Details</CardTitle>
+              <CardDescription>Update the primary business details used on invoices and reports.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name</Label>
+                  <Input id="companyName" defaultValue="DN Smart Trade Ltd." />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="regNumber">Registration Number</Label>
+                  <Input id="regNumber" defaultValue="TR-998822" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Registered Address</Label>
+                <Input id="address" defaultValue="123 Logistics Avenue, Trade City" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry / Sector</Label>
+                <Select defaultValue="logistics">
+                  <SelectTrigger id="industry">
+                    <SelectValue placeholder="Select industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="logistics">Logistics & Supply Chain</SelectItem>
+                    <SelectItem value="retail">Retail & E-Commerce</SelectItem>
+                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button>Save Organization</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="security" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Security Policies</CardTitle>
+              <CardDescription>Manage global security policies for all users in the organization.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <Checkbox id="req-2fa" defaultChecked />
+                <div className="space-y-1 leading-none">
+                  <Label htmlFor="req-2fa">Enforce Two-Factor Authentication (2FA)</Label>
+                  <p className="text-sm text-muted-foreground">Require all users in the organization to use 2FA.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <Checkbox id="req-pw" defaultChecked />
+                <div className="space-y-1 leading-none">
+                  <Label htmlFor="req-pw">Strict Password Policy</Label>
+                  <p className="text-sm text-muted-foreground">Require uppercase, lowercase, numbers, and symbols.</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <Label htmlFor="timeout">Idle Session Timeout</Label>
+                <Select defaultValue="30">
+                  <SelectTrigger id="timeout">
+                    <SelectValue placeholder="Select timeout" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15">15 Minutes</SelectItem>
+                    <SelectItem value="30">30 Minutes</SelectItem>
+                    <SelectItem value="60">1 Hour</SelectItem>
+                    <SelectItem value="never">Never</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button>Apply Security Policies</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Alert Preferences</CardTitle>
+              <CardDescription>Manage how and when you receive system alerts.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <Checkbox id="email-daily" defaultChecked />
+                <div className="space-y-1 leading-none">
+                  <Label htmlFor="email-daily">Daily Digests</Label>
+                  <p className="text-sm text-muted-foreground">Receive a daily summary of system activity via email.</p>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-start space-x-3">
+                <Checkbox id="sms-critical" defaultChecked />
+                <div className="space-y-1 leading-none">
+                  <Label htmlFor="sms-critical">Critical SMS Alerts</Label>
+                  <p className="text-sm text-muted-foreground">Get text messages immediately for critical shipment delays or errors.</p>
+                </div>
+              </div>
+              <Separator />
+              <div className="flex items-start space-x-3">
+                <Checkbox id="webhook" />
+                <div className="space-y-1 leading-none">
+                  <Label htmlFor="webhook">Webhook Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Forward alerts to configured external webhooks (e.g. Slack/Discord).</p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button>Save Alerts</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="integrations" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>API Keys & Endpoints</CardTitle>
+              <CardDescription>Connect to third-party logistics providers and customs portals.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="api-key">Production API Key</Label>
+                <div className="flex gap-2">
+                  <Input id="api-key" type="password" defaultValue="sk_live_1234567890abcdef" readOnly />
+                  <Button variant="secondary">Reveal</Button>
+                  <Button variant="outline">Regenerate</Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Keep this key secret. It grants full access to your organization data.</p>
+              </div>
+              <Separator className="my-4" />
+              <div className="space-y-2">
+                <Label htmlFor="webhook-url">Webhook URL Endpoint</Label>
+                <Input id="webhook-url" type="url" placeholder="https://yourdomain.com/webhook" />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button>Save Configuration</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

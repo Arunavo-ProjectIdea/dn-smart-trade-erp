@@ -35,12 +35,12 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     await AuthService.login("admin@dnsmarttrade.com", "Admin")
-    router.push("/dashboard")
+    window.location.replace("/dashboard")
   }
 
   const handleDemoLogin = async (role: UserRole) => {
     await AuthService.login("demo@dnsmarttrade.com", role)
-    router.push("/dashboard")
+    window.location.replace("/dashboard")
   }
 
   return (
