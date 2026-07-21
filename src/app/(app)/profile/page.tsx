@@ -95,7 +95,10 @@ export default function ProfilePage() {
               <CardDescription>Update how you appear to others.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center gap-6">
-              <Avatar className="size-24">
+              <Avatar 
+                className="size-24 cursor-pointer hover:opacity-80 transition-opacity" 
+                onClick={handleAvatarChange}
+              >
                 <AvatarImage src="https://github.com/shadcn.png" />
                 <AvatarFallback>AU</AvatarFallback>
               </Avatar>
