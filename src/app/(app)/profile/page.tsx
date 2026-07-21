@@ -51,12 +51,23 @@ export default function ProfilePage() {
     }, 1000)
   }
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    
+    const formData = new FormData(e.currentTarget)
+    const newPassword = formData.get("new") as string
+    const confirmPassword = formData.get("confirm") as string
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New Password and Confirm New Password do not match!")
+      return
+    }
+
     setIsUpdatingPassword(true)
     setTimeout(() => {
       setIsUpdatingPassword(false)
       toast.success("Password updated successfully!")
+      ;(e.target as HTMLFormElement).reset()
     }, 1000)
   }
 
@@ -182,11 +193,11 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new">New Password</Label>
-                  <Input id="new" type="password" required minLength={8} />
+                  <Input id="new" name="new" type="password" required minLength={8} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm">Confirm New Password</Label>
-                  <Input id="confirm" type="password" required minLength={8} />
+                  <Input id="confirm" name="confirm" type="password" required minLength={8} />
                 </div>
               </CardContent>
               <CardFooter>
