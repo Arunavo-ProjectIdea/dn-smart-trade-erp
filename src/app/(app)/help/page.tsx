@@ -1,10 +1,22 @@
+"use client"
+
 import { PageHeader } from "@/components/erp/page-header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Search, Book, Truck, FileText, HelpCircle, MessageCircle } from "lucide-react"
+import { toast } from "sonner"
 
 export default function HelpPage() {
+  const handleCategoryClick = (category: string) => {
+    toast.info(`Opening "${category}" documentation...`)
+  }
+
+  const handleContactSupport = () => {
+    toast.success("Support ticket initiated! A representative will contact you shortly.")
+  }
+
   return (
     <div className="flex flex-col gap-8 pb-10 max-w-5xl mx-auto w-full">
       <PageHeader 
@@ -28,7 +40,7 @@ export default function HelpPage() {
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold tracking-tight">Categories</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card className="hover:border-primary/50 transition-colors cursor-pointer group">
+          <Card onClick={() => handleCategoryClick("Getting Started")} className="hover:border-primary/50 transition-colors cursor-pointer group">
             <CardHeader>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Book className="h-5 w-5 text-primary" />
@@ -41,7 +53,7 @@ export default function HelpPage() {
             </CardContent>
           </Card>
           
-          <Card className="hover:border-primary/50 transition-colors cursor-pointer group">
+          <Card onClick={() => handleCategoryClick("Managing Shipments")} className="hover:border-primary/50 transition-colors cursor-pointer group">
             <CardHeader>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <Truck className="h-5 w-5 text-primary" />
@@ -54,7 +66,7 @@ export default function HelpPage() {
             </CardContent>
           </Card>
           
-          <Card className="hover:border-primary/50 transition-colors cursor-pointer group">
+          <Card onClick={() => handleCategoryClick("Document Management")} className="hover:border-primary/50 transition-colors cursor-pointer group">
             <CardHeader>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
                 <FileText className="h-5 w-5 text-primary" />
@@ -72,32 +84,28 @@ export default function HelpPage() {
       {/* FAQ Layout */}
       <div className="space-y-4 mt-8">
         <h2 className="text-2xl font-semibold tracking-tight">Frequently Asked Questions</h2>
-        <div className="grid gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">How do I reset my password?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              You can reset your password by going to the Settings page or clicking "Forgot Password" on the login screen.
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Can I export shipment reports?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Yes, navigate to the Reports module where you can export all your shipment and customs data in CSV or PDF formats.
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">How is customs duty calculated?</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              Duty is calculated based on the HS code of the goods and the destination country's current tariff rates. Use the Duty Calculator tool for exact estimates.
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="px-6 py-2">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="text-base hover:no-underline">How do I reset my password?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                You can reset your password by going to the Settings page or clicking "Forgot Password" on the login screen.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger className="text-base hover:no-underline">Can I export shipment reports?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Yes, navigate to the Reports module where you can export all your shipment and customs data in CSV or PDF formats.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger className="text-base hover:no-underline">How is customs duty calculated?</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Duty is calculated based on the HS code of the goods and the destination country's current tariff rates. Use the Duty Calculator tool for exact estimates.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </Card>
       </div>
 
       {/* Support Cards */}
@@ -111,7 +119,7 @@ export default function HelpPage() {
             <p className="text-sm text-muted-foreground">Our support team is available 24/7 to assist you with any queries.</p>
           </div>
         </div>
-        <Button size="lg" className="shrink-0 gap-2">
+        <Button size="lg" className="shrink-0 gap-2" onClick={handleContactSupport}>
           <MessageCircle className="h-4 w-4" />
           Contact Support
         </Button>
