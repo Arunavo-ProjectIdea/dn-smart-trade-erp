@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button"
 import Link from "next/link"
 import { AuthService } from "@/lib/auth"
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { LogOut, Settings, User } from "lucide-react"
 import {
   DropdownMenu,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function UserNav() {
+  const router = useRouter()
   const [user, setUser] = useState<{name: string, email: string} | null>(null)
 
   useEffect(() => {
@@ -55,11 +57,11 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem render={<Link href="/profile" />}>
+          <DropdownMenuItem onClick={() => router.push("/profile")}>
             <User className="mr-2 h-4 w-4" />
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href="/settings" />}>
+          <DropdownMenuItem onClick={() => router.push("/settings")}>
             <Settings className="mr-2 h-4 w-4" />
             Settings
           </DropdownMenuItem>

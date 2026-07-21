@@ -10,13 +10,28 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { User, Lock, Settings, Activity } from "lucide-react"
 import { toast } from "sonner"
-import { useState } from "react"
+import { useState, useRef } from "react"
 
 export default function ProfilePage() {
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string>("https://github.com/shadcn.png")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const [isSavingPersonal, setIsSavingPersonal] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [isSavingPreferences, setIsSavingPreferences] = useState(false)
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const url = URL.createObjectURL(file)
+      setAvatarPreview(url)
+    }
+  }
 
   const handleAvatarChange = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -36,12 +51,23 @@ export default function ProfilePage() {
     }, 1000)
   }
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    
+    const formData = new FormData(e.currentTarget)
+    const newPassword = formData.get("new") as string
+    const confirmPassword = formData.get("confirm") as string
+
+    if (newPassword !== confirmPassword) {
+      toast.error("New Password and Confirm New Password do not match!")
+      return
+    }
+
     setIsUpdatingPassword(true)
     setTimeout(() => {
       setIsUpdatingPassword(false)
       toast.success("Password updated successfully!")
+      ;(e.target as HTMLFormElement).reset()
     }, 1000)
   }
 
@@ -95,13 +121,23 @@ export default function ProfilePage() {
               <CardDescription>Update how you appear to others.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center gap-6">
-              <Avatar className="size-24">
-                <AvatarImage src="https://github.com/shadcn.png" />
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                className="hidden" 
+                accept="image/png, image/jpeg, image/gif" 
+                onChange={handleFileChange} 
+              />
+              <Avatar 
+                className="size-24 cursor-pointer hover:opacity-80 transition-opacity" 
+                onClick={handleAvatarClick}
+              >
+                <AvatarImage src={avatarPreview} />
                 <AvatarFallback>AU</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <Button variant="outline" onClick={handleAvatarChange} disabled={isUpdatingAvatar}>
-                  {isUpdatingAvatar ? "Uploading..." : "Change Avatar"}
+                  {isUpdatingAvatar ? "Uploading..." : "Save Avatar"}
                 </Button>
                 <p className="text-xs text-muted-foreground">JPG, GIF or PNG. Max size of 2MB.</p>
               </div>
@@ -157,11 +193,11 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="new">New Password</Label>
-                  <Input id="new" type="password" required minLength={8} />
+                  <Input id="new" name="new" type="password" required minLength={8} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="confirm">Confirm New Password</Label>
-                  <Input id="confirm" type="password" required minLength={8} />
+                  <Input id="confirm" name="confirm" type="password" required minLength={8} />
                 </div>
               </CardContent>
               <CardFooter>
