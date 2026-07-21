@@ -10,10 +10,8 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { mockClients, Client } from "@/lib/mock-data/clients"
-import { useToast } from "@/components/ui/use-toast"
 
 export default function ClientsPage() {
-  const { toast } = useToast()
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null)
   
   // In a real app, this would use React Query or SWR and a mutation

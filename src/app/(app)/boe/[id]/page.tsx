@@ -1,23 +1,24 @@
+"use client";
+
+import { use } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMockBOEById } from "@/lib/mock-data/boe";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Edit, Download, Printer, Copy, FileText, CheckCircle2, Package, MapPin, Building2, Anchor, Trash2 } from "lucide-react";
-import { BOEStatus } from "@/lib/types/boe";
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/erp/data-table";
 import { mockDocumentsList } from "@/lib/mock-data/document";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";import { PageHeader } from "@/components/erp/page-header";
+import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
 
-import { PageHeader } from "@/components/erp/page-header";
-import { StatusBadge } from "@/components/erp/status-badge";
-
-export default async function BOEDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+export default function BOEDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { toast } = useToast();
-  const resolvedParams = await params;
+  const resolvedParams = use(params);
   const boe = getMockBOEById(resolvedParams.id);
 
   if (!boe) {
@@ -41,7 +42,7 @@ export default async function BOEDetailsPage({ params }: { params: Promise<{ id:
       header: "Status", 
       accessorKey: "status" as keyof typeof boeDocs[0],
       cell: (item: typeof boeDocs[0]) => (
-          <StatusBadge status={item.status as any} />
+          <StatusBadge status={item.status as StatusType} />
       )
     },
     { 
@@ -68,7 +69,7 @@ export default async function BOEDetailsPage({ params }: { params: Promise<{ id:
                 title={boe.boeNumber} 
                 className="mb-0 gap-0"
               />
-              <StatusBadge status={boe.status as any} className="mt-1" />
+              <StatusBadge status={boe.status as StatusType} className="mt-1" />
             </div>
             <p className="text-sm text-muted-foreground">
               Created on {new Date(boe.createdAt).toLocaleDateString()}

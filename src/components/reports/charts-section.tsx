@@ -22,7 +22,7 @@ export function ChartsSection() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       {/* 1. Shipment Status Distribution */}
-      <Card className="col-span-1">
+      <Card className="col-span-1 rounded-xl border-border/60 shadow-sm">
         <CardHeader>
           <CardTitle>Shipment Status Distribution</CardTitle>
           <CardDescription>Current status of all active shipments</CardDescription>
@@ -55,7 +55,7 @@ export function ChartsSection() {
       </Card>
 
       {/* 2. Monthly Shipment Trend */}
-      <Card className="col-span-1">
+      <Card className="col-span-1 rounded-xl border-border/60 shadow-sm">
         <CardHeader>
           <CardTitle>Monthly Shipment Trend</CardTitle>
           <CardDescription>Shipment volume over the last 12 months</CardDescription>
@@ -76,7 +76,7 @@ export function ChartsSection() {
       </Card>
 
       {/* 3. Import vs Export Analysis */}
-      <Card className="col-span-1">
+      <Card className="col-span-1 rounded-xl border-border/60 shadow-sm">
         <CardHeader>
           <CardTitle>Import vs Export Analysis</CardTitle>
           <CardDescription>Comparison of import and export shipments</CardDescription>
@@ -99,7 +99,7 @@ export function ChartsSection() {
       </Card>
 
       {/* 4. Top Clients by Shipment Volume */}
-      <Card className="col-span-1">
+      <Card className="col-span-1 rounded-xl border-border/60 shadow-sm">
         <CardHeader>
           <CardTitle>Top Clients by Shipment Volume</CardTitle>
           <CardDescription>Highest contributing clients</CardDescription>
@@ -120,7 +120,7 @@ export function ChartsSection() {
       </Card>
 
       {/* 5. Revenue Analytics */}
-      <Card className="col-span-2">
+      <Card className="col-span-2 rounded-xl border-border/60 shadow-sm">
         <CardHeader>
           <CardTitle>Revenue Analytics</CardTitle>
           <CardDescription>Monthly revenue growth</CardDescription>

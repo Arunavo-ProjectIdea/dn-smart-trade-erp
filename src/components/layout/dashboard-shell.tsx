@@ -19,6 +19,7 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
   React.useEffect(() => {
     const savedState = localStorage.getItem("sidebarCollapsed")
     if (savedState !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDesktopSidebarOpen(savedState === "false")
     }
   }, [])

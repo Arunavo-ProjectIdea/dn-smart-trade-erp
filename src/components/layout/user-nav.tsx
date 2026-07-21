@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { buttonVariants } from "@/components/ui/button"
-import Link from "next/link"
+
 import { AuthService } from "@/lib/auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -24,6 +24,7 @@ export function UserNav() {
   useEffect(() => {
     const currentUser = AuthService.getCurrentUser()
     if (currentUser) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setUser(currentUser)
     }
   }, [])

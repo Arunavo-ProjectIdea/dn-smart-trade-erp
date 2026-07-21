@@ -4,14 +4,14 @@ import { Bell } from "lucide-react"
 
 export default function NotificationsPage() {
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="All Notifications"
         description="View and manage all your system alerts and messages."
       />
       
       <div className="flex flex-col gap-4 max-w-4xl">
-        <Card>
+        <Card className="rounded-xl border-border/60 shadow-sm">
           <CardContent className="flex items-start gap-4 p-6">
             <div className="rounded-full bg-primary/10 p-2 text-primary">
               <Bell className="h-5 w-5" />
@@ -24,7 +24,7 @@ export default function NotificationsPage() {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="rounded-xl border-border/60 shadow-sm">
           <CardContent className="flex items-start gap-4 p-6">
             <div className="rounded-full bg-primary/10 p-2 text-primary">
               <Bell className="h-5 w-5" />

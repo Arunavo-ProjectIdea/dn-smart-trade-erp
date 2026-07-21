@@ -270,7 +270,7 @@ export default function DocumentsPage() {
       />
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col gap-4 bg-card p-5 rounded-2xl border shadow-xs">
+      <div className="flex flex-col gap-4 bg-card p-5 rounded-xl border border-border/60 shadow-sm">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           
           {/* Search Input */}
@@ -366,7 +366,7 @@ export default function DocumentsPage() {
             </span>
             {searchQuery && (
               <Badge variant="secondary" className="gap-1.5 py-1 px-2.5 rounded-lg">
-                Search: "{searchQuery}"
+                Search: &quot;{searchQuery}&quot;
                 <X className="h-3 w-3 cursor-pointer" onClick={() => setSearchQuery("")} />
               </Badge>
             )}
@@ -420,7 +420,7 @@ export default function DocumentsPage() {
             return (
               <Card 
                 key={doc.id}
-                className={`group relative flex flex-col justify-between overflow-hidden transition-all duration-300 hover:shadow-lg border ${cardBorderStyle}`}
+                className={`group relative flex flex-col justify-between overflow-hidden transition-all duration-300 hover:shadow-md border-border/60 shadow-sm ${cardBorderStyle}`}
               >
                 {/* Header info */}
                 <CardHeader className="p-5 pb-3">

@@ -21,7 +21,13 @@ const categories = [
   "Machinery",
   "Chemicals",
   "Medical Equipment",
-  "Automobile Parts"
+  "Automobile Parts",
+  "Footwear",
+  "Base Metals",
+  "Telecommunications",
+  "Vehicles",
+  "Optical Instruments",
+  "Toys"
 ]
 
 const baseData = [

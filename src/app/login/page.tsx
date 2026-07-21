@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
 import { BarChart3, Briefcase, LayoutDashboard, Users, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -30,8 +29,6 @@ const itemVariants = {
 }
 
 export default function LoginPage() {
-  const router = useRouter()
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     await AuthService.login("admin@dnsmarttrade.com", "Admin")

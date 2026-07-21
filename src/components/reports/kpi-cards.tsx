@@ -63,7 +63,7 @@ export function KPICards() {
         
         return (
           <Link key={index} href={card.href} className="block transition-transform hover:scale-[1.02]">
-            <Card className="h-full hover:border-primary/50 transition-colors">
+            <Card className="h-full rounded-xl border-border/60 shadow-sm hover:border-primary/50 hover:shadow-md transition-all">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {card.title}

@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup,
 import { Plus, Search, FileSpreadsheet, MoreHorizontal, Download, Printer, Archive, Trash2, Edit, ChevronDown, ChevronUp } from "lucide-react";
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatusBadge } from "@/components/erp/status-badge";
+import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
 
 function BOEContent() {
   const { toast } = useToast();
@@ -228,7 +228,7 @@ function BOEContent() {
                     <TableCell>{boe.shipment.port}</TableCell>
                     <TableCell>{boe.products[0]?.hsCode || 'N/A'}</TableCell>
                     <TableCell>
-                      <StatusBadge status={boe.status as any} />
+                      <StatusBadge status={boe.status as StatusType} />
                     </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal)}
