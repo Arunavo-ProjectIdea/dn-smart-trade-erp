@@ -1,3 +1,6 @@
+"use client";
+
+import { use } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getMockBOEById } from "@/lib/mock-data/boe";
@@ -10,13 +13,12 @@ import { ArrowLeft, Edit, Download, Printer, Copy, FileText, CheckCircle2, Packa
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/erp/data-table";
 import { mockDocumentsList } from "@/lib/mock-data/document";
-
-
-import { PageHeader } from "@/components/erp/page-header";
+import { useToast } from "@/components/ui/use-toast";import { PageHeader } from "@/components/erp/page-header";
 import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
 
-export default async function BOEDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
+export default function BOEDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { toast } = useToast();
+  const resolvedParams = use(params);
   const boe = getMockBOEById(resolvedParams.id);
 
   if (!boe) {
