@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { PageHeader } from "@/components/erp/page-header";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, FileSpreadsheet, MoreHorizontal, Download, Printer, Archive, Trash2, Edit, ChevronDown, ChevronUp } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faSearch, faFileExcel, faEllipsis, faDownload, faCircle, faTrash, faPen, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
@@ -19,6 +20,7 @@ function BOEContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [statusFilter, setStatusFilter] = useState<string>(searchParams.get("status") || "all");
   const [clientFilter, setClientFilter] = useState<string>(searchParams.get("client") || "all");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
@@ -48,8 +50,8 @@ function BOEContent() {
   };
 
   const getSortIcon = (key: string) => {
-    if (sortConfig?.key !== key) return <ChevronDown className="h-4 w-4 opacity-20" />;
-    return sortConfig.direction === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
+    if (sortConfig?.key !== key) return <FontAwesomeIcon icon={faChevronDown} className="h-4 w-4 opacity-20" />;
+    return sortConfig.direction === "asc" ? <FontAwesomeIcon icon={faChevronUp} className="h-4 w-4" /> : <FontAwesomeIcon icon={faChevronDown} className="h-4 w-4" />;
   };
 
   const filteredBOEList = mockBOEList.filter((boe) => {
@@ -110,20 +112,30 @@ function BOEContent() {
         description="Manage customs declarations and bill of entry records."
         action={
           <Link href="/boe/create" className={buttonVariants()}>
-            <Plus className="mr-2 h-4 w-4" /> Create BOE
+            <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" /> Create BOE
           </Link>
         }
       />
       
       <Card>
-        <CardHeader>
-          <CardTitle>Recent BOE Documents</CardTitle>
-          <CardDescription>A list of recently filed Bill of Entry records.</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <div>
+            <CardTitle>Recent BOE Documents</CardTitle>
+            <CardDescription>A list of recently filed Bill of Entry records.</CardDescription>
+          </div>
+          <div className="hidden sm:flex items-center rounded-lg border border-border p-1 bg-muted/30">
+            <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
+              <FontAwesomeIcon icon={faCircle} className="size-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
+              <FontAwesomeIcon icon={faCircle} className="size-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row items-center gap-2 mb-6 justify-between">
             <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <FontAwesomeIcon icon={faSearch} className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input 
                 type="search" 
                 placeholder="Search BOE number or client..." 
@@ -172,15 +184,17 @@ function BOEContent() {
                 </Select>
               </div>
               <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export", description: "Exporting BOE data..." })}>
-                <Download className="mr-2 h-4 w-4" /> Export
+                <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Export
               </Button>
             </div>
           </div>
           
-          <div className="rounded-md border overflow-x-auto">
-            <Table className="min-w-[1000px]">
-              <TableHeader>
-                <TableRow>
+          {viewMode === "table" ? (
+          <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm">
+            <div className="relative w-full overflow-auto">
+              <Table className="min-w-[1000px]">
+                <TableHeader className="bg-muted/50">
+                  <TableRow className="hover:bg-transparent">
                   <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('boeNumber')}>
                     <div className="flex items-center gap-1">BOE Number {getSortIcon('boeNumber')}</div>
                   </TableHead>
@@ -212,10 +226,10 @@ function BOEContent() {
                   </TableRow>
                 ) : (
                   filteredBOEList.map((boe) => (
-                    <TableRow key={boe.id}>
+                    <TableRow key={boe.id} className="hover:bg-muted/50 transition-colors duration-200">
                     <TableCell className="font-medium">
                       <Link href={`/boe/${boe.id}`} className="flex items-center gap-2 hover:underline text-primary">
-                        <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                        <FontAwesomeIcon icon={faFileExcel} className="h-4 w-4 text-muted-foreground" />
                         {boe.boeNumber}
                       </Link>
                     </TableCell>
@@ -240,7 +254,7 @@ function BOEContent() {
                       <DropdownMenu>
                         <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", className: "h-8 w-8 p-0" })}>
                           <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
+                          <FontAwesomeIcon icon={faEllipsis} className="h-4 w-4" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuGroup>
@@ -251,22 +265,22 @@ function BOEContent() {
                           </DropdownMenuItem>
                           <DropdownMenuItem>
                              <Link href={`/boe/${boe.id}/edit`} className="flex w-full cursor-pointer items-center">
-                               <Edit className="mr-2 h-4 w-4" /> Edit
+                               <FontAwesomeIcon icon={faPen} className="mr-2 h-4 w-4" /> Edit
                              </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem onClick={() => toast({ title: "Download PDF", description: "Generating PDF..." })}>
-                            <Download className="mr-2 h-4 w-4" /> Download PDF
+                            <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Download PDF
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toast({ title: "Print", description: "Sending to printer..." })}>
-                            <Printer className="mr-2 h-4 w-4" /> Print
+                            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Print
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => toast({ title: "Archive", description: "This feature is coming soon." })}>
-                            <Archive className="mr-2 h-4 w-4" /> Archive
+                            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Archive
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleDelete(boe.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            <FontAwesomeIcon icon={faTrash} className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -275,7 +289,50 @@ function BOEContent() {
                 )))}
               </TableBody>
             </Table>
+            </div>
           </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
+              {filteredBOEList.map((boe) => (
+                <Card key={boe.id} className="group relative transition-all duration-300 hover:shadow-card hover:border-border/80 flex flex-col">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <FontAwesomeIcon icon={faFileExcel} className="size-5" />
+                      </div>
+                      <StatusBadge status={boe.status as StatusType} />
+                    </div>
+                    <CardTitle className="mt-4 truncate">
+                      <Link href={`/boe/${boe.id}`} className="hover:underline hover:text-primary transition-colors flex flex-col">
+                        <span>{boe.boeNumber}</span>
+                      </Link>
+                    </CardTitle>
+                    <CardDescription className="flex flex-col gap-1 mt-1">
+                      <span className="font-medium text-foreground">{boe.importer.clientName}</span>
+                      <span className="text-xs">{boe.importer.companyName}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-6 flex-1">
+                    <div className="space-y-4 text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Duty Amount</span>
+                        <span className="font-medium text-lg text-foreground">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal)}
+                        </span>
+                      </div>
+                      <div className="pt-2 border-t border-border/50 flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Port & Date</span>
+                        <div className="flex justify-between items-center text-muted-foreground font-medium">
+                          <span>{boe.shipment.port}</span>
+                          <span>{new Date(boe.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

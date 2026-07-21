@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { notFound, useRouter } from "next/navigation"
-import { Building, Mail, Phone, Calendar, Clock, KeyRound, UserX, Pencil, Briefcase } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle, faEnvelope, faPhone, faCalendar, faClock, faBriefcase } from "@fortawesome/free-solid-svg-icons";
 
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge } from "@/components/erp/status-badge"
@@ -73,7 +74,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           <div className="flex items-center gap-3">
             <StatusBadge status={employee.status} className="shadow-sm" />
             <Link href={`/employees/${employee.id}/edit`} className={buttonVariants({ variant: "outline", className: "shadow-sm" })}>
-              <Pencil className="mr-2 size-4" /> Edit
+              <FontAwesomeIcon icon={faCircle} className="mr-2 size-4" /> Edit
             </Link>
           </div>
         }
@@ -88,7 +89,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-start gap-3">
-                <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <FontAwesomeIcon icon={faEnvelope} className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Work Email</p>
                   <p className="text-sm text-muted-foreground">{employee.email}</p>
@@ -96,7 +97,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
               </div>
               
               <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <FontAwesomeIcon icon={faPhone} className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Phone</p>
                   <p className="text-sm text-muted-foreground">{employee.phone}</p>
@@ -104,7 +105,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
               </div>
               
               <div className="flex items-start gap-3">
-                <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">Department</p>
                   <p className="text-sm text-muted-foreground">{employee.department}</p>
@@ -112,7 +113,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
               </div>
               
               <div className="flex items-start gap-3">
-                <Briefcase className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <FontAwesomeIcon icon={faBriefcase} className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium">System Role</p>
                   <p className="text-sm text-muted-foreground">{employee.role}</p>
@@ -134,7 +135,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
             </div>
             
             <div className="flex items-start gap-3">
-              <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <FontAwesomeIcon icon={faClock} className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Last Login</p>
                 <p className="text-sm text-muted-foreground">
@@ -144,7 +145,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
             </div>
             
             <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+              <FontAwesomeIcon icon={faCalendar} className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium">Account Created</p>
                 <p className="text-sm text-muted-foreground">
@@ -199,7 +200,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
 
       <div className="flex flex-wrap gap-4">
         <Button variant="default" onClick={() => setResetOpen(true)} className="shadow-sm">
-          <KeyRound className="mr-2 size-4" /> Reset Password
+          <FontAwesomeIcon icon={faCircle} className="mr-2 size-4" /> Reset Password
         </Button>
         <Button 
           variant="destructive" 
@@ -207,7 +208,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
           disabled={employee.status === "Inactive"}
           className="shadow-sm"
         >
-          <UserX className="mr-2 size-4" /> Deactivate Account
+          <FontAwesomeIcon icon={faCircle} className="mr-2 size-4" /> Deactivate Account
         </Button>
       </div>
 

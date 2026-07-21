@@ -2,7 +2,8 @@
 
 import { use } from "react"
 import { notFound } from "next/navigation"
-import { Building2, Mail, Phone, MapPin, Truck, FileText, Activity } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBuilding, faEnvelope, faPhone, faLocationDot, faCircle, faFileLines, faChartLine } from "@fortawesome/free-solid-svg-icons";
 
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge } from "@/components/erp/status-badge"
@@ -145,28 +146,28 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
         <Card className="md:col-span-2 shadow-sm">
           <CardHeader className="pb-4 border-b border-border/50 mb-4">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Building2 className="h-5 w-5 text-primary" />
+              <FontAwesomeIcon icon={faBuilding} className="h-5 w-5 text-primary" />
               Client Information
             </CardTitle>
           </CardHeader>
           <CardContent className="grid sm:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <Building2 className="h-4 w-4 text-muted-foreground mt-1" />
+                <FontAwesomeIcon icon={faBuilding} className="h-4 w-4 text-muted-foreground mt-1" />
                 <div>
                   <p className="text-sm font-medium">Contact Person</p>
                   <p className="text-sm text-muted-foreground">{client.contactPerson}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Phone className="h-4 w-4 text-muted-foreground mt-1" />
+                <FontAwesomeIcon icon={faPhone} className="h-4 w-4 text-muted-foreground mt-1" />
                 <div>
                   <p className="text-sm font-medium">Phone</p>
                   <p className="text-sm text-muted-foreground">{client.phone}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Mail className="h-4 w-4 text-muted-foreground mt-1" />
+                <FontAwesomeIcon icon={faEnvelope} className="h-4 w-4 text-muted-foreground mt-1" />
                 <div>
                   <p className="text-sm font-medium">Email</p>
                   <p className="text-sm text-muted-foreground">{client.email}</p>
@@ -175,7 +176,7 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
             </div>
             <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                <FontAwesomeIcon icon={faLocationDot} className="h-4 w-4 text-muted-foreground mt-1" />
                 <div>
                   <p className="text-sm font-medium">Registered Address</p>
                   <p className="text-sm text-muted-foreground">{client.address}</p>
@@ -200,7 +201,7 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Active Shipments</CardTitle>
                 <div className="size-8 bg-primary/10 rounded-full flex items-center justify-center text-primary shadow-inner">
-                  <Truck className="size-4" />
+                  <FontAwesomeIcon icon={faCircle} className="size-4" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -214,7 +215,7 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Total Shipments</CardTitle>
                 <div className="size-8 bg-muted rounded-full flex items-center justify-center text-muted-foreground shadow-inner">
-                  <Truck className="size-4" />
+                  <FontAwesomeIcon icon={faCircle} className="size-4" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -228,7 +229,7 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium group-hover:text-primary transition-colors">Total Documents</CardTitle>
                 <div className="size-8 bg-muted rounded-full flex items-center justify-center text-muted-foreground shadow-inner">
-                  <FileText className="size-4" />
+                  <FontAwesomeIcon icon={faFileLines} className="size-4" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -308,14 +309,14 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
             </CardHeader>
             <CardContent className="flex flex-col gap-4 text-sm pt-2">
               <div className="flex gap-4 items-center bg-muted/20 p-3 rounded-lg border border-border/50">
-                <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center shadow-inner shrink-0"><Activity className="size-5 text-primary" /></div>
+                <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center shadow-inner shrink-0"><FontAwesomeIcon icon={faChartLine} className="size-5 text-primary" /></div>
                 <div>
                   <p className="font-medium text-foreground">Client Profile Updated</p>
                   <p className="text-muted-foreground text-xs mt-0.5">Oct 20, 2026 by Admin User</p>
                 </div>
               </div>
               <div className="flex gap-4 items-center bg-muted/20 p-3 rounded-lg border border-border/50">
-                <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center shadow-inner shrink-0"><FileText className="size-5 text-primary" /></div>
+                <div className="size-10 bg-primary/10 rounded-full flex items-center justify-center shadow-inner shrink-0"><FontAwesomeIcon icon={faFileLines} className="size-5 text-primary" /></div>
                 <div>
                   <p className="font-medium text-foreground">Commercial Invoice Uploaded</p>
                   <p className="text-muted-foreground text-xs mt-0.5">Oct 15, 2026 by Jane Smith</p>

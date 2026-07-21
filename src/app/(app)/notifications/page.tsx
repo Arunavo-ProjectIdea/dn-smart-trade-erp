@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/erp/page-header"
 import { Card, CardContent } from "@/components/ui/card"
-import { Bell } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBell } from "@fortawesome/free-solid-svg-icons";
 
 export default function NotificationsPage() {
   return (
@@ -14,7 +15,7 @@ export default function NotificationsPage() {
         <Card className="rounded-xl border-border/60 shadow-sm">
           <CardContent className="flex items-start gap-4 p-6">
             <div className="rounded-full bg-primary/10 p-2 text-primary">
-              <Bell className="h-5 w-5" />
+              <FontAwesomeIcon icon={faBell} className="h-5 w-5" />
             </div>
             <div className="flex-1 space-y-1">
               <p className="font-medium leading-none">New Order #1024</p>
@@ -27,7 +28,7 @@ export default function NotificationsPage() {
         <Card className="rounded-xl border-border/60 shadow-sm">
           <CardContent className="flex items-start gap-4 p-6">
             <div className="rounded-full bg-primary/10 p-2 text-primary">
-              <Bell className="h-5 w-5" />
+              <FontAwesomeIcon icon={faBell} className="h-5 w-5" />
             </div>
             <div className="flex-1 space-y-1">
               <p className="font-medium leading-none">System Update</p>

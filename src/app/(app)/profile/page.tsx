@@ -8,7 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
-import { User, Lock, Settings, Activity } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faCircle, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState, useRef } from "react"
 
@@ -111,19 +112,19 @@ export default function ProfilePage() {
       <Tabs defaultValue="personal" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="personal" className="flex items-center gap-2">
-            <User className="size-4" />
+            <FontAwesomeIcon icon={faUser} className="size-4" />
             <span>Personal</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <Lock className="size-4" />
+            <FontAwesomeIcon icon={faCircle} className="size-4" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
-            <Settings className="size-4" />
+            <FontAwesomeIcon icon={faGear} className="size-4" />
             <span>Preferences</span>
           </TabsTrigger>
           <TabsTrigger value="activity" className="flex items-center gap-2">
-            <Activity className="size-4" />
+            <FontAwesomeIcon icon={faChartLine} className="size-4" />
             <span>Activity</span>
           </TabsTrigger>
         </TabsList>

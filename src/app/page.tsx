@@ -3,33 +3,19 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRight,
-  BarChart3,
-  Globe,
-  Shield,
-  Zap,
-  Package,
-  FileText,
-  Users,
-  TrendingUp,
-  CheckCircle2,
-  ChevronRight,
-  Star,
-  Menu,
-  X,
-} from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight, faCircle, faGlobe, faBolt, faBox, faFileLines, faUsers, faArrowTrendUp, faCircleCheck, faChevronRight, faBars, faXmark, faShield, faChartSimple, faClock } from "@fortawesome/free-solid-svg-icons";
 
 const stats = [
-  { label: "Active Shipments", value: "12,400+", icon: Package },
-  { label: "Global Clients", value: "3,200+", icon: Users },
-  { label: "Documents Processed", value: "98,000+", icon: FileText },
-  { label: "Ports Connected", value: "180+", icon: Globe },
+  { label: "Active Shipments", value: "12,400+", icon: faBox },
+  { label: "Global Clients", value: "3,200+", icon: faUsers },
+  { label: "Documents Processed", value: "98,000+", icon: faFileLines },
+  { label: "Ports Connected", value: "180+", icon: faGlobe },
 ];
 
 const features = [
   {
-    icon: Globe,
+    icon: faGlobe,
     title: "Global Shipment Tracking",
     description:
       "Monitor cargo movements across all ports in real-time with interactive timelines and live status updates.",
@@ -38,7 +24,7 @@ const features = [
     iconColor: "text-blue-400",
   },
   {
-    icon: Zap,
+    icon: faBolt,
     title: "AI Customs Processing",
     description:
       "Automate HS Code classification and duty calculations. Reduce errors and processing time by up to 80%.",
@@ -47,7 +33,7 @@ const features = [
     iconColor: "text-amber-400",
   },
   {
-    icon: Shield,
+    icon: faShield,
     title: "Secure Document Vault",
     description:
       "Store and manage sensitive trade documents with enterprise-grade security and granular role-based access control.",
@@ -56,7 +42,7 @@ const features = [
     iconColor: "text-emerald-400",
   },
   {
-    icon: TrendingUp,
+    icon: faArrowTrendUp,
     title: "Advanced Analytics",
     description:
       "Get deep insights into your trade operations with visual reports, KPI dashboards, and predictive intelligence.",
@@ -65,7 +51,7 @@ const features = [
     iconColor: "text-purple-400",
   },
   {
-    icon: FileText,
+    icon: faFileLines,
     title: "BOE Management",
     description:
       "Streamline Bill of Entry filing and management. Track duty status and automate compliance documentation.",
@@ -74,7 +60,7 @@ const features = [
     iconColor: "text-rose-400",
   },
   {
-    icon: Users,
+    icon: faUsers,
     title: "Multi-Role Access",
     description:
       "Role-based access for Admins, Employees, and Clients. Each role sees exactly what they need — nothing more.",
@@ -149,7 +135,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link className="flex items-center gap-2" href="/">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/30">
-              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+              <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-bold text-lg">DN Smart Trade</span>
           </Link>
@@ -167,7 +153,7 @@ export default function LandingPage() {
             </Link>
             <Link href="/login">
               <Button size="sm" className="gap-1">
-                Access Portal <ChevronRight className="h-3 w-3" />
+                Access Portal <FontAwesomeIcon icon={faChevronRight} className="h-3 w-3" />
               </Button>
             </Link>
           </div>
@@ -177,7 +163,7 @@ export default function LandingPage() {
             className="md:hidden p-2 rounded-md"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {mobileMenuOpen ? <FontAwesomeIcon icon={faXmark} className="h-5 w-5" /> : <FontAwesomeIcon icon={faBars} className="h-5 w-5" />}
           </button>
         </div>
 
@@ -205,7 +191,7 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm text-primary mb-8">
-              <Star className="h-3.5 w-3.5 fill-primary" />
+              <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 fill-primary" />
               <span>AI-Powered Trade ERP Platform — 2026</span>
             </div>
 
@@ -224,7 +210,7 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/login">
                 <Button size="lg" className="gap-2 text-base px-8 shadow-lg shadow-primary/30">
-                  Access ERP Portal <ArrowRight className="h-4 w-4" />
+                  Access ERP Portal <FontAwesomeIcon icon={faArrowRight} className="h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/login">
@@ -247,7 +233,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat) => (
                 <div key={stat.label} className="flex flex-col items-center text-center gap-2">
-                  <stat.icon className="h-7 w-7 text-primary mb-1" />
+                  <FontAwesomeIcon icon={stat.icon} className="h-7 w-7 text-primary mb-1" />
                   <div className="text-3xl font-extrabold">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
                 </div>
@@ -278,7 +264,7 @@ export default function LandingPage() {
                   className={`relative rounded-2xl border ${f.border} bg-gradient-to-br ${f.color} p-6 hover:scale-[1.02] transition-transform duration-200`}
                 >
                   <div className={`inline-flex p-3 rounded-xl bg-background/60 mb-4 ${f.iconColor}`}>
-                    <f.icon className="h-6 w-6" />
+                    <FontAwesomeIcon icon={f.icon} className="h-6 w-6" />
                   </div>
                   <h3 className="font-semibold text-lg mb-2">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.description}</p>
@@ -326,7 +312,7 @@ export default function LandingPage() {
                   <ul className="space-y-3 flex-1">
                     {plan.features.map((feat) => (
                       <li key={feat} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                        <FontAwesomeIcon icon={faCircleCheck} className="h-4 w-4 text-primary shrink-0" />
                         {feat}
                       </li>
                     ))}
@@ -361,7 +347,7 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/login">
                     <Button size="lg" className="gap-2 px-8 shadow-lg shadow-primary/30">
-                      Start Now — It&apos;s Free <ArrowRight className="h-4 w-4" />
+                      Start Now — It&apos;s Free <FontAwesomeIcon icon={faArrowRight} className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Link href="/login">
@@ -382,7 +368,7 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-                <BarChart3 className="h-4 w-4 text-primary-foreground" />
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary-foreground" />
               </div>
               <span className="font-bold text-sm">DN Smart Trade ERP</span>
             </div>

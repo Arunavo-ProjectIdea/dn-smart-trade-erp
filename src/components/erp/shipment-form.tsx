@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, ChevronRight, Save } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faChevronRight, faCircle } from "@fortawesome/free-solid-svg-icons";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -140,11 +141,11 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                         <span className={`flex items-center justify-center h-6 w-6 rounded-full text-xs font-semibold transition-colors ${
                           isActive ? "bg-primary-foreground text-primary" : isCompleted ? "bg-primary/20 text-primary" : "bg-muted-foreground/20"
                         }`}>
-                          {isCompleted ? <Check className="h-3 w-3" /> : stepNum}
+                          {isCompleted ? <FontAwesomeIcon icon={faCheck} className="h-3 w-3" /> : stepNum}
                         </span>
                         {title}
                       </span>
-                      {isActive && <ChevronRight className="h-4 w-4" />}
+                      {isActive && <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />}
                     </button>
                   </li>
                 );
@@ -389,7 +390,7 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                 </div>
                 <div className="flex items-start gap-3 border p-4 rounded-[14px] bg-warning/10 text-warning-foreground border-warning/20">
                   <div className="rounded-full bg-warning/20 p-1 mt-0.5">
-                    <Check className="size-4 text-warning" />
+                    <FontAwesomeIcon icon={faCheck} className="size-4 text-warning" />
                   </div>
                   <p className="text-sm font-medium leading-relaxed text-warning">Verify all information before final submission. Generating a shipment will update dashboard metrics and alert assigned personnel.</p>
                 </div>
@@ -404,9 +405,9 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
             <div className="flex gap-3">
               <Button variant="outline" className="shadow-sm">Save Draft</Button>
               {currentStep < totalSteps ? (
-                <Button onClick={handleNext} className="shadow-sm">Next Step <ChevronRight className="ml-2 h-4 w-4" /></Button>
+                <Button onClick={handleNext} className="shadow-sm">Next Step <FontAwesomeIcon icon={faChevronRight} className="ml-2 h-4 w-4" /></Button>
               ) : (
-                <Button onClick={handleSubmit} className="shadow-sm"><Save className="mr-2 h-4 w-4" /> {isEditing ? 'Save Changes' : 'Submit Shipment'}</Button>
+                <Button onClick={handleSubmit} className="shadow-sm"><FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> {isEditing ? 'Save Changes' : 'Submit Shipment'}</Button>
               )}
             </div>
           </CardFooter>

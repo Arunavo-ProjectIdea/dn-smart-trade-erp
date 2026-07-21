@@ -9,7 +9,8 @@ import { AnalyticsInsights } from "@/components/reports/analytics-insights"
 import { AuthService } from "@/lib/auth"
 import { useState } from "react"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ShieldAlert } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 
 export default function ReportsPage() {
   const [filters, setFilters] = useState<FilterState | null>(null);
@@ -28,7 +29,7 @@ export default function ReportsPage() {
         <Card className="max-w-md w-full border-red-200">
           <CardHeader className="text-center">
             <div className="mx-auto w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <ShieldAlert className="h-6 w-6 text-red-600" />
+              <FontAwesomeIcon icon={faShieldHalved} className="h-6 w-6 text-red-600" />
             </div>
             <CardTitle className="text-red-700">Access Denied</CardTitle>
             <CardDescription>

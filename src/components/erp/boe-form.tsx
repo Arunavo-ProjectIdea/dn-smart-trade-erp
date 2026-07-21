@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ArrowRight, Save, CheckCircle2 } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft, faArrowRight, faCircle, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 interface BOEFormProps {
   initialData?: BillOfEntry | null;
@@ -86,7 +87,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
                       isCurrent ? 'border-primary text-primary bg-background' : 
                       'border-muted bg-background text-muted-foreground'}`}
                 >
-                  {isCompleted ? <CheckCircle2 className="h-5 w-5" /> : step.id}
+                  {isCompleted ? <FontAwesomeIcon icon={faCircleCheck} className="h-5 w-5" /> : step.id}
                 </div>
                 <div className="text-center hidden sm:block">
                   <div className={`text-sm font-medium ${isCurrent || isCompleted ? 'text-foreground' : 'text-muted-foreground'}`}>
@@ -309,21 +310,21 @@ export function BOEForm({ initialData }: BOEFormProps) {
             onClick={handlePrev} 
             disabled={currentStep === 1 || isSubmitting}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+            <FontAwesomeIcon icon={faArrowLeft} className="mr-2 h-4 w-4" /> Previous
           </Button>
           
           {currentStep < steps.length ? (
             <Button onClick={handleNext}>
-              Next <ArrowRight className="ml-2 h-4 w-4" />
+              Next <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4" />
             </Button>
           ) : (
             <div className="flex gap-2">
               <Button variant="secondary" onClick={handleSubmit} disabled={isSubmitting}>
-                <Save className="mr-2 h-4 w-4" /> Save as Draft
+                <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Save as Draft
               </Button>
               <Button onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Submit BOE"}
-                {!isSubmitting && <CheckCircle2 className="ml-2 h-4 w-4" />}
+                {!isSubmitting && <FontAwesomeIcon icon={faCircleCheck} className="ml-2 h-4 w-4" />}
               </Button>
             </div>
           )}

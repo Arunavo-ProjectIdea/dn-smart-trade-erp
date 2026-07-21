@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Copy } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
 
 import { FormLayout } from "@/components/erp/form-layout"
 import { PageHeader } from "@/components/erp/page-header"
@@ -247,7 +248,7 @@ export default function AddEmployeePage() {
                 onClick={() => copyToClipboard(tempPassword)}
                 title="Copy password"
               >
-                <Copy className="h-4 w-4" />
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">

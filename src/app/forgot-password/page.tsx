@@ -3,7 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { BarChart3, ArrowLeft } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "@/components/ui/use-toast"
 import { motion } from "framer-motion"
 
@@ -64,7 +65,7 @@ export default function ForgotPasswordPage() {
       >
         <motion.div variants={itemVariants} className="flex flex-col items-center justify-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary mb-6 shadow-lg shadow-primary/20">
-            <BarChart3 className="h-6 w-6 text-primary-foreground" />
+            <FontAwesomeIcon icon={faCircle} className="h-6 w-6 text-primary-foreground" />
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-foreground">
             DN Smart Trade
@@ -113,7 +114,7 @@ export default function ForgotPasswordPage() {
                   href="/login"
                   className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <FontAwesomeIcon icon={faArrowLeft} className="mr-2 h-4 w-4" />
                   Back to Login
                 </Link>
               </div>

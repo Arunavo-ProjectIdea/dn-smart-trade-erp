@@ -1,17 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { 
-  Package, 
-  FileText, 
-  FileCheck, 
-  Users, 
-  Briefcase, 
-  DollarSign, 
-  TrendingUp,
-  TrendingDown,
-  Activity
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBox, faFileLines, faCircle, faUsers, faBriefcase, faArrowTrendUp, faChartLine } from "@fortawesome/free-solid-svg-icons";
 
 import Link from "next/link"
 
@@ -30,12 +21,12 @@ export default function DashboardPage() {
   });
 
   const stats = [
-    { name: "Active Shipments", link: "/shipments?status=In Transit", value: mockShipmentsList.filter(s => s.status !== "Completed" && s.status !== "Delivered" && s.status !== "Cancelled").length.toString(), icon: Package, trend: "+12.5%", positive: true },
-    { name: "Total BOE", link: "/boe", value: mockBOEList.length.toString(), icon: FileText, trend: "-2.4%", positive: false },
-    { name: "Total Documents", link: "/documents", value: mockDocumentsList.length.toString(), icon: FileCheck, trend: "+5.2%", positive: true },
-    { name: "Total Clients", link: "/clients", value: mockClients.length.toString(), icon: Users, trend: "+18.1%", positive: true },
-    { name: "Active Employees", link: "/employees?status=Active", value: mockEmployees.filter(e => e.status === "Active").length.toString(), icon: Briefcase, trend: "0%", positive: true },
-    { name: "Monthly Revenue", link: "/reports", value: "$142,500", icon: DollarSign, trend: "+24.5%", positive: true },
+    { name: "Active Shipments", link: "/shipments?status=In Transit", value: mockShipmentsList.filter(s => s.status !== "Completed" && s.status !== "Delivered" && s.status !== "Cancelled").length.toString(), icon: faBox, trend: "+12.5%", positive: true },
+    { name: "Total BOE", link: "/boe", value: mockBOEList.length.toString(), icon: faFileLines, trend: "-2.4%", positive: false },
+    { name: "Total Documents", link: "/documents", value: mockDocumentsList.length.toString(), icon: faFileLines, trend: "+5.2%", positive: true },
+    { name: "Total Clients", link: "/clients", value: mockClients.length.toString(), icon: faUsers, trend: "+18.1%", positive: true },
+    { name: "Active Employees", link: "/employees?status=Active", value: mockEmployees.filter(e => e.status === "Active").length.toString(), icon: faBriefcase, trend: "0%", positive: true },
+    { name: "Monthly Revenue", link: "/reports", value: "$142,500", icon: faBox, trend: "+24.5%", positive: true },
   ]
 
   const recentActivity = [
@@ -67,14 +58,14 @@ export default function DashboardPage() {
                   {stat.name}
                 </CardTitle>
                 <div className="size-12 bg-primary/10 flex items-center justify-center rounded-[10px] group-hover:bg-primary/20 transition-colors">
-                  <stat.icon className="size-5 text-primary" />
+                  <FontAwesomeIcon icon={stat.icon} className="size-5 text-primary" />
                 </div>
               </CardHeader>
               <CardContent className="relative z-10">
                 <div className="text-4xl font-bold text-foreground tracking-tight">{stat.value}</div>
                 <div className="flex items-center mt-3 text-sm">
                   <span className={`font-semibold flex items-center px-2 py-1 rounded-md ${stat.positive ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}`}>
-                    {stat.positive ? <TrendingUp className="h-3.5 w-3.5 mr-1.5" /> : <TrendingDown className="h-3.5 w-3.5 mr-1.5" />}
+                    {stat.positive ? <FontAwesomeIcon icon={faArrowTrendUp} className="h-3.5 w-3.5 mr-1.5" /> : <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 mr-1.5" />}
                     {stat.trend}
                   </span>
                   <span className="text-muted-foreground ml-3 font-medium">vs last month</span>
@@ -141,7 +132,7 @@ export default function DashboardPage() {
         <Card className="col-span-1 lg:col-span-3 flex flex-col hover:shadow-md transition-shadow duration-300">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="size-5 text-primary" />
+              <FontAwesomeIcon icon={faChartLine} className="size-5 text-primary" />
               Recent Activity
             </CardTitle>
             <CardDescription>Latest system events and operations.</CardDescription>
