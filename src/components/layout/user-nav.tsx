@@ -5,7 +5,7 @@ import { AuthService } from "@/lib/auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowRightFromBracket, faGear, faUser, faCircleHalfStroke } from "@fortawesome/free-solid-svg-icons"
+import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons"
 import {
   DropdownMenu,
   DropdownMenuContent,

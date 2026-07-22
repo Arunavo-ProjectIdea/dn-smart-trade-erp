@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/erp/page-header"
 import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
+import { ViewToggle } from "@/components/erp/view-toggle"
 import { mockEmployees, Employee } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
 import { AuthService } from "@/lib/auth"
@@ -146,14 +147,7 @@ export default function EmployeesPage() {
       />
       
       <div className="flex justify-end -mt-4 mb-2">
-        <div className="flex items-center rounded-lg border border-border p-1 bg-muted/30">
-          <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
-            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 mr-2" /> Table
-          </Button>
-          <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
-            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 mr-2" /> Grid
-          </Button>
-        </div>
+        <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
       </div>
 
       {viewMode === "table" ? (
