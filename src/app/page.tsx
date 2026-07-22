@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faCircle, faGlobe, faBolt, faBox, faFileLines, faUsers, faArrowTrendUp, faCircleCheck, faChevronRight, faBars, faXmark, faShield, faChartSimple, faClock } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faCircle, faGlobe, faBolt, faBox, faFileLines, faUsers, faArrowTrendUp, faCircleCheck, faChevronRight, faBars, faXmark, faShield } from "@fortawesome/free-solid-svg-icons";
 
 const stats = [
   { label: "Active Shipments", value: "12,400+", icon: faBox },

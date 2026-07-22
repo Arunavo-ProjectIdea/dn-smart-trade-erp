@@ -15,6 +15,7 @@ import { faPlus, faSearch, faFileExcel, faEllipsis, faDownload, faCircle, faTras
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
+import { ViewToggle } from "@/components/erp/view-toggle";
 
 function BOEContent() {
   const { toast } = useToast();
@@ -117,19 +118,15 @@ function BOEContent() {
         }
       />
       
+      <div className="flex justify-end -mt-4 mb-2">
+        <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+      </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-4">
           <div>
             <CardTitle>Recent BOE Documents</CardTitle>
             <CardDescription>A list of recently filed Bill of Entry records.</CardDescription>
-          </div>
-          <div className="hidden sm:flex items-center rounded-lg border border-border p-1 bg-muted/30">
-            <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
-              <FontAwesomeIcon icon={faCircle} className="size-4" />
-            </Button>
-            <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
-              <FontAwesomeIcon icon={faCircle} className="size-4" />
-            </Button>
           </div>
         </CardHeader>
         <CardContent>

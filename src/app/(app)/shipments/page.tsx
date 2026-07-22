@@ -14,6 +14,8 @@ import { mockShipmentsList } from "@/lib/mock-data/shipment";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge, StatusType } from "@/components/erp/status-badge";
 import { useToast } from "@/components/ui/use-toast";
+import { PageHeader } from "@/components/erp/page-header";
+import { ViewToggle } from "@/components/erp/view-toggle";
 
 function ShipmentsContent() {
   const { toast } = useToast();
@@ -112,32 +114,26 @@ function ShipmentsContent() {
 
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Shipments</h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Track and manage active shipments globally.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="hidden sm:flex items-center rounded-lg border border-border p-1 bg-muted/30 mr-2">
-            <Button variant="ghost" size="sm" className={viewMode === "table" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("table")}>
-              <FontAwesomeIcon icon={faCircle} className="size-4" />
+      <PageHeader 
+        title="Shipments" 
+        description="Track and manage active shipments globally."
+        action={
+          <>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
+              <FontAwesomeIcon icon={faDownload} className="mr-2 size-4" /> Export CSV
             </Button>
-            <Button variant="ghost" size="sm" className={viewMode === "grid" ? "bg-background shadow-sm" : "hover:bg-transparent text-muted-foreground"} onClick={() => setViewMode("grid")}>
-              <FontAwesomeIcon icon={faCircle} className="size-4" />
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export PDF", description: "Exporting data..." })}>
+              <FontAwesomeIcon icon={faFileLines} className="mr-2 size-4" /> Export PDF
             </Button>
-          </div>
-          <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
-            <FontAwesomeIcon icon={faDownload} className="mr-2 size-4" /> Export CSV
-          </Button>
-          <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export PDF", description: "Exporting data..." })}>
-            <FontAwesomeIcon icon={faFileLines} className="mr-2 size-4" /> Export PDF
-          </Button>
-          <Link href="/shipments/create" className={buttonVariants({ variant: "default", className: "w-full sm:w-auto shadow-sm" })}>
-            <FontAwesomeIcon icon={faPlus} className="mr-2 size-4" /> New Shipment
-          </Link>
-        </div>
+            <Link href="/shipments/create" className={buttonVariants({ variant: "default", className: "w-full sm:w-auto shadow-sm" })}>
+              <FontAwesomeIcon icon={faPlus} className="mr-2 size-4" /> New Shipment
+            </Link>
+          </>
+        }
+      />
+      
+      <div className="flex justify-end -mt-4 mb-2">
+        <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
       </div>
       
       <div className="flex flex-col gap-6">
