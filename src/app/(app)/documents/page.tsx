@@ -11,6 +11,7 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { EmptyState } from "@/components/erp/empty-state"
+import { ViewToggle } from "@/components/erp/view-toggle"
 import { mockDocuments, Document } from "@/lib/mock-data/documents"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -249,6 +250,10 @@ export default function DocumentsPage() {
           </div>
         }
       />
+      
+      <div className="flex justify-end -mt-4 mb-2">
+        <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+      </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col gap-4 bg-card p-5 rounded-xl border border-border/60 shadow-sm">
@@ -315,27 +320,6 @@ export default function DocumentsPage() {
               </SelectContent>
             </Select>
 
-            {/* View Switcher */}
-            <div className="flex items-center border rounded-xl bg-muted/30 p-1 shrink-0 ml-auto md:ml-0">
-              <Button
-                variant={viewMode === "grid" ? "secondary" : "ghost"}
-                size="icon"
-                className="h-8 w-8 rounded-lg"
-                onClick={() => setViewMode("grid")}
-                title="Grid View"
-              >
-                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "table" ? "secondary" : "ghost"}
-                size="icon"
-                className="h-8 w-8 rounded-lg"
-                onClick={() => setViewMode("table")}
-                title="Table View"
-              >
-                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
 
