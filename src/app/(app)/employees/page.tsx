@@ -8,6 +8,7 @@ import { faPlus, faBriefcase, faEnvelope, faCircleUser } from "@fortawesome/free
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { PageHeader } from "@/components/erp/page-header"
 import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
@@ -22,6 +23,19 @@ export default function EmployeesPage() {
   const { toast } = useToast()
   const [viewMode, setViewMode] = useState<"table" | "grid">("table")
   const [data, setData] = useState<Employee[]>(mockEmployees)
+  
+  // Filter States
+  const [roleFilter, setRoleFilter] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [deptFilter, setDeptFilter] = useState<string>("all")
+  
+  // Computed filtered data
+  const filteredData = data.filter((emp) => {
+    const matchesRole = roleFilter === "all" || emp.role === roleFilter
+    const matchesStatus = statusFilter === "all" || emp.status === statusFilter
+    const matchesDept = deptFilter === "all" || emp.department === deptFilter
+    return matchesRole && matchesStatus && matchesDept
+  })
   
   // Dialog States
   const [deactivateId, setDeactivateId] = useState<string | null>(null)
@@ -132,6 +146,58 @@ export default function EmployeesPage() {
     }
   ]
 
+  const departments = Array.from(new Set(mockEmployees.map(e => e.department)))
+
+  const filters = (
+    <>
+      <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="Active">Active</SelectItem>
+          <SelectItem value="Inactive">Inactive</SelectItem>
+        </SelectContent>
+      </Select>
+      
+      <Select value={roleFilter} onValueChange={(val) => setRoleFilter(val || "all")}>
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Role</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="Admin">Admin</SelectItem>
+          <SelectItem value="Employee">Employee</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={deptFilter} onValueChange={(val) => setDeptFilter(val || "all")}>
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dept</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          {departments.map(d => (
+            <SelectItem key={d} value={d}>{d}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
       <PageHeader 
@@ -151,15 +217,21 @@ export default function EmployeesPage() {
       {viewMode === "table" ? (
         <DataTable 
           columns={columns} 
-          data={data} 
+          data={filteredData} 
           searchKey="fullName"
           searchPlaceholder="Search employees..."
+          filters={filters}
           emptyStateTitle="No employees found"
           emptyStateDescription="Get started by adding a new employee to the system."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {data.map((emp) => (
+        <div className="flex flex-col gap-6 mt-2">
+          {/* Custom Grid Filters */}
+          <div className="col-span-full flex flex-nowrap overflow-x-auto items-center gap-3 bg-muted/20 p-4 rounded-xl border border-border/50">
+            {filters}
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredData.map((emp) => (
             <Card key={emp.id} className="group relative transition-all duration-300 hover:shadow-card hover:border-border/80">
               <CardHeader className="pb-4">
                 <div className="flex justify-between items-start">
@@ -203,6 +275,7 @@ export default function EmployeesPage() {
               </CardFooter>
             </Card>
           ))}
+          </div>
         </div>
       )}
 
