@@ -96,7 +96,7 @@ export function ChartsSection() {
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                   <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `$${value/1000}k`} tick={{ fontSize: 12, fill: '#64748b' }} />
                   <Tooltip 
-                    formatter={(value: number) => [`$${Number(value)?.toLocaleString() || '0'}`, "Revenue"]}
+                    formatter={(value: unknown) => [`$${Number(value)?.toLocaleString() || '0'}`, "Revenue"]}
                     contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                   />
                   <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
