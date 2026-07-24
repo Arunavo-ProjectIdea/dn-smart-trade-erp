@@ -96,7 +96,7 @@ export default function SettingsPage() {
         <TabsContent value="organization" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveOrganization}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Organization Details</CardTitle>
                 <CardDescription>Update the primary business details used on invoices and reports.</CardDescription>
               </CardHeader>
@@ -142,7 +142,7 @@ export default function SettingsPage() {
         <TabsContent value="security" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleApplySecurity}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Security Policies</CardTitle>
                 <CardDescription>Manage global security policies for all users in the organization.</CardDescription>
               </CardHeader>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
         <TabsContent value="notifications" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveAlerts}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Alert Preferences</CardTitle>
                 <CardDescription>Manage how and when you receive system alerts.</CardDescription>
               </CardHeader>
@@ -231,7 +231,7 @@ export default function SettingsPage() {
         <TabsContent value="integrations" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveConfig}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>API Keys & Endpoints</CardTitle>
                 <CardDescription>Connect to third-party logistics providers and customs portals.</CardDescription>
               </CardHeader>

@@ -266,8 +266,12 @@ export default function DocumentsPage() {
           {/* Filter Dropdowns */}
           <div className="flex flex-wrap items-center gap-2.5">
             <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val || "all")}>
-              <SelectTrigger className="w-[170px] rounded-xl bg-muted/40">
-                <SelectValue placeholder="Category" />
+              <SelectTrigger className="w-auto min-w-[170px] rounded-xl bg-muted/40 px-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
+                  <div className="h-4 w-px bg-border mx-1"></div>
+                  <SelectValue placeholder="All" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
@@ -280,8 +284,12 @@ export default function DocumentsPage() {
             </Select>
 
             <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || "all")}>
-              <SelectTrigger className="w-[130px] rounded-xl bg-muted/40">
-                <SelectValue placeholder="File Type" />
+              <SelectTrigger className="w-auto min-w-[130px] rounded-xl bg-muted/40 px-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</span>
+                  <div className="h-4 w-px bg-border mx-1"></div>
+                  <SelectValue placeholder="All" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
@@ -293,8 +301,12 @@ export default function DocumentsPage() {
             </Select>
 
             <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
-              <SelectTrigger className="w-[150px] rounded-xl bg-muted/40">
-                <SelectValue placeholder="Status" />
+              <SelectTrigger className="w-auto min-w-[150px] rounded-xl bg-muted/40 px-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+                  <div className="h-4 w-px bg-border mx-1"></div>
+                  <SelectValue placeholder="All" />
+                </div>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>

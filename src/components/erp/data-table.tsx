@@ -125,7 +125,7 @@ export function DataTable<T>({
             </div>
           )}
           {filters && (
-            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <div className="flex flex-nowrap overflow-x-auto items-center gap-3 w-full sm:w-auto pb-1 sm:pb-0">
               {filters}
             </div>
           )}

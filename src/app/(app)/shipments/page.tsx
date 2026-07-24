@@ -161,8 +161,12 @@ function ShipmentsContent() {
         />
       </div>
       <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
-        <SelectTrigger className="w-[140px] bg-background shadow-sm">
-          <SelectValue placeholder="All Statuses" />
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Statuses</SelectItem>
@@ -175,8 +179,12 @@ function ShipmentsContent() {
         </SelectContent>
       </Select>
       <Select value={clientFilter} onValueChange={(val) => setClientFilter(val || "all")}>
-        <SelectTrigger className="w-[150px] bg-background shadow-sm">
-          <SelectValue placeholder="All Clients" />
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Clients</SelectItem>
@@ -186,8 +194,12 @@ function ShipmentsContent() {
         </SelectContent>
       </Select>
       <Select value={portFilter} onValueChange={(val) => setPortFilter(val || "all")}>
-        <SelectTrigger className="w-[140px] bg-background shadow-sm">
-          <SelectValue placeholder="All Ports" />
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Port</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Ports</SelectItem>
@@ -241,7 +253,7 @@ function ShipmentsContent() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-2">
             {customFilters && (
-              <div className="col-span-full flex flex-wrap items-center gap-3 bg-muted/20 p-4 rounded-xl border border-border/50">
+              <div className="col-span-full flex flex-nowrap overflow-x-auto items-center gap-3 bg-muted/20 p-4 rounded-xl border border-border/50">
                 {customFilters}
               </div>
             )}
