@@ -125,25 +125,25 @@ export function ReportTabs({ filters }: ReportTabsProps) {
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Tracking No.</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Origin</TableHead>
-                    <TableHead>Destination</TableHead>
-                    <TableHead>BOE Number</TableHead>
-                    <TableHead>Status</TableHead>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="py-4">Tracking No.</TableHead>
+                    <TableHead className="py-4">Type</TableHead>
+                    <TableHead className="py-4">Origin</TableHead>
+                    <TableHead className="py-4">Destination</TableHead>
+                    <TableHead className="py-4">BOE Number</TableHead>
+                    <TableHead className="py-4">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {recentShipments.length > 0 ? (
                     recentShipments.map((shipment) => (
-                      <TableRow key={shipment.id}>
-                        <TableCell className="font-medium">{shipment.trackingNumber}</TableCell>
-                        <TableCell>{shipment.type}</TableCell>
-                        <TableCell>{shipment.originCountry}</TableCell>
-                        <TableCell>{shipment.destinationCountry}</TableCell>
-                        <TableCell>{shipment.boeNumber}</TableCell>
-                        <TableCell>
+                      <TableRow key={shipment.id} className="hover:bg-muted/10 transition-colors">
+                        <TableCell className="font-medium py-4">{shipment.trackingNumber}</TableCell>
+                        <TableCell className="py-4">{shipment.type}</TableCell>
+                        <TableCell className="py-4">{shipment.originCountry}</TableCell>
+                        <TableCell className="py-4">{shipment.destinationCountry}</TableCell>
+                        <TableCell className="py-4">{shipment.boeNumber}</TableCell>
+                        <TableCell className="py-4">
                           <StatusBadge status={shipment.status} />
                         </TableCell>
                       </TableRow>
@@ -174,11 +174,11 @@ export function ReportTabs({ filters }: ReportTabsProps) {
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Month</TableHead>
-                    <TableHead>Total Revenue</TableHead>
-                    <TableHead>Outstanding Payments</TableHead>
-                    <TableHead>Payment Status</TableHead>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="py-4">Month</TableHead>
+                    <TableHead className="py-4">Total Revenue</TableHead>
+                    <TableHead className="py-4">Outstanding Payments</TableHead>
+                    <TableHead className="py-4">Payment Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -189,17 +189,17 @@ export function ReportTabs({ filters }: ReportTabsProps) {
                     { month: "April 2026", revenue: "$200,000", outstanding: "$35,000", status: "Attention" },
                     { month: "May 2026", revenue: "$250,000", outstanding: "$12,000", status: "Excellent" },
                   ].map((row, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{row.month}</TableCell>
-                      <TableCell>{row.revenue}</TableCell>
-                      <TableCell>{row.outstanding}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <TableRow key={i} className="hover:bg-muted/10 transition-colors">
+                      <TableCell className="font-medium py-4">{row.month}</TableCell>
+                      <TableCell className="py-4">{row.revenue}</TableCell>
+                      <TableCell className="py-4">{row.outstanding}</TableCell>
+                      <TableCell className="py-4">
+                        <span className={`px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-wide uppercase ${
                           row.status === "Excellent" || row.status === "Good" 
-                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800" 
                             : row.status === "Warning" 
-                            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800"
                         }`}>
                           {row.status}
                         </span>
@@ -225,11 +225,11 @@ export function ReportTabs({ filters }: ReportTabsProps) {
             <div className="rounded-md border">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Employee Name</TableHead>
-                    <TableHead>Efficiency Score</TableHead>
-                    <TableHead>Completion Rate</TableHead>
-                    <TableHead>Avg. Processing Time</TableHead>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="py-4">Employee Name</TableHead>
+                    <TableHead className="py-4">Efficiency Score</TableHead>
+                    <TableHead className="py-4">Completion Rate</TableHead>
+                    <TableHead className="py-4">Avg. Processing Time</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -240,11 +240,11 @@ export function ReportTabs({ filters }: ReportTabsProps) {
                     { name: "David Wilson", efficiency: "95%", completion: "98%", time: "1.5 days" },
                     { name: "Alex Mercer", efficiency: "85%", completion: "90%", time: "2.8 days" },
                   ].map((row, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{row.name}</TableCell>
-                      <TableCell>{row.efficiency}</TableCell>
-                      <TableCell>{row.completion}</TableCell>
-                      <TableCell>{row.time}</TableCell>
+                    <TableRow key={i} className="hover:bg-muted/10 transition-colors">
+                      <TableCell className="font-medium py-4">{row.name}</TableCell>
+                      <TableCell className="py-4 font-mono text-muted-foreground">{row.efficiency}</TableCell>
+                      <TableCell className="py-4 font-mono text-muted-foreground">{row.completion}</TableCell>
+                      <TableCell className="py-4 text-muted-foreground">{row.time}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

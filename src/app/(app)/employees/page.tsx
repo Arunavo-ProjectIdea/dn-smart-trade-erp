@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faCircle, faPlus, faBriefcase, faEnvelope, faCircleUser } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faBriefcase, faEnvelope, faCircleUser } from "@fortawesome/free-solid-svg-icons";
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
@@ -51,83 +51,81 @@ export default function EmployeesPage() {
 
   const columns: ColumnDef<Employee>[] = [
     {
-      header: "Employee ID",
-      accessorKey: "id",
-      sortable: true,
-      cell: (item) => <span className="font-mono text-sm">{item.id}</span>
-    },
-    {
-      header: "Full Name",
+      header: "Employee",
       accessorKey: "fullName",
       sortable: true,
       cell: (item) => (
-        <div className="font-medium">
-          {item.fullName}
+        <div className="flex flex-col justify-center py-1">
+          <Link href={`/employees/${item.id}`} className="font-semibold text-foreground hover:underline hover:text-primary transition-colors">
+            {item.fullName}
+          </Link>
+          <span className="font-mono text-xs text-muted-foreground mt-0.5">{item.id}</span>
+          <span className="text-xs text-muted-foreground truncate max-w-[200px] lg:max-w-[250px]">{item.email}</span>
         </div>
       )
-    },
-    {
-      header: "Email",
-      accessorKey: "email",
-      sortable: true,
     },
     {
       header: "Department",
       accessorKey: "department",
       sortable: true,
+      cell: (item) => (
+        <div className="flex h-full items-center">
+          <span className="max-w-[100px] lg:max-w-[120px] truncate" title={item.department}>
+            {item.department}
+          </span>
+        </div>
+      )
     },
     {
       header: "Role",
       accessorKey: "role",
       sortable: true,
-      cell: (item) => <span className={`font-medium ${item.role === 'Admin' ? 'text-primary' : 'text-muted-foreground'}`}>{item.role}</span>
+      cell: (item) => (
+        <div className="flex h-full items-center">
+          <span className={`font-medium ${item.role === 'Admin' ? 'text-primary' : 'text-muted-foreground'}`}>{item.role}</span>
+        </div>
+      )
     },
     {
       header: "Status",
       accessorKey: "status",
       sortable: true,
-      cell: (item) => <StatusBadge status={item.status} />
+      cell: (item) => (
+        <div className="flex h-full items-center">
+          <StatusBadge status={item.status} />
+        </div>
+      )
     },
     {
-      header: "Actions",
+      header: "Manage",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[260px]">
           <Link 
             href={`/employees/${item.id}`}
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-            title="View Employee"
+            className={buttonVariants({ variant: "ghost", size: "xs" })}
           >
-            <FontAwesomeIcon icon={faEye} className="size-4" />
-            <span className="sr-only">View</span>
+            View
           </Link>
           <Link 
             href={`/employees/${item.id}/edit`}
-            className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
-            title="Edit Employee"
+            className={buttonVariants({ variant: "outline", size: "xs" })}
           >
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
-            <span className="sr-only">Edit</span>
+            Edit
           </Link>
           <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-muted-foreground hover:text-warning"
-            title="Reset Password"
+            variant="secondary" 
+            size="xs" 
             onClick={() => setResetId(item.id)}
           >
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
-            <span className="sr-only">Reset Password</span>
+            Reset
           </Button>
           <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            title={item.status === 'Active' ? "Deactivate Employee" : "Already Inactive"}
+            variant="destructive" 
+            size="xs" 
             disabled={item.status === 'Inactive'}
             onClick={() => setDeactivateId(item.id)}
           >
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
-            <span className="sr-only">Deactivate</span>
+            {item.status === 'Active' ? "Deactivate" : "Inactive"}
           </Button>
         </div>
       )
@@ -194,12 +192,12 @@ export default function EmployeesPage() {
                 </div>
               </CardContent>
               <CardFooter className="pt-0 flex items-center justify-end border-t border-border/40 bg-muted/10 p-4 rounded-b-[14px]">
-                <div className="flex items-center gap-1">
-                  <Link href={`/employees/${emp.id}`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8 text-muted-foreground hover:text-foreground" })}>
-                    <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <Link href={`/employees/${emp.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                    Edit
                   </Link>
-                  <Link href={`/employees/${emp.id}/edit`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8 text-muted-foreground hover:text-foreground" })}>
-                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
+                  <Link href={`/employees/${emp.id}`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                    View
                   </Link>
                 </div>
               </CardFooter>

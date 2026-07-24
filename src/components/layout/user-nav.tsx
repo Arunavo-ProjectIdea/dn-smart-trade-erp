@@ -15,8 +15,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Role } from "./sidebar"
 
-export function UserNav() {
+interface UserNavProps {
+  role?: Role
+}
+
+export function UserNav({ role }: UserNavProps) {
   const router = useRouter()
   const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
 
@@ -37,6 +42,9 @@ export function UserNav() {
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()
     : "AD"
+
+  // Only Admin can access Settings
+  const canAccessSettings = role === "Admin"
 
   return (
     <DropdownMenu>
@@ -69,13 +77,15 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => router.push("/profile")} className="cursor-pointer">
-            <FontAwesomeIcon icon={faUser} className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+            <FontAwesomeIcon icon={faUser} className="mr-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
-            <FontAwesomeIcon icon={faGear} className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
-            Settings
-          </DropdownMenuItem>
+          {canAccessSettings && (
+            <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
+              <FontAwesomeIcon icon={faGear} className="mr-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              Settings
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
@@ -83,7 +93,7 @@ export function UserNav() {
           render={<button type="button" onClick={handleLogout} />}
           className="cursor-pointer"
         >
-          <FontAwesomeIcon icon={faArrowRightFromBracket} className="mr-2 h-3.5 w-3.5" />
+          <FontAwesomeIcon icon={faArrowRightFromBracket} className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

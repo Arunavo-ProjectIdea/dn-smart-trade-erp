@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faTrash, faPlus, faDownload, faCircle, faSearch, faXmark, faFilter, faFileLines, faFileExcel, faFile, faBuilding, faBox, faCalendar } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faFilter, faPlus, faDownload, faFileExcel, faBuilding, faBox, faCalendar, faFile, faFileLines, faCircle, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { PageHeader } from "@/components/erp/page-header"
@@ -12,6 +12,7 @@ import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { EmptyState } from "@/components/erp/empty-state"
 import { ViewToggle } from "@/components/erp/view-toggle"
+import { AuthService } from "@/lib/auth"
 import { mockDocuments, Document } from "@/lib/mock-data/documents"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -24,6 +25,13 @@ export default function DocumentsPage() {
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null)
   const [data, setData] = useState<Document[]>(mockDocuments)
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid")
+  
+  const [userRole, setUserRole] = useState<string>("Admin")
+  useEffect(() => {
+    const user = AuthService.getCurrentUser()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) setUserRole(user.role)
+  }, [])
 
   // Search & Filter states
   const [searchQuery, setSearchQuery] = useState("")
@@ -126,13 +134,7 @@ export default function DocumentsPage() {
 
   const columns: ColumnDef<Document>[] = [
     {
-      header: "Doc ID",
-      accessorKey: "id",
-      sortable: true,
-      cell: (item) => <span className="font-mono text-xs font-semibold text-primary">{item.id}</span>
-    },
-    {
-      header: "Document Name",
+      header: "Document",
       accessorKey: "name",
       sortable: true,
       cell: (item) => {
@@ -142,25 +144,21 @@ export default function DocumentsPage() {
             <div className={`p-2 rounded-lg border ${badgeStyle} shrink-0`}>
               <FontAwesomeIcon icon={faFileIcon} className="h-4 w-4" />
             </div>
-            <div className="min-w-0">
+            <div className="flex flex-col min-w-0">
               <Link href={`/documents/${item.id}`} className="font-medium hover:text-primary hover:underline block truncate max-w-[240px]">
                 {item.name}
               </Link>
-              <span className="text-xs text-muted-foreground">{item.category}</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="font-mono text-[10px] uppercase font-semibold tracking-wider text-muted-foreground">{item.id}</span>
+                <span className="text-muted-foreground text-[10px]">•</span>
+                <span className="text-[10px] text-muted-foreground">{item.category}</span>
+                <span className="text-muted-foreground text-[10px]">•</span>
+                <span className="text-[10px] font-mono text-muted-foreground">{item.type}</span>
+              </div>
             </div>
           </div>
         )
       }
-    },
-    {
-      header: "Type",
-      accessorKey: "type",
-      sortable: true,
-      cell: (item) => (
-        <Badge variant="outline" className="text-xs font-mono">
-          {item.type}
-        </Badge>
-      )
     },
     {
       header: "Client",
@@ -182,14 +180,15 @@ export default function DocumentsPage() {
       )
     },
     {
-      header: "Upload Date",
+      header: "File Info",
       accessorKey: "uploadDate",
       sortable: true,
-    },
-    {
-      header: "Size",
-      accessorKey: "fileSize",
-      sortable: false,
+      cell: (item) => (
+        <div className="flex flex-col">
+          <span className="text-sm">{item.uploadDate}</span>
+          <span className="text-xs text-muted-foreground">{item.fileSize}</span>
+        </div>
+      )
     },
     {
       header: "Status",
@@ -198,36 +197,22 @@ export default function DocumentsPage() {
       cell: (item) => <StatusBadge status={item.status} />
     },
     {
-      header: "Actions",
+      header: "Manage",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-1">
-          <Link 
-            href={`/documents/${item.id}`}
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
-            <span className="sr-only">View</span>
-          </Link>
+        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[160px]">
           <Button 
             variant="ghost" 
-            size="icon" 
-            className="text-muted-foreground hover:text-foreground"
-            title="Download Document"
-            onClick={() => handleDownload(item)}
+            size="sm" 
+            onClick={() => toast({ title: "Preview", description: "Loading document preview..." })}
           >
-            <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
-            <span className="sr-only">Download</span>
+            Preview
           </Button>
           <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            title="Delete Document"
-            onClick={() => setDeleteDialogId(item.id)}
+            variant="outline" 
+            size="sm" 
+            onClick={() => handleDownload(item)}
           >
-            <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-            <span className="sr-only">Delete</span>
+            Download
           </Button>
         </div>
       )
@@ -439,6 +424,14 @@ export default function DocumentsPage() {
                       </span>
                       <span className="font-medium text-foreground">{doc.uploadDate}</span>
                     </div>
+
+                    <div className="flex items-center justify-between text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 text-primary/70 shrink-0" />
+                        Size:
+                      </span>
+                      <span className="font-medium text-foreground">{doc.fileSize}</span>
+                    </div>
                   </div>
 
                   {/* Tags */}
@@ -455,40 +448,31 @@ export default function DocumentsPage() {
                 </CardContent>
 
                 {/* Footer action bar */}
-                <CardFooter className="p-4 bg-muted/10 border-t flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
-                    <FontAwesomeIcon icon={faCircle} className="h-3 w-3" />
-                    {doc.fileSize}
-                  </span>
-
-                  <div className="flex items-center gap-1">
+                <CardFooter className="p-4 bg-muted/10 border-t flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-2 w-full">
                     <Link
                       href={`/documents/${doc.id}`}
-                      className={buttonVariants({ variant: "ghost", size: "icon" })}
-                      title="View Details"
+                      className={buttonVariants({ variant: "ghost", size: "sm" })}
                     >
-                      <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
-                      <span className="sr-only">View</span>
+                      View
                     </Link>
                     <Button
-                      variant="ghost"
-                      size="icon"
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleDownload(doc)}
-                      title="Download"
                     >
-                      <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
-                      <span className="sr-only">Download</span>
+                      Download
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setDeleteDialogId(doc.id)}
-                      title="Delete"
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
+                    {userRole !== "Client" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeleteDialogId(doc.id)}
+                      >
+                        Delete
+                      </Button>
+                    )}
                   </div>
                 </CardFooter>
               </Card>

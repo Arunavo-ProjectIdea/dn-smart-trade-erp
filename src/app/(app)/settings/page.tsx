@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faCircle, faBell, faLink, faEye, faEyeSlash, faRotateRight } from "@fortawesome/free-solid-svg-icons";
+import { faBuilding, faShieldHalved, faBell, faLink, faEye, faEyeSlash, faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState } from "react"
 
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             <span>Organization</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
+            <FontAwesomeIcon icon={faShieldHalved} className="size-4" aria-hidden="true" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
@@ -108,12 +108,12 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="regNumber">Registration Number</Label>
-                    <Input id="regNumber" defaultValue="TR-998822" required />
+                    <Input id="regNumber" defaultValue="RJSC-2024-88220" required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Registered Address</Label>
-                  <Input id="address" defaultValue="123 Logistics Avenue, Trade City" required />
+                  <Input id="address" defaultValue="42 Port Connecting Road, Agrabad C/A, Chattogram-4100, Bangladesh" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="industry">Industry / Sector</Label>
