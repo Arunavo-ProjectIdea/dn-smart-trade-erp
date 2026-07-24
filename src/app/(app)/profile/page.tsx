@@ -169,7 +169,7 @@ export default function ProfilePage() {
                 <CardTitle>Personal Information</CardTitle>
                 <CardDescription>Update your contact details and basic information.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                 <CardTitle>Password</CardTitle>
                 <CardDescription>Change your password to keep your account secure.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="current">Current Password</Label>
                   <Input id="current" type="password" required />
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                 <CardTitle>Notifications</CardTitle>
                 <CardDescription>Choose what updates you want to receive.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3">
                   <Checkbox id="email-notif" defaultChecked />
                   <div className="space-y-1 leading-none">
