@@ -216,7 +216,7 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                   <Input value={formData.containerNumber} onChange={(e) => updateField("containerNumber", e.target.value)} />
                 </div>
                 
-                <div className="space-y-2 flex gap-4">
+                <div className="space-y-2 flex flex-col sm:flex-row gap-4">
                   <div className="flex-1 space-y-2">
                     <Label>Container Size</Label>
                     <Select value={formData.containerSize} onValueChange={(val) => updateField("containerSize", val)}>

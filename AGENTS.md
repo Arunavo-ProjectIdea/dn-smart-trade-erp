@@ -25,3 +25,27 @@ This version has breaking changes — APIs, conventions, and file structure may 
 9. Use meaningful Conventional Commit messages (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`).
 10. Assume this workflow by default for any Git commands.
 <!-- END:git-workflow-rules -->
+
+<!-- BEGIN:supabase-safety-rules -->
+# Supabase Database Safety Rule
+
+Before performing any operation that changes the database, including but not limited to:
+- Creating tables
+- Altering tables
+- Dropping tables
+- Creating functions
+- Creating triggers
+- Creating policies
+- Running SQL
+- Applying migrations
+- Deleting storage objects
+
+You must first explain:
+- What will change
+- Why it is needed
+- Which objects are affected
+
+Wait for approval before executing those changes.
+Never perform destructive operations without explicit confirmation.
+Do not delete data, tables, buckets, or policies unless specifically instructed to do so.
+<!-- END:supabase-safety-rules -->

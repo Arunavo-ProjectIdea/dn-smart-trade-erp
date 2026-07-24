@@ -1,28 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import { faWandMagicSparkles, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { analyticsInsights } from "@/lib/mock-data/reports"
 
 export function AnalyticsInsights() {
   return (
-    <Card className="rounded-xl shadow-sm bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-indigo-100 dark:border-indigo-900">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center text-indigo-700 dark:text-indigo-300 text-lg">
-          <FontAwesomeIcon icon={faCircle} className="mr-2 h-5 w-5" />
-          AI Analytics Insights
+    <Card className="rounded-xl border border-border/40 bg-card shadow-sm">
+      <CardHeader className="pb-4 border-b">
+        <CardTitle className="flex items-center text-foreground text-lg tracking-tight">
+          <div className="bg-primary/10 p-2 rounded-lg mr-3">
+            <FontAwesomeIcon icon={faWandMagicSparkles} className="h-4 w-4 text-primary" />
+          </div>
+          Executive AI Summary
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <ul className="space-y-3">
+      <CardContent className="pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
           {analyticsInsights.map((insight, index) => (
-            <li key={index} className="flex items-start">
-              <span className="flex-shrink-0 h-1.5 w-1.5 rounded-full bg-indigo-500 mt-2 mr-3" />
-              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <div key={index} className="flex items-start group">
+              <FontAwesomeIcon 
+                icon={faChevronRight} 
+                className="h-3 w-3 text-primary/40 mt-1.5 mr-3 shrink-0 group-hover:text-primary transition-colors" 
+              />
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {insight}
               </p>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </CardContent>
     </Card>
   )

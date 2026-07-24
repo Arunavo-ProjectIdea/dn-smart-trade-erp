@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faEye, faCircle, faTrash, faPlus, faBuilding, faEnvelope, faPhone, faLocationDot } from "@fortawesome/free-solid-svg-icons"
+import { faPlus, faBuilding, faPhone, faEnvelope, faLocationDot } from "@fortawesome/free-solid-svg-icons"
 import { ViewToggle } from "@/components/erp/view-toggle"
 
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -76,34 +76,27 @@ export default function ClientsPage() {
       cell: (item) => <StatusBadge status={item.status} />
     },
     {
-      header: "Actions",
+      header: "Manage",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[200px]">
           <Link 
             href={`/clients/${item.id}`}
-            className={buttonVariants({ variant: "ghost", size: "icon" })}
-            title="View Details"
+            className={buttonVariants({ variant: "ghost", size: "xs" })}
           >
-            <FontAwesomeIcon icon={faEye} className="size-4" />
-            <span className="sr-only">View</span>
+            View
           </Link>
           <Link 
             href={`/clients/${item.id}/edit`}
-            className={buttonVariants({ variant: "ghost", size: "icon", className: "text-muted-foreground hover:text-foreground" })}
-            title="Edit Client"
+            className={buttonVariants({ variant: "outline", size: "xs" })}
           >
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
-            <span className="sr-only">Edit</span>
+            Edit
           </Link>
           <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            title="Delete Client"
+            variant="destructive" 
+            size="xs" 
             onClick={() => setDeleteDialogId(item.id)}
           >
-            <FontAwesomeIcon icon={faTrash} className="size-4" />
-            <span className="sr-only">Delete</span>
+            Delete
           </Button>
         </div>
       )
@@ -177,12 +170,12 @@ export default function ClientsPage() {
                 <div className="text-xs font-medium text-muted-foreground">
                   Contact: <span className="text-foreground">{client.contactPerson}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Link href={`/clients/${client.id}`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8" })}>
-                    <FontAwesomeIcon icon={faEye} className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                    Edit
                   </Link>
-                  <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "ghost", size: "icon", className: "h-8 w-8 text-muted-foreground hover:text-foreground" })}>
-                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
+                  <Link href={`/clients/${client.id}`} className={buttonVariants({ variant: "ghost", size: "sm" })}>
+                    View
                   </Link>
                 </div>
               </CardFooter>

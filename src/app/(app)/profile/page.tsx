@@ -9,11 +9,15 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faCircle, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { faUser, faShieldHalved, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState, useRef } from "react"
+import { AuthService } from "@/lib/auth"
 
 export default function ProfilePage() {
+  const currentUser = AuthService.getCurrentUser()
+  const [firstName, lastName] = currentUser?.name?.split(" ") ?? ["Admin", "User"]
+
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string>("https://github.com/shadcn.png")
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -116,7 +120,7 @@ export default function ProfilePage() {
             <span>Personal</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
+            <FontAwesomeIcon icon={faShieldHalved} className="size-4" aria-hidden="true" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
@@ -148,7 +152,7 @@ export default function ProfilePage() {
                 onClick={handleAvatarClick}
               >
                 <AvatarImage src={avatarPreview} />
-                <AvatarFallback>AU</AvatarFallback>
+                <AvatarFallback>{(firstName[0] ?? "A") + (lastName[0] ?? "U")}</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <Button variant="outline" onClick={handleAvatarChange} disabled={isUpdatingAvatar}>
@@ -169,20 +173,20 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue="Admin" required />
+                    <Input id="firstName" defaultValue={firstName} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue="User" required />
+                    <Input id="lastName" defaultValue={lastName} required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" defaultValue="admin@dnsmarttrade.com" required />
+                  <Input id="email" type="email" defaultValue={currentUser?.email ?? "admin@dnsmarttrade.com"} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" defaultValue="+1 (555) 123-4567" required />
+                  <Input id="phone" type="tel" defaultValue="+880 1711-123456" required />
                 </div>
               </CardContent>
               <CardFooter>

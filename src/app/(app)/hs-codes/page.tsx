@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react"
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faCalculator, faSearch, faFilter, faClock, faCircle, faArrowTrendUp, faRotate, faCircleCheck, faArrowRight, faBolt, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faCalculator, faSearch, faFilter, faClock, faArrowTrendUp, faRotate, faCircleCheck, faArrowRight, faBolt, faXmark, faWandSparkles, faMagnifyingGlass, faReceipt, faHashtag, faCheck, faLayerGroup, faList, faPercent, faTags, faSliders, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion"
 
 import { PageHeader } from "@/components/erp/page-header"
@@ -81,7 +81,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2.5 text-amber-600 dark:text-amber-400 font-semibold tracking-tight text-lg">
             <div className="p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25 shadow-inner">
-              <FontAwesomeIcon icon={faCircle} className="h-5 w-5 animate-pulse" />
+              <FontAwesomeIcon icon={faWandSparkles} className="h-5 w-5 animate-pulse" aria-hidden="true" />
             </div>
             AI Intelligent HS Code Assistant
           </CardTitle>
@@ -127,7 +127,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" /> Analyze Product
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="h-4 w-4" aria-hidden="true" /> Analyze Product
               </span>
             )}
           </Button>
@@ -207,7 +207,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
                   <div>
                     <h4 className="text-sm font-bold text-foreground mb-4 flex items-center justify-between">
                       <span className="flex items-center gap-2">
-                        <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-amber-500" /> Duty & Tax Breakdown
+                        <FontAwesomeIcon icon={faReceipt} className="h-4 w-4 text-amber-500" aria-hidden="true" /> Duty & Tax Breakdown
                       </span>
                       <span className="text-xs font-mono font-medium text-muted-foreground">Standard Rate</span>
                     </h4>
@@ -508,13 +508,14 @@ export default function HSCodesPage() {
       }
     },
     {
-      header: "Actions",
+      header: "Manage",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[200px]">
           <Link 
             href={`/hs-codes/${item.code}`}
             className={buttonVariants({ variant: "ghost", size: "sm" }) + " h-8 px-2.5 text-xs gap-1 hover:bg-primary/10 hover:text-primary"}
             title="View Details"
+            aria-label={`View full details for HS Code ${item.code}`}
           >
             <FontAwesomeIcon icon={faEye} className="h-3.5 w-3.5" />
             <span>Details</span>
@@ -523,6 +524,7 @@ export default function HSCodesPage() {
             href={`/duty-calculator?hsCode=${item.code}`}
             className={buttonVariants({ variant: "outline", size: "sm" }) + " h-8 px-2.5 text-xs gap-1 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground shadow-xs"}
             title="Calculate Duty"
+            aria-label={`Calculate duty for HS Code ${item.code}`}
           >
             <FontAwesomeIcon icon={faCalculator} className="h-3.5 w-3.5" />
             <span>Calculate</span>
@@ -546,13 +548,13 @@ export default function HSCodesPage() {
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total HS Codes</p>
               <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                <FontAwesomeIcon icon={faCircle} className="h-5 w-5" />
+                <FontAwesomeIcon icon={faHashtag} className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-3">
               <p className="text-3xl font-extrabold tracking-tight text-foreground">{stats.totalCodes}</p>
               <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-                <FontAwesomeIcon icon={faCircle} className="h-3 w-3 text-emerald-500" /> Active tariffs indexed
+                <FontAwesomeIcon icon={faCheck} className="h-3 w-3 text-emerald-500" aria-hidden="true" /> Active tariffs indexed
               </p>
             </div>
           </CardContent>
@@ -563,13 +565,13 @@ export default function HSCodesPage() {
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</p>
               <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                <FontAwesomeIcon icon={faCircle} className="h-5 w-5" />
+                <FontAwesomeIcon icon={faLayerGroup} className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-3">
               <p className="text-3xl font-extrabold tracking-tight text-foreground">{stats.categories}</p>
               <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-                <FontAwesomeIcon icon={faCircle} className="h-3 w-3 text-blue-500" /> Major product sections
+                <FontAwesomeIcon icon={faList} className="h-3 w-3 text-blue-500" aria-hidden="true" /> Major product sections
               </p>
             </div>
           </CardContent>
@@ -580,7 +582,7 @@ export default function HSCodesPage() {
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Avg CD Duty Rate</p>
               <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                <FontAwesomeIcon icon={faCircle} className="h-5 w-5" />
+                <FontAwesomeIcon icon={faPercent} className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-3">
@@ -613,7 +615,7 @@ export default function HSCodesPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary" /> Browse Categories
+            <FontAwesomeIcon icon={faTags} className="h-4 w-4 text-primary" aria-hidden="true" /> Browse Categories
           </h3>
           <span className="text-xs text-muted-foreground">{categoriesList.length} categories available</span>
         </div>
@@ -724,7 +726,7 @@ export default function HSCodesPage() {
             <Sheet>
               <SheetTrigger render={
                 <Button variant="outline" className="h-11 gap-2 px-4 border-border/80">
-                  <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-muted-foreground" />
+                  <FontAwesomeIcon icon={faSliders} className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   <span>Filters</span>
                   {activeFiltersCount > 0 && (
                     <span className="flex h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold items-center justify-center">
@@ -917,7 +919,7 @@ export default function HSCodesPage() {
             <Card className="rounded-xl border-dashed border-2 border-border/60 bg-card/50">
               <CardContent className="py-16 flex flex-col items-center justify-center text-center">
                 <div className="p-4 rounded-full bg-muted/60 mb-4">
-                  <FontAwesomeIcon icon={faCircle} className="h-10 w-10 text-muted-foreground/50" />
+                  <FontAwesomeIcon icon={faBoxOpen} className="h-10 w-10 text-muted-foreground/50" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">No matching HS Codes found</h3>
                 <p className="text-xs text-muted-foreground mt-1 max-w-md mb-6">
