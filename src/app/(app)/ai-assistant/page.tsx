@@ -7,7 +7,7 @@ import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faS
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { AuthService } from "@/lib/auth"
+import { getUserProfile } from "@/actions/auth.actions"
 
 type Message = {
   role: "user" | "assistant"
@@ -16,7 +16,19 @@ type Message = {
 }
 
 export default function AIAssistantPage() {
-  const currentUser = AuthService.getCurrentUser()
+  const [currentUser, setCurrentUser] = useState<{name: string, role: string} | null>(null)
+  
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data) {
+        setCurrentUser({
+          name: res.data.full_name || "User",
+          role: res.data.role || "Employee"
+        })
+      }
+    })
+  }, [])
+
   const userInitials = currentUser?.name
     ? currentUser.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2).toUpperCase()
     : "AD"

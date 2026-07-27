@@ -3,6 +3,9 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import type { User } from "@supabase/supabase-js"
+import { Database } from "@/types/database.types"
+
+type Profile = Database["public"]["Tables"]["profiles"]["Row"]
 
 export type ActionResponse<T = unknown> = {
   success: boolean
@@ -74,4 +77,26 @@ export async function getCurrentUser(): Promise<ActionResponse<User>> {
   }
 
   return { success: true, data: data.user }
+}
+
+export async function getUserProfile(): Promise<ActionResponse<Profile & { user: User }>> {
+  const supabase = await createClient()
+  
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData?.user) {
+    return { success: false, error: userError?.message || "User not found" }
+  }
+
+  const { data: profileData, error: profileError } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userData.user.id)
+    .single()
+
+  if (profileError || !profileData) {
+    return { success: false, error: profileError?.message || "Profile not found" }
+  }
+
+  return { success: true, data: { ...profileData, user: userData.user } }
 }

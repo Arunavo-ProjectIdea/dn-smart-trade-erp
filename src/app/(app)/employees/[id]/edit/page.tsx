@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/select"
 import { mockEmployees } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
-import { AuthService } from "@/lib/auth"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { getUserProfile } from "@/actions/auth.actions"
 
 export default function EditEmployeePage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params)
@@ -25,13 +26,18 @@ export default function EditEmployeePage({ params }: { params: Promise<{ id: str
   const router = useRouter()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   // Client-side role protection
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user?.role !== "Admin") {
-      router.push("/dashboard")
-    }
+    getUserProfile().then((res) => {
+      if (res.success && res.data) {
+        setUserRole(res.data.role)
+        if (res.data.role !== "Admin") {
+          router.push("/dashboard")
+        }
+      }
+    })
   }, [router])
 
   const employee = mockEmployees.find((e) => e.id === id)
