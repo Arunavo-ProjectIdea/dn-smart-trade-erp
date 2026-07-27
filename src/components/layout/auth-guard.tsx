@@ -1,8 +1,12 @@
 "use client"
 
+<<<<<<< Updated upstream
 import { useEffect, useState } from "react"
+=======
+import { useEffect, useRef, useState } from "react"
+>>>>>>> Stashed changes
 import { useRouter, usePathname } from "next/navigation"
-import { AuthService } from "@/lib/auth"
+import { getCurrentUser } from "@/actions/auth.actions"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
@@ -22,6 +26,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
+<<<<<<< Updated upstream
     const user = AuthService.getCurrentUser()
     
     if (!user) {
@@ -29,6 +34,22 @@ export function AuthGuard({ children }: AuthGuardProps) {
       window.location.replace("/login")
       return
     }
+=======
+    let isMounted = true
+
+    getCurrentUser().then((res) => {
+      if (!isMounted) return
+
+      if (!res.success || !res.data) {
+        // Not logged in, redirect to login with full page reload to clear state
+        window.location.replace("/login")
+        return
+      }
+
+      // Temporary mock role for Milestone 3A compatibility. 
+      // Real RBAC from profiles table will be implemented in Milestone 3B.
+      const user = { role: "Admin" }
+>>>>>>> Stashed changes
 
     // Role-based access control
     if (user.role === "Client") {
@@ -40,8 +61,29 @@ export function AuthGuard({ children }: AuthGuardProps) {
       }
     }
 
+<<<<<<< Updated upstream
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsAuthorized(true)
+=======
+    if (user.role === "Employee") {
+      // Employees cannot access Admin-only pages
+      const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
+      if (isAdminRestricted) {
+        router.push("/dashboard")
+        return
+      }
+    }
+
+    if (!authorizedRef.current) {
+      authorizedRef.current = true
+      setIsAuthorized(true)
+    }
+    })
+
+    return () => {
+      isMounted = false
+    }
+>>>>>>> Stashed changes
   }, [pathname, router])
 
   if (!isAuthorized) {

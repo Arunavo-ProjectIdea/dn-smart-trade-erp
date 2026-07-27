@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "supabase:start": "npx supabase start",
+    "supabase:stop": "npx supabase stop",
+    "supabase:status": "npx supabase status",
+    "supabase:generate-types": "npx supabase gen types typescript --local > src/types/database.types.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
