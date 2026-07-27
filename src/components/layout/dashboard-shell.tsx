@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react"
 import { TopNav } from "./top-nav"
 import { Sidebar, Role } from "./sidebar"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { AuthService } from "@/lib/auth"
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -15,10 +14,7 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true)
 
-  const [role] = useState<Role>(() => {
-    const user = AuthService.getCurrentUser();
-    return user ? user.role : propRole;
-  });
+  const [role] = useState<Role>(propRole);
 
   const initialized = useRef(false)
   useEffect(() => {

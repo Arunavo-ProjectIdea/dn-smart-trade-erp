@@ -16,7 +16,7 @@ import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
 import { ViewToggle } from "@/components/erp/view-toggle";
 import { DataTable, ColumnDef } from "@/components/erp/data-table";
 import { type BillOfEntry } from "@/lib/types/boe";
-import { AuthService } from "@/lib/auth";
+import { getUserProfile } from "@/actions/auth.actions";
 
 function BOEContent() {
   const { toast } = useToast();
@@ -27,9 +27,9 @@ function BOEContent() {
   const [userRole, setUserRole] = useState<string>("Admin");
   
   useEffect(() => {
-    const user = AuthService.getCurrentUser();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (user) setUserRole(user.role);
+    getUserProfile().then((res) => {
+      if (res.success && res.data?.role) setUserRole(res.data.role as string);
+    });
   }, []);
 
   const [, setForceUpdate] = useState(0);

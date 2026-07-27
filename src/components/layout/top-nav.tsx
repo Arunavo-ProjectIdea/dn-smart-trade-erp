@@ -79,32 +79,36 @@ export function TopNav({ onMenuClick, role = "Admin" }: TopNavProps) {
                 <DropdownMenuLabel>Quick Add</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <Link href="/shipments/create" className="w-full">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FontAwesomeIcon icon={faTruck} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                      <span>New Shipment</span>
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href="/clients/new" className="w-full">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FontAwesomeIcon icon={faUsers} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                      <span>New Client</span>
-                    </DropdownMenuItem>
-                  </Link>
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/shipments/create" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faTruck} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>New Shipment</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/clients/new" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faUsers} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>New Client</span>
+                  </DropdownMenuItem>
                   {canCreateEmployee && (
-                    <Link href="/employees/new" className="w-full">
-                      <DropdownMenuItem className="cursor-pointer flex items-center">
-                        <FontAwesomeIcon icon={faBriefcase} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                        <span>New Employee</span>
-                      </DropdownMenuItem>
-                    </Link>
-                  )}
-                  <Link href="/boe/create" className="w-full">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FontAwesomeIcon icon={faFileExcel} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                      <span>New Bill of Entry</span>
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center"
+                      render={<Link href="/employees/new" className="w-full" />}
+                    >
+                      <FontAwesomeIcon icon={faBriefcase} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <span>New Employee</span>
                     </DropdownMenuItem>
-                  </Link>
+                  )}
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/boe/create" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faFileExcel} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>New Bill of Entry</span>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

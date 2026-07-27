@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { signOut, getCurrentUser } from "@/actions/auth.actions"
+import { signOut, getUserProfile } from "@/actions/auth.actions"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons"
 import {
@@ -26,12 +26,12 @@ export function UserNav({ role }: UserNavProps) {
   const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
 
   useEffect(() => {
-    getCurrentUser().then((res) => {
+    getUserProfile().then((res) => {
       if (res.success && res.data) {
         setUser({
-          name: res.data.user_metadata?.full_name || res.data.email?.split('@')[0] || "User",
+          name: res.data.full_name || res.data.user?.user_metadata?.full_name || res.data.email?.split('@')[0] || "User",
           email: res.data.email || "",
-          role: "Admin", // To be updated with real role in Milestone 3B
+          role: res.data.role || "Employee",
         })
       }
     })

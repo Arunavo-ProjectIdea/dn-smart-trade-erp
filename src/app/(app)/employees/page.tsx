@@ -16,7 +16,7 @@ import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { ViewToggle } from "@/components/erp/view-toggle"
 import { mockEmployees, Employee } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
-import { AuthService } from "@/lib/auth"
+import { getUserProfile } from "@/actions/auth.actions"
 
 export default function EmployeesPage() {
   const router = useRouter()
@@ -43,10 +43,13 @@ export default function EmployeesPage() {
 
   // Client-side role protection
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user?.role !== "Admin") {
-      router.push("/dashboard")
-    }
+    getUserProfile().then((res) => {
+      if (res.success && res.data) {
+        if (res.data.role !== "Admin") {
+          router.push("/dashboard")
+        }
+      }
+    })
   }, [router])
 
   const handleDeactivate = () => {
