@@ -1,11 +1,10 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { AuthService } from "@/lib/auth"
+import { getCurrentUser } from "@/actions/auth.actions"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react"
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -32,41 +31,53 @@ export function AuthGuard({ children }: AuthGuardProps) {
   const authorizedRef = useRef(false)
 
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
+    let isMounted = true
 
-    if (!user) {
-      // Not logged in, redirect to login with full page reload to clear state
-      window.location.replace("/login")
-      return
-    }
+    getCurrentUser().then((res) => {
+      if (!isMounted) return
 
-    // Role-based access control
-    if (user.role === "Client") {
-      // Clients cannot access Admin-only pages
-      const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
-      // Clients cannot access internal ERP-only pages
-      const isInternalRestricted = INTERNAL_ONLY_PAGES.some(page => pathname.startsWith(page))
-      // Clients cannot access any create, new, or edit routes
-      const isCreateOrEditRoute = pathname.includes('/create') || pathname.includes('/new') || pathname.includes('/edit')
-
-      if (isAdminRestricted || isInternalRestricted || isCreateOrEditRoute) {
-        router.push("/dashboard")
+      if (!res.success || !res.data) {
+        // Not logged in, redirect to login with full page reload to clear state
+        window.location.replace("/login")
         return
       }
-    }
 
-    if (user.role === "Employee") {
-      // Employees cannot access Admin-only pages
-      const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
-      if (isAdminRestricted) {
-        router.push("/dashboard")
-        return
+      // Temporary mock role for Milestone 3A compatibility. 
+      // Real RBAC from profiles table will be implemented in Milestone 3B.
+      const user = { role: "Admin" }
+
+      // Role-based access control
+      if (user.role === "Client") {
+        // Clients cannot access Admin-only pages
+        const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
+        // Clients cannot access internal ERP-only pages
+        const isInternalRestricted = INTERNAL_ONLY_PAGES.some(page => pathname.startsWith(page))
+        // Clients cannot access any create, new, or edit routes
+        const isCreateOrEditRoute = pathname.includes('/create') || pathname.includes('/new') || pathname.includes('/edit')
+
+        if (isAdminRestricted || isInternalRestricted || isCreateOrEditRoute) {
+          router.push("/dashboard")
+          return
+        }
       }
-    }
 
-    if (!authorizedRef.current) {
-      authorizedRef.current = true
-      setIsAuthorized(true)
+      if (user.role === "Employee") {
+        // Employees cannot access Admin-only pages
+        const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
+        if (isAdminRestricted) {
+          router.push("/dashboard")
+          return
+        }
+      }
+
+      if (!authorizedRef.current) {
+        authorizedRef.current = true
+        setIsAuthorized(true)
+      }
+    })
+
+    return () => {
+      isMounted = false
     }
   }, [pathname, router])
 

@@ -1,9 +1,9 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { AuthService } from "@/lib/auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { signOut, getCurrentUser } from "@/actions/auth.actions"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons"
 import {
@@ -26,17 +26,20 @@ export function UserNav({ role }: UserNavProps) {
   const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
 
   useEffect(() => {
-    const currentUser = AuthService.getCurrentUser()
-    if (currentUser) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(currentUser)
-    }
+    getCurrentUser().then((res) => {
+      if (res.success && res.data) {
+        setUser({
+          name: res.data.user_metadata?.full_name || res.data.email?.split('@')[0] || "User",
+          email: res.data.email || "",
+          role: "Admin", // To be updated with real role in Milestone 3B
+        })
+      }
+    })
   }, [])
 
-  const handleLogout = () => {
-    AuthService.logout().then(() => {
-      window.location.replace("/login")
-    })
+  const handleLogout = async () => {
+    await signOut()
+    window.location.replace("/login")
   }
 
   const initials = user?.name

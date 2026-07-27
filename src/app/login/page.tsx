@@ -11,7 +11,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { AuthService, UserRole } from "@/lib/auth"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { signIn } from "@/actions/auth.actions"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -30,15 +32,58 @@ const itemVariants = {
 }
 
 export default function LoginPage() {
-  const handleLogin = async (e: React.FormEvent) => {
+  const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    await AuthService.login("admin@dnsmarttrade.com", "Admin")
-    window.location.replace("/dashboard")
+    setError(null)
+    setIsLoading(true)
+    
+    try {
+      const formData = new FormData(e.currentTarget)
+      const res = await signIn(formData)
+      
+      if (res.success) {
+        router.push("/dashboard")
+      } else {
+        setError(res.error || "Failed to sign in")
+      }
+    } catch {
+      setError("An unexpected error occurred")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleDemoLogin = async (role: UserRole) => {
-    await AuthService.login("demo@dnsmarttrade.com", role)
-    window.location.replace("/dashboard")
+  const handleDemoLogin = async (role: "Admin" | "Employee" | "Client") => {
+    setError(null)
+    setIsLoading(true)
+    
+    try {
+      const emails = {
+        Admin: "admin@dnsmarttrade.com",
+        Employee: "employee@dnsmarttrade.com",
+        Client: "client@acmecorp.com"
+      }
+      
+      const formData = new FormData()
+      formData.append("email", emails[role])
+      formData.append("password", "Password123!") // default demo password
+      
+      const res = await signIn(formData)
+      
+      if (res.success) {
+        router.push("/dashboard")
+      } else {
+        setError(res.error || `Failed to sign in as ${role}. Ensure the user exists in Supabase.`)
+      }
+    } catch {
+      setError("An unexpected error occurred")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -70,10 +115,16 @@ export default function LoginPage() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
+            {error && (
+              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-500 text-sm">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="relative">
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder=" "
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
@@ -89,6 +140,7 @@ export default function LoginPage() {
               <div className="relative">
                 <Input 
                   id="password" 
+                  name="password"
                   type="password" 
                   placeholder=" "
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
@@ -118,9 +170,9 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Button type="submit" className="w-full h-11 text-sm shadow-md group">
-                Sign In
-                <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <Button type="submit" className="w-full h-11 text-sm shadow-md group" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
+                {!isLoading && <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
               </Button>
             </form>
 
