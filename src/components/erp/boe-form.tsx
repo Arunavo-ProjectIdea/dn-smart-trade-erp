@@ -319,7 +319,7 @@ export function BOEForm({ initialData }: BOEFormProps) {
             </Button>
           ) : (
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={handleSubmit} disabled={isSubmitting}>
+              <Button variant="outline" onClick={handleSubmit} disabled={isSubmitting}>
                 <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Save as Draft
               </Button>
               <Button onClick={handleSubmit} disabled={isSubmitting}>

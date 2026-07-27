@@ -19,6 +19,7 @@ import {
   faChevronLeft,
   faChevronRight,
   faCircle,
+  faBell,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 
@@ -55,6 +56,7 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
           { name: "Documents", href: "/documents", icon: faFileLines },
           { name: "Reports", href: "/reports", icon: faChartBar },
           { name: "AI Assistant", href: "/ai-assistant", icon: faRobot },
+          { name: "Notifications", href: "/notifications", icon: faBell },
           { name: "Profile", href: "/profile", icon: faCircleUser },
           { name: "Settings", href: "/settings", icon: faGear },
         ]
@@ -65,9 +67,11 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
           { name: "Shipments", href: "/shipments", icon: faTruck },
           { name: "BOE", href: "/boe", icon: faFileExcel },
           { name: "HS Codes", href: "/hs-codes", icon: faHashtag },
+          { name: "Duty Calculator", href: "/duty-calculator", icon: faChartBar },
           { name: "Documents", href: "/documents", icon: faFileLines },
           { name: "Reports", href: "/reports", icon: faChartBar },
           { name: "AI Assistant", href: "/ai-assistant", icon: faRobot },
+          { name: "Notifications", href: "/notifications", icon: faBell },
           { name: "Profile", href: "/profile", icon: faCircleUser },
         ]
       case "Client":
@@ -75,6 +79,8 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
           { name: "Dashboard", href: "/dashboard", icon: faTableColumns },
           { name: "My Shipments", href: "/shipments", icon: faTruck },
           { name: "My Documents", href: "/documents", icon: faFileLines },
+          { name: "Notifications", href: "/notifications", icon: faBell },
+          { name: "AI Assistant", href: "/ai-assistant", icon: faRobot },
           { name: "Profile", href: "/profile", icon: faCircleUser },
         ]
       default:
@@ -89,7 +95,7 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
       <div className={cn("flex h-16 shrink-0 items-center transition-all duration-300", isCollapsed ? "justify-center" : "justify-between")}>
         <div className={cn("flex items-center gap-3 transition-all duration-300 w-full rounded-md hover:bg-sidebar-accent/50 p-2 cursor-pointer", isCollapsed ? "justify-center" : "")}>
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-md">
-            <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary-foreground" />
+            <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col flex-1 overflow-hidden">
@@ -120,7 +126,7 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
           </button>
         )}
       </div>
-      <nav className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+      <nav className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden" aria-label="Main navigation">
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
             <ul role="list" className="-mx-2 space-y-1">
@@ -138,6 +144,7 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
                     <Link
                       href={item.href}
                       onClick={() => onClose && onClose()}
+                      aria-current={isActive ? "page" : undefined}
                       className={cn(
                         isActive
                           ? "text-sidebar-accent-foreground"
@@ -155,10 +162,10 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
                         aria-hidden="true"
                       />
                       {!isCollapsed && <span className="truncate whitespace-nowrap">{item.name}</span>}
-                      
+
                       {isCollapsed && (
-                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200">
-                          <div className="bg-slate-900 text-slate-50 text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200" role="tooltip">
+                          <div className="bg-popover text-popover-foreground border text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
                             {item.name}
                           </div>
                         </div>
@@ -183,11 +190,11 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
                 aria-hidden="true"
               />
               {!isCollapsed && <span className="truncate whitespace-nowrap">Documentation</span>}
-              
+
               {isCollapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200">
-                  <div className="bg-slate-900 text-slate-50 text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
-                    Documentation
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200" role="tooltip">
+                  <div className="bg-popover text-popover-foreground border text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
+                    Help & Support
                   </div>
                 </div>
               )}

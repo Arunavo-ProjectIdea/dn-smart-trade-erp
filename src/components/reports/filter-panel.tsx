@@ -11,7 +11,7 @@ import {
   SelectValue 
 } from "@/components/ui/select"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload, faFileLines, faFilter, faCircle } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faFileLines, faFilter, faCircle, faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
@@ -39,6 +39,8 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
   const [status, setStatus] = useState("all")
   const [employee, setEmployee] = useState("all")
   const [country, setCountry] = useState("all")
+  
+  const [showMore, setShowMore] = useState(false)
 
   const handleExport = (type: string) => {
     toast({ title: "Export Started", description: `Successfully generated ${type} report! Download starting...` })
@@ -72,11 +74,11 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
   return (
     <Card className="rounded-xl border-border/60 shadow-sm">
       <CardContent className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div className="space-y-2">
-            <Label>Date Range</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Date Range</Label>
             <Select value={dateRange} onValueChange={(val) => setDateRange(val || "this-month")}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9">
                 <SelectValue placeholder="Select Range" />
               </SelectTrigger>
               <SelectContent>
@@ -90,9 +92,9 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
           </div>
           
           <div className="space-y-2">
-            <Label>Client</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Client</Label>
             <Select value={client} onValueChange={(val) => setClient(val || "all")}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9">
                 <SelectValue placeholder="All Clients" />
               </SelectTrigger>
               <SelectContent>
@@ -105,23 +107,9 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
           </div>
 
           <div className="space-y-2">
-            <Label>Shipment Type</Label>
-            <Select value={shipmentType} onValueChange={(val) => setShipmentType(val || "all")}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="import">Import</SelectItem>
-                <SelectItem value="export">Export</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Status</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Status</Label>
             <Select value={status} onValueChange={(val) => setStatus(val || "all")}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
               <SelectContent>
@@ -134,57 +122,85 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="space-y-2">
-            <Label>Employee</Label>
-            <Select value={employee} onValueChange={(val) => setEmployee(val || "all")}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Employees" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Employees</SelectItem>
-                <SelectItem value="jane">Jane Doe</SelectItem>
-                <SelectItem value="michael">Michael Chen</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Country</Label>
-            <Select value={country} onValueChange={(val) => setCountry(val || "all")}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Countries" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Countries</SelectItem>
-                <SelectItem value="usa">USA</SelectItem>
-                <SelectItem value="china">China</SelectItem>
-                <SelectItem value="uk">UK</SelectItem>
-                <SelectItem value="germany">Germany</SelectItem>
-                <SelectItem value="uae">UAE</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t pt-4">
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="default" className="w-full sm:w-auto" onClick={handleApply}>
-              <FontAwesomeIcon icon={faFilter} className="mr-2 h-4 w-4" />
+        {showMore && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 pt-2 border-t border-border/40 animate-in slide-in-from-top-2 fade-in duration-200">
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Shipment Type</Label>
+              <Select value={shipmentType} onValueChange={(val) => setShipmentType(val || "all")}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="import">Import</SelectItem>
+                  <SelectItem value="export">Export</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Employee</Label>
+              <Select value={employee} onValueChange={(val) => setEmployee(val || "all")}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Employees" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Employees</SelectItem>
+                  <SelectItem value="jane">Jane Doe</SelectItem>
+                  <SelectItem value="michael">Michael Chen</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Country</Label>
+              <Select value={country} onValueChange={(val) => setCountry(val || "all")}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="All Countries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  <SelectItem value="usa">USA</SelectItem>
+                  <SelectItem value="china">China</SelectItem>
+                  <SelectItem value="uk">UK</SelectItem>
+                  <SelectItem value="germany">Germany</SelectItem>
+                  <SelectItem value="uae">UAE</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2">
+          <div className="flex gap-2 w-full sm:w-auto items-center">
+            <Button variant="default" size="sm" className="w-full sm:w-auto" onClick={handleApply}>
+              <FontAwesomeIcon icon={faFilter} className="mr-2 h-3.5 w-3.5" />
               Apply Filters
             </Button>
-            <Button variant="outline" className="w-full sm:w-auto" onClick={handleReset}>
-              <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" />
-              Reset
+            <Button variant="ghost" size="sm" className="w-full sm:w-auto text-muted-foreground" onClick={handleReset}>
+              <FontAwesomeIcon icon={faCircle} className="mr-2 h-3 w-3" />
+              Clear Filters
+            </Button>
+            <div className="hidden sm:block w-px h-6 bg-border mx-2" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setShowMore(!showMore)}
+            >
+              <FontAwesomeIcon icon={showMore ? faChevronUp : faChevronDown} className="mr-1.5 h-3 w-3" />
+              {showMore ? "Less Filters" : "More Filters"}
             </Button>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={() => handleExport("PDF")} className="w-full sm:w-auto">
-              <FontAwesomeIcon icon={faFileLines} className="mr-2 h-4 w-4" />
+            <Button variant="outline" size="sm" onClick={() => handleExport("PDF")} className="w-full sm:w-auto text-xs">
+              <FontAwesomeIcon icon={faFileLines} className="mr-1.5 h-3.5 w-3.5" />
               Export PDF
             </Button>
-            <Button variant="outline" onClick={() => handleExport("Excel")} className="w-full sm:w-auto">
-              <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" />
+            <Button variant="outline" size="sm" onClick={() => handleExport("Excel")} className="w-full sm:w-auto text-xs">
+              <FontAwesomeIcon icon={faDownload} className="mr-1.5 h-3.5 w-3.5" />
               Export Excel
             </Button>
           </div>

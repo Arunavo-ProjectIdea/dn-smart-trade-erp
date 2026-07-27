@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBuilding, faCircle, faBell, faLink, faEye, faEyeSlash, faRotateRight } from "@fortawesome/free-solid-svg-icons";
+import { faBuilding, faShieldHalved, faBell, faLink, faEye, faEyeSlash, faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState } from "react"
 
@@ -80,7 +80,7 @@ export default function SettingsPage() {
             <span>Organization</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <FontAwesomeIcon icon={faCircle} className="size-4" />
+            <FontAwesomeIcon icon={faShieldHalved} className="size-4" aria-hidden="true" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
@@ -96,11 +96,11 @@ export default function SettingsPage() {
         <TabsContent value="organization" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveOrganization}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Organization Details</CardTitle>
                 <CardDescription>Update the primary business details used on invoices and reports.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
@@ -108,12 +108,12 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="regNumber">Registration Number</Label>
-                    <Input id="regNumber" defaultValue="TR-998822" required />
+                    <Input id="regNumber" defaultValue="RJSC-2024-88220" required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Registered Address</Label>
-                  <Input id="address" defaultValue="123 Logistics Avenue, Trade City" required />
+                  <Input id="address" defaultValue="42 Port Connecting Road, Agrabad C/A, Chattogram-4100, Bangladesh" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="industry">Industry / Sector</Label>
@@ -142,11 +142,11 @@ export default function SettingsPage() {
         <TabsContent value="security" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleApplySecurity}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Security Policies</CardTitle>
                 <CardDescription>Manage global security policies for all users in the organization.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3 p-4 border rounded-lg">
                   <Checkbox id="req-2fa" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -190,11 +190,11 @@ export default function SettingsPage() {
         <TabsContent value="notifications" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveAlerts}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Alert Preferences</CardTitle>
                 <CardDescription>Manage how and when you receive system alerts.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3">
                   <Checkbox id="email-daily" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -231,11 +231,11 @@ export default function SettingsPage() {
         <TabsContent value="integrations" className="space-y-6">
           <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveConfig}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>API Keys & Endpoints</CardTitle>
                 <CardDescription>Connect to third-party logistics providers and customs portals.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="api-key">Production API Key</Label>
                   <div className="flex gap-2">

@@ -1,10 +1,9 @@
 "use client"
 
-import * as React from "react"
+import { useState, useEffect, useRef } from "react"
 import { TopNav } from "./top-nav"
 import { Sidebar, Role } from "./sidebar"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-
 import { AuthService } from "@/lib/auth"
 
 interface DashboardShellProps {
@@ -13,10 +12,18 @@ interface DashboardShellProps {
 }
 
 export function DashboardShell({ children, role: propRole = "Admin" }: DashboardShellProps) {
-  const [sidebarOpen, setSidebarOpen] = React.useState(false)
-  const [desktopSidebarOpen, setDesktopSidebarOpen] = React.useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true)
 
-  React.useEffect(() => {
+  const [role] = useState<Role>(() => {
+    const user = AuthService.getCurrentUser();
+    return user ? user.role : propRole;
+  });
+
+  const initialized = useRef(false)
+  useEffect(() => {
+    if (initialized.current) return
+    initialized.current = true
     const savedState = localStorage.getItem("sidebarCollapsed")
     if (savedState !== null) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -29,11 +36,6 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
     setDesktopSidebarOpen(newState)
     localStorage.setItem("sidebarCollapsed", String(!newState))
   }
-  
-  const [role] = React.useState<Role>(() => {
-    const user = AuthService.getCurrentUser();
-    return user ? user.role : propRole;
-  });
 
   return (
     <div>
@@ -44,26 +46,27 @@ export function DashboardShell({ children, role: propRole = "Admin" }: Dashboard
       </Sheet>
 
       {/* Static sidebar for desktop */}
-      <div 
+      <div
         className={`hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:flex-col transition-all duration-300 ease-in-out ${
           desktopSidebarOpen ? "lg:w-[280px]" : "lg:w-[80px]"
         }`}
       >
-        <Sidebar 
-          role={role} 
-          isCollapsed={!desktopSidebarOpen} 
+        <Sidebar
+          role={role}
+          isCollapsed={!desktopSidebarOpen}
           onToggleCollapse={toggleDesktopSidebar}
-          className="border-r" 
+          className="border-r"
         />
       </div>
 
-      <div 
+      <div
         className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out ${
           desktopSidebarOpen ? "lg:pl-[280px]" : "lg:pl-[80px]"
         }`}
       >
-        <TopNav 
-          onMenuClick={() => setSidebarOpen(true)} 
+        <TopNav
+          onMenuClick={() => setSidebarOpen(true)}
+          role={role}
         />
 
         <main className="flex-1 py-8 bg-background relative">

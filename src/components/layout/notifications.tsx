@@ -1,7 +1,10 @@
+"use client"
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBell, faCircle, faTruck, faServer } from "@fortawesome/free-solid-svg-icons"
 import { buttonVariants } from "@/components/ui/button"
 import Link from "next/link"
+import { useState } from "react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
-const notifications = [
+const initialNotifications = [
   {
     id: 1,
     icon: faTruck,
@@ -46,7 +49,12 @@ const notifications = [
 ]
 
 export function Notifications() {
+  const [notifications, setNotifications] = useState(initialNotifications)
   const unreadCount = notifications.filter(n => n.unread).length
+
+  const markAllRead = () => {
+    setNotifications(notifications.map(n => ({ ...n, unread: false })))
+  }
 
   return (
     <DropdownMenu>
@@ -67,7 +75,11 @@ export function Notifications() {
               <p className="text-sm font-semibold text-foreground">Notifications</p>
               <p className="text-xs text-muted-foreground mt-0.5">{unreadCount} unread</p>
             </div>
-            <Link href="/notifications" className="text-xs text-primary hover:underline font-medium">Mark all read</Link>
+            {unreadCount > 0 && (
+              <button onClick={markAllRead} className="text-xs text-primary hover:underline font-medium focus:outline-none">
+                Mark all read
+              </button>
+            )}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

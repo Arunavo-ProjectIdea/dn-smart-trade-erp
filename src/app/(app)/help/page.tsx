@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faCircle, faFileLines, faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faRocket, faShip, faHeadset, faFileLines, faCircleQuestion } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 
 export default function HelpPage() {
@@ -44,7 +44,7 @@ export default function HelpPage() {
           <Card onClick={() => handleCategoryClick("Getting Started")} className="rounded-xl border-border/60 shadow-sm hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
             <CardHeader>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary" />
+                <FontAwesomeIcon icon={faRocket} className="h-5 w-5 text-primary" aria-hidden="true" />
               </div>
               <CardTitle>Getting Started</CardTitle>
               <CardDescription>Basic concepts and navigation.</CardDescription>
@@ -57,7 +57,7 @@ export default function HelpPage() {
           <Card onClick={() => handleCategoryClick("Managing Shipments")} className="rounded-xl border-border/60 shadow-sm hover:border-primary/50 hover:shadow-md transition-all cursor-pointer group">
             <CardHeader>
               <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary" />
+                <FontAwesomeIcon icon={faShip} className="h-5 w-5 text-primary" aria-hidden="true" />
               </div>
               <CardTitle>Managing Shipments</CardTitle>
               <CardDescription>Create and track shipments.</CardDescription>
@@ -121,7 +121,7 @@ export default function HelpPage() {
           </div>
         </div>
         <Button size="lg" className="shrink-0 gap-2" onClick={handleContactSupport}>
-          <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
+          <FontAwesomeIcon icon={faHeadset} className="h-4 w-4" aria-hidden="true" />
           Contact Support
         </Button>
       </div>

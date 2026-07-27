@@ -43,26 +43,26 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-6 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="Reports & Analytics" 
         description="Comprehensive insights and performance metrics."
+        action={
+          <div className="flex flex-col items-end text-sm text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-md border shadow-sm">
+            <span className="font-medium text-foreground">Reporting Period: <span className="font-normal text-muted-foreground">This Month</span></span>
+            <span className="text-[11px]">Last Updated: Today</span>
+          </div>
+        }
       />
       
       <div className="space-y-6">
         <FilterPanel onApply={setFilters} />
         <KPICards />
         
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3 space-y-6">
-            <ChartsSection />
-            <ReportTabs filters={filters} />
-          </div>
-          <div className="lg:col-span-1">
-            <div className="sticky top-6">
-              <AnalyticsInsights />
-            </div>
-          </div>
+        <div className="flex flex-col gap-6">
+          <ChartsSection />
+          <AnalyticsInsights />
+          <ReportTabs filters={filters} />
         </div>
       </div>
     </div>
