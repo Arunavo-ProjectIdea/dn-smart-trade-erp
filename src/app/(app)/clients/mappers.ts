@@ -1,5 +1,5 @@
 import { Client } from "@/lib/mock-data/clients";
-import { Database } from "@/lib/supabase/types";
+import { Database } from "@/types/database.types";
 
 type ClientRow = Database['public']['Tables']['clients']['Row'];
 
