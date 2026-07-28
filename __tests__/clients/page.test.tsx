@@ -15,6 +15,19 @@ vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
 }))
 
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: vi.fn(() => ({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: { id: '123' } } })
+    },
+    from: vi.fn(() => ({
+      update: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({})
+      }))
+    }))
+  }))
+}))
+
 describe('AddClientPage', () => {
   let mockPush: any
   let user: any
@@ -120,7 +133,7 @@ describe('AddClientPage', () => {
       expect(createClientAction).toHaveBeenCalled()
     })
 
-    expect(toast.error).toHaveBeenCalledWith('Failed to create client')
+    expect(toast.error).toHaveBeenCalledWith('DB Error')
     expect(mockPush).not.toHaveBeenCalled()
   })
 
