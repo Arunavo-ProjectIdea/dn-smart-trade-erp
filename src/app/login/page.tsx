@@ -11,7 +11,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { AuthService, UserRole } from "@/lib/auth"
+import { UserRole } from "@/lib/auth"
+import { createClient } from "@/lib/supabase/client"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -32,13 +33,43 @@ const itemVariants = {
 export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    await AuthService.login("admin@dnsmarttrade.com", "Admin")
-    window.location.replace("/dashboard")
+    // Default to admin for the normal login form if they don't specify, or implement proper form reading
+    const form = e.target as HTMLFormElement
+    const emailInput = form.elements.namedItem('email') as HTMLInputElement
+    const passwordInput = form.elements.namedItem('password') as HTMLInputElement
+    
+    const email = emailInput?.value || "admin@test.com"
+    const password = passwordInput?.value || "Password123!"
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    
+    if (!error) {
+      window.location.replace("/dashboard")
+    } else {
+      alert("Login failed: " + error.message)
+    }
   }
 
   const handleDemoLogin = async (role: UserRole) => {
-    await AuthService.login("demo@dnsmarttrade.com", role)
-    window.location.replace("/dashboard")
+    const emailMap: Record<UserRole, string> = {
+      Admin: "admin@test.com",
+      Employee: "employee@test.com",
+      Client: "client@test.com"
+    }
+    
+    const email = emailMap[role]
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password: "Password123!" 
+    })
+    
+    if (!error) {
+      window.location.replace("/dashboard")
+    } else {
+      alert("Demo login failed: " + error.message)
+    }
   }
 
   return (
@@ -76,6 +107,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder=" "
+                  defaultValue="admin@test.com"
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
                   required
                 />
@@ -91,6 +123,7 @@ export default function LoginPage() {
                   id="password" 
                   type="password" 
                   placeholder=" "
+                  defaultValue="Password123!"
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
                   required 
                 />

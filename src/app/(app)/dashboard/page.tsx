@@ -7,7 +7,7 @@ import { faBox, faFileLines, faUsers, faBriefcase, faArrowTrendUp, faArrowTrendD
 import Link from "next/link"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { AuthService } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
 import { mockClients } from "@/lib/mock-data/clients"
 import { mockBOEList } from "@/lib/mock-data/boe"
 import { mockDocumentsList } from "@/lib/mock-data/document"
@@ -18,8 +18,8 @@ import { mockShipmentsList } from "@/lib/mock-data/shipment"
 const CLIENT_COMPANY_ID = "CL-1003"
 
 export default function DashboardPage() {
+  const user = useAuth();
   const [role] = useState(() => {
-    const user = AuthService.getCurrentUser();
     return user ? user.role : "Admin";
   });
 

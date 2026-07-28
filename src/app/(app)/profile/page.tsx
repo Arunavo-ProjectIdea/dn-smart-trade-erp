@@ -12,10 +12,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faShieldHalved, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState, useRef } from "react"
-import { AuthService } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
 
 export default function ProfilePage() {
-  const currentUser = AuthService.getCurrentUser()
+  const currentUser = useAuth()
   const [firstName, lastName] = currentUser?.name?.split(" ") ?? ["Admin", "User"]
 
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)

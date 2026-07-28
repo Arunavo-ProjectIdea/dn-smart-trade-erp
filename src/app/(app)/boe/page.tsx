@@ -9,14 +9,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { PageHeader } from "@/components/erp/page-header";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faFileExcel, faDownload, faCircle, faTrash, faChevronDown, faEllipsisVertical, faEye, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faFileExcel, faDownload, faTrash, faEllipsisVertical, faEye, faPen } from "@fortawesome/free-solid-svg-icons";
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
 import { ViewToggle } from "@/components/erp/view-toggle";
 import { DataTable, ColumnDef } from "@/components/erp/data-table";
 import { type BillOfEntry } from "@/lib/types/boe";
-import { AuthService } from "@/lib/auth";
+import { useAuth } from '@/components/auth-provider'
 
 function BOEContent() {
   const { toast } = useToast();
@@ -24,13 +24,13 @@ function BOEContent() {
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [statusFilter, setStatusFilter] = useState<string>(searchParams.get("status") || "all");
   const [clientFilter, setClientFilter] = useState<string>(searchParams.get("client") || "all");
+  const user = useAuth();
   const [userRole, setUserRole] = useState<string>("Admin");
   
   useEffect(() => {
-    const user = AuthService.getCurrentUser();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user) setUserRole(user.role);
-  }, []);
+  }, [user]);
 
   const [, setForceUpdate] = useState(0);
 

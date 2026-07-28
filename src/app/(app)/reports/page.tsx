@@ -6,18 +6,21 @@ import { ChartsSection } from "@/components/reports/charts-section"
 import { FilterPanel, FilterState } from "@/components/reports/filter-panel"
 import { ReportTabs } from "@/components/reports/report-tabs"
 import { AnalyticsInsights } from "@/components/reports/analytics-insights"
-import { AuthService } from "@/lib/auth"
-import { useState } from "react"
+import { useAuth } from '@/components/auth-provider'
+import { useState, useEffect } from "react"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 
 export default function ReportsPage() {
   const [filters, setFilters] = useState<FilterState | null>(null);
-  const [userRole] = useState<string | null>(() => {
-    const user = AuthService.getCurrentUser();
-    return user ? user.role : null;
-  });
+  const user = useAuth();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) setUserRole(user.role);
+  }, [user]);
 
   // Show nothing while checking role (or loading state)
   if (!userRole) return null

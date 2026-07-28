@@ -19,7 +19,7 @@ import {
 import { mockEmployees } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
-import { AuthService } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
 import { use } from "react"
 
 interface EmployeeDetailsPageProps {
@@ -38,14 +38,18 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
 
+  const user = useAuth()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [userRole, setUserRole] = useState<string>("Admin")
 
   // Client-side role protection
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user?.role !== "Admin") {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) setUserRole(user.role)
+    if (user && user.role !== "Admin") {
       router.push("/dashboard")
     }
-  }, [router])
+  }, [user, router])
 
   if (!employee) {
     notFound()

@@ -17,7 +17,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { PageHeader } from "@/components/erp/page-header";
 import { ViewToggle } from "@/components/erp/view-toggle";
 import { DataTable, ColumnDef } from "@/components/erp/data-table";
-import { AuthService } from "@/lib/auth";
+import { useAuth } from '@/components/auth-provider'
 import { useEffect } from "react";
 
 function ShipmentsContent() {
@@ -29,14 +29,14 @@ function ShipmentsContent() {
   const [portFilter, setPortFilter] = useState<string>("all");
   const [clientFilter, setClientFilter] = useState<string>(searchParams.get("client") || "all");
   
+  const user = useAuth();
   const [userRole, setUserRole] = useState<string>("Admin");
   useEffect(() => {
-    const user = AuthService.getCurrentUser();
     if (user) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setUserRole(user.role);
     }
-  }, []);
+  }, [user]);
 
   const [, setForceUpdate] = useState(0);
 

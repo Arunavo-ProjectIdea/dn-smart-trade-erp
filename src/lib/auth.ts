@@ -29,39 +29,18 @@ export const mockUsers: Record<UserRole, User> = {
   },
 }
 
-// Mock Auth Service mimicking a token-based layout
+// Mock Auth Service for fallback or types only
 export const AuthService = {
   login: async (email: string, roleHint?: UserRole): Promise<User> => {
-    // Simulating API delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    // In a real application, the backend checks credentials and returns the user object with its role.
-    // For our mock, we just return the role they clicked or requested.
     const role = roleHint || "Admin"
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mock_user_role', role)
-    }
     return mockUsers[role]
   },
   
   logout: async (): Promise<void> => {
-    await new Promise((resolve) => setTimeout(resolve, 300))
     if (typeof window !== 'undefined') {
-      localStorage.removeItem('mock_user_role')
+      const { createClient } = await import("@/lib/supabase/client")
+      const supabase = createClient()
+      await supabase.auth.signOut()
     }
-  },
-  
-  getCurrentUser: (): User | null => {
-    // Real implementation would decode JWT or hit /me endpoint
-    // We will read from localStorage if on client, otherwise default to Admin for SSR
-    if (typeof window !== 'undefined') {
-      const savedRole = localStorage.getItem('mock_user_role') as UserRole
-      if (savedRole && mockUsers[savedRole]) {
-        return mockUsers[savedRole]
-      }
-      return null
-    }
-    // For SSR, assume null (logged out) to allow client to redirect
-    return null
   }
 }

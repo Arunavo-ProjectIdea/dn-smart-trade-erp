@@ -16,7 +16,7 @@ import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { ViewToggle } from "@/components/erp/view-toggle"
 import { mockEmployees, Employee } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
-import { AuthService } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
 
 export default function EmployeesPage() {
   const router = useRouter()
@@ -41,13 +41,16 @@ export default function EmployeesPage() {
   const [deactivateId, setDeactivateId] = useState<string | null>(null)
   const [resetId, setResetId] = useState<string | null>(null)
 
-  // Client-side role protection
+  const user = useAuth()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [userRole, setUserRole] = useState<string>("Admin")
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) setUserRole(user.role)
     if (user?.role !== "Admin") {
       router.push("/dashboard")
     }
-  }, [router])
+  }, [user, router])
 
   const handleDeactivate = () => {
     if (deactivateId) {

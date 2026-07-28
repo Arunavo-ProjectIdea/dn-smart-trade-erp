@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService, UserRole } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
+import { UserRole } from "@/lib/auth"
 import { mockEmployees } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
 import { StatusType } from "@/components/erp/status-badge"
@@ -37,13 +38,14 @@ export default function AddEmployeePage() {
     username: "",
   })
 
+  const user = useAuth()
+  
   // Client-side role protection
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
     if (user?.role !== "Admin") {
       router.push("/dashboard")
     }
-  }, [router])
+  }, [router, user])
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

@@ -1,8 +1,7 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { AuthService } from "@/lib/auth"
-import { useEffect, useState } from "react"
+import { AuthService, User } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons"
@@ -19,19 +18,11 @@ import { Role } from "./sidebar"
 
 interface UserNavProps {
   role?: Role
+  user?: User | null
 }
 
-export function UserNav({ role }: UserNavProps) {
+export function UserNav({ role, user }: UserNavProps) {
   const router = useRouter()
-  const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
-
-  useEffect(() => {
-    const currentUser = AuthService.getCurrentUser()
-    if (currentUser) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setUser(currentUser)
-    }
-  }, [])
 
   const handleLogout = () => {
     AuthService.logout().then(() => {

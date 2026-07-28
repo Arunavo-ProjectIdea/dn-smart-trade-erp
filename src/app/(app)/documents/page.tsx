@@ -12,7 +12,7 @@ import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { EmptyState } from "@/components/erp/empty-state"
 import { ViewToggle } from "@/components/erp/view-toggle"
-import { AuthService } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
 import { mockDocuments, Document } from "@/lib/mock-data/documents"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -26,12 +26,12 @@ export default function DocumentsPage() {
   const [data, setData] = useState<Document[]>(mockDocuments)
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid")
   
+  const user = useAuth()
   const [userRole, setUserRole] = useState<string>("Admin")
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (user) setUserRole(user.role)
-  }, [])
+  }, [user])
 
   // Search & Filter states
   const [searchQuery, setSearchQuery] = useState("")

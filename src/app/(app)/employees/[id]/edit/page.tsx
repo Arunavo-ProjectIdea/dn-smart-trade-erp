@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select"
 import { mockEmployees } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
-import { AuthService } from "@/lib/auth"
+import { useAuth } from '@/components/auth-provider'
 
 export default function EditEmployeePage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params)
@@ -26,13 +26,16 @@ export default function EditEmployeePage({ params }: { params: Promise<{ id: str
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Client-side role protection
+  const user = useAuth()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [userRole, setUserRole] = useState<string>("Admin")
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user?.role !== "Admin") {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (user) setUserRole(user.role)
+    if (user && user.role !== "Admin") {
       router.push("/dashboard")
     }
-  }, [router])
+  }, [user, router])
 
   const employee = mockEmployees.find((e) => e.id === id)
 

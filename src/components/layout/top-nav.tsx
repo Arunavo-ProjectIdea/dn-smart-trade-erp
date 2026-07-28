@@ -19,12 +19,15 @@ import { Role } from "./sidebar"
 import { CommandMenu } from "./command-menu"
 import { useState } from "react"
 
+import { User } from "@/lib/auth"
+
 interface TopNavProps {
   onMenuClick: () => void
   role?: Role
+  user?: User | null
 }
 
-export function TopNav({ onMenuClick, role = "Admin" }: TopNavProps) {
+export function TopNav({ onMenuClick, role = "Admin", user }: TopNavProps) {
   // Clients cannot create internal records
   const canCreate = role !== "Client"
   // Employees cannot create new employee accounts
@@ -119,7 +122,7 @@ export function TopNav({ onMenuClick, role = "Admin" }: TopNavProps) {
           />
 
           {/* Profile dropdown */}
-          <UserNav role={role} />
+          <UserNav role={role} user={user} />
         </div>
       </div>
       <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
