@@ -11,7 +11,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      // @ts-expect-error
+      // @ts-expect-error all is not in CoverageOptions type but works in v8
       all: true,
       include: [
         'src/app/\\(app\\)/clients/new/page.tsx',

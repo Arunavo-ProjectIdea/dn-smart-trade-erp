@@ -1,27 +1,25 @@
-"use client"
-
-import { use } from "react"
 import { notFound } from "next/navigation"
+import { getClientById } from "../actions"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBuilding, faEnvelope, faPhone, faLocationDot, faCircle, faFileLines, faChartLine } from "@fortawesome/free-solid-svg-icons";
 
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge } from "@/components/erp/status-badge"
+import { formatClientId } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DataTable } from "@/components/erp/data-table"
-import { mockClients } from "@/lib/mock-data/clients"
 import { mockDocumentsList } from "@/lib/mock-data/document"
 import { mockBOEList } from "@/lib/mock-data/boe"
 import Link from "next/link"
 import { buttonVariants } from "@/components/ui/button"
 
-export default function ClientDetailsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default async function ClientDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   
-  const client = mockClients.find((c) => c.id === id)
+  const { data: client, error } = await getClientById(id)
   
-  if (!client) {
+  if (error || !client) {
     notFound()
   }
 
@@ -127,7 +125,7 @@ export default function ClientDetailsPage({ params }: { params: Promise<{ id: st
     <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title={client.companyName}
-        description={`Client ID: ${client.id} • ${client.clientType}`}
+        description={`Client ID: ${formatClientId(client.id)} • ${client.clientType}`}
         action={
           <div className="flex items-center gap-3">
             <StatusBadge status={client.status} className="text-sm px-3 py-1 shadow-sm" />
