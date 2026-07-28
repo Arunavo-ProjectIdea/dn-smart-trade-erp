@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { PageHeader } from "@/components/erp/page-header";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faFileExcel, faDownload, faCircle, faTrash, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faFileExcel, faDownload, faCircle, faTrash, faChevronDown, faEllipsisVertical, faEye, faPen } from "@fortawesome/free-solid-svg-icons";
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
@@ -50,14 +50,19 @@ function BOEContent() {
 
   const columns: ColumnDef<BillOfEntry>[] = [
     {
-      header: "BOE Number",
+      header: "BOE Details",
       accessorKey: "boeNumber",
       sortable: true,
       cell: (boe) => (
-        <Link href={`/boe/${boe.id}`} className="flex items-center gap-2 hover:underline text-primary font-medium">
-          <FontAwesomeIcon icon={faFileExcel} className="h-4 w-4 text-muted-foreground" />
-          {boe.boeNumber}
-        </Link>
+        <div className="flex flex-col">
+          <Link href={`/boe/${boe.id}`} className="flex items-center gap-2 hover:underline text-primary font-medium">
+            <FontAwesomeIcon icon={faFileExcel} className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="truncate">{boe.boeNumber}</span>
+          </Link>
+          <div className="text-xs text-muted-foreground mt-0.5 ml-6">
+            {new Date(boe.createdAt).toLocaleDateString()}
+          </div>
+        </div>
       ),
     },
     {
@@ -65,19 +70,20 @@ function BOEContent() {
       sortable: true,
       accessorKey: "id", 
       cell: (boe) => (
-        <div>
-          <div className="font-medium">{boe.importer.clientName}</div>
-          <div className="text-xs text-muted-foreground">{boe.importer.companyName}</div>
+        <div className="flex flex-col">
+          <span className="font-medium truncate">{boe.importer.clientName}</span>
+          <span className="text-xs text-muted-foreground truncate">{boe.importer.companyName}</span>
         </div>
       ),
     },
     {
-      header: "Port",
-      cell: (boe) => boe.shipment.port,
-    },
-    {
-      header: "HS Code (Primary)",
-      cell: (boe) => boe.products[0]?.hsCode || 'N/A',
+      header: "Shipment",
+      cell: (boe) => (
+        <div className="flex flex-col">
+          <span className="font-medium truncate">{boe.shipment.port}</span>
+          <span className="text-xs text-muted-foreground truncate">HS: {boe.products[0]?.hsCode || 'N/A'}</span>
+        </div>
+      ),
     },
     {
       header: "Status",
@@ -86,42 +92,37 @@ function BOEContent() {
       cell: (boe) => <StatusBadge status={boe.status as StatusType} />,
     },
     {
-      header: "Duty Amount",
+      header: "Duty",
       cell: (boe) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal),
     },
     {
-      header: "Created Date",
-      accessorKey: "createdAt",
-      sortable: true,
-      cell: (boe) => new Date(boe.createdAt).toLocaleDateString(),
-    },
-    {
-      header: "Manage",
+      header: "",
       cell: (boe) => (
-        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[200px]">
-          {userRole !== "Client" && (
-            <Link href={`/boe/${boe.id}/edit`} className={buttonVariants({ variant: "ghost", size: "xs" })}>
-              Edit
-            </Link>
-          )}
-          <Button variant="outline" size="xs" onClick={() => toast({ title: "Download PDF", description: "Generating PDF..." })}>
-            PDF
-          </Button>
+        <div className="flex justify-end pr-2">
           <DropdownMenu>
-            <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "xs" })}>
-              More <FontAwesomeIcon icon={faChevronDown} className="ml-1 h-3 w-3" />
+            <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon" }) + " h-8 w-8"}>
+              <FontAwesomeIcon icon={faEllipsisVertical} className="h-4 w-4 text-muted-foreground" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => toast({ title: "Print", description: "Sending to printer..." })}>
-                <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Print
+              <DropdownMenuItem className="p-0">
+                <Link href={`/boe/${boe.id}`} className="flex w-full cursor-pointer items-center px-2 py-1.5">
+                  <FontAwesomeIcon icon={faEye} className="mr-2 h-4 w-4" /> View
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toast({ title: "History", description: "Loading history..." })}>
-                <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> History
+              {userRole !== "Client" && (
+                <DropdownMenuItem className="p-0">
+                  <Link href={`/boe/${boe.id}/edit`} className="flex w-full cursor-pointer items-center px-2 py-1.5">
+                    <FontAwesomeIcon icon={faPen} className="mr-2 h-4 w-4" /> Edit
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem className="cursor-pointer" onClick={() => toast({ title: "Download PDF", description: "Generating PDF..." })}>
+                <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Download PDF
               </DropdownMenuItem>
               {userRole !== "Client" && (
                 <>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleDelete(boe.id)}>
+                  <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer" onClick={() => handleDelete(boe.id)}>
                     <FontAwesomeIcon icon={faTrash} className="mr-2 h-4 w-4" /> Delete
                   </DropdownMenuItem>
                 </>
@@ -144,8 +145,8 @@ function BOEContent() {
 
   const columnsForFlat: ColumnDef<typeof flattenedData[0]>[] = columns.map(c => {
     if (c.header === "Client") return { ...c, accessorKey: "clientName", sortable: true };
-    if (c.header === "Port") return { ...c, accessorKey: "portName", sortable: true };
-    if (c.header === "Duty Amount") return { ...c, accessorKey: "dutyTotal", sortable: true };
+    if (c.header === "Shipment") return { ...c, accessorKey: "portName", sortable: true };
+    if (c.header === "Duty") return { ...c, accessorKey: "dutyTotal", sortable: true };
     return c;
   }) as ColumnDef<typeof flattenedData[0]>[];
 
@@ -259,7 +260,7 @@ function BOEContent() {
                   <CardContent className="pb-6 flex-1">
                     <div className="space-y-4 text-sm">
                       <div className="flex flex-col gap-1">
-                        <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Duty Amount</span>
+                        <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Duty</span>
                         <span className="font-medium text-lg text-foreground">
                           {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal)}
                         </span>
