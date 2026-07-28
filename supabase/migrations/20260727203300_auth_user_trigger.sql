@@ -10,7 +10,7 @@ BEGIN
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
-    'Client',
+    'Employee',
     'Active'
   );
   RETURN NEW;
