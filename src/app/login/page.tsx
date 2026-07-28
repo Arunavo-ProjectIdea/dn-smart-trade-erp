@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { UserRole } from "@/lib/auth"
-import { createClient } from "@/lib/supabase/client"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { signIn } from "@/actions/auth.actions"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,44 +32,57 @@ const itemVariants = {
 }
 
 export default function LoginPage() {
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    // Default to admin for the normal login form if they don't specify, or implement proper form reading
-    const form = e.target as HTMLFormElement
-    const emailInput = form.elements.namedItem('email') as HTMLInputElement
-    const passwordInput = form.elements.namedItem('password') as HTMLInputElement
-    
-    const email = emailInput?.value || "admin@test.com"
-    const password = passwordInput?.value || "Password123!"
+  const router = useRouter()
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError(null)
+    setIsLoading(true)
     
-    if (!error) {
-      window.location.replace("/dashboard")
-    } else {
-      alert("Login failed: " + error.message)
+    try {
+      const formData = new FormData(e.currentTarget)
+      const res = await signIn(formData)
+      
+      if (res.success) {
+        router.push("/dashboard")
+      } else {
+        setError(res.error || "Failed to sign in")
+      }
+    } catch {
+      setError("An unexpected error occurred")
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleDemoLogin = async (role: UserRole) => {
-    const emailMap: Record<UserRole, string> = {
-      Admin: "admin@test.com",
-      Employee: "employee@test.com",
-      Client: "client@test.com"
-    }
+  const handleDemoLogin = async (role: "Admin" | "Employee" | "Client") => {
+    setError(null)
+    setIsLoading(true)
     
-    const email = emailMap[role]
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ 
-      email, 
-      password: "Password123!" 
-    })
-    
-    if (!error) {
-      window.location.replace("/dashboard")
-    } else {
-      alert("Demo login failed: " + error.message)
+    try {
+      const emails = {
+        Admin: "admin@dnsmarttrade.com",
+        Employee: "employee@dnsmarttrade.com",
+        Client: "client@acmecorp.com"
+      }
+      
+      const formData = new FormData()
+      formData.append("email", emails[role])
+      formData.append("password", "Password123!") // default demo password
+      
+      const res = await signIn(formData)
+      
+      if (res.success) {
+        router.push("/dashboard")
+      } else {
+        setError(res.error || `Failed to sign in as ${role}. Ensure the user exists in Supabase.`)
+      }
+    } catch {
+      setError("An unexpected error occurred")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -101,13 +115,18 @@ export default function LoginPage() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
+            {error && (
+              <div className="mb-6 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-500 text-sm">
+                {error}
+              </div>
+            )}
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="relative">
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder=" "
-                  defaultValue="admin@test.com"
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
                   required
                 />
@@ -121,9 +140,9 @@ export default function LoginPage() {
               <div className="relative">
                 <Input 
                   id="password" 
+                  name="password"
                   type="password" 
                   placeholder=" "
-                  defaultValue="Password123!"
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
                   required 
                 />
@@ -151,9 +170,9 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Button type="submit" className="w-full h-11 text-sm shadow-md group">
-                Sign In
-                <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <Button type="submit" className="w-full h-11 text-sm shadow-md group" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign In"}
+                {!isLoading && <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
               </Button>
             </form>
 

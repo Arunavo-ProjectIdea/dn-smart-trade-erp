@@ -1,15 +1,13 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react"
 
 interface AuthGuardProps {
   children: React.ReactNode
-  userRole?: string
+  role: string
 }
 
 // Pages only Admin can access
@@ -26,21 +24,15 @@ const INTERNAL_ONLY_PAGES = [
   "/duty-calculator",
 ]
 
-export function AuthGuard({ children, userRole }: AuthGuardProps) {
+export function AuthGuard({ children, role }: AuthGuardProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [isAuthorized, setIsAuthorized] = useState(false)
   const authorizedRef = useRef(false)
 
   useEffect(() => {
-    if (!userRole) {
-      // Not logged in, redirect to login with full page reload to clear state
-      window.location.replace("/login")
-      return
-    }
-
     // Role-based access control
-    if (userRole === "Client") {
+    if (role === "Client") {
       // Clients cannot access Admin-only pages
       const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
       // Clients cannot access internal ERP-only pages
@@ -54,7 +46,7 @@ export function AuthGuard({ children, userRole }: AuthGuardProps) {
       }
     }
 
-    if (userRole === "Employee") {
+    if (role === "Employee") {
       // Employees cannot access Admin-only pages
       const isAdminRestricted = ADMIN_ONLY_PAGES.some(page => pathname.startsWith(page))
       if (isAdminRestricted) {
@@ -67,7 +59,7 @@ export function AuthGuard({ children, userRole }: AuthGuardProps) {
       authorizedRef.current = true
       setIsAuthorized(true)
     }
-  }, [pathname, router, userRole])
+  }, [pathname, router, role])
 
   if (!isAuthorized) {
     return (

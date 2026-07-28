@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBox, faFileLines, faUsers, faBriefcase, faArrowTrendUp, faArrowTrendDown, faChartLine, faTruck } from "@fortawesome/free-solid-svg-icons";
 
 import Link from "next/link"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { useAuth } from '@/components/auth-provider'
+import { getUserProfile } from "@/actions/auth.actions"
 import { mockClients } from "@/lib/mock-data/clients"
 import { mockBOEList } from "@/lib/mock-data/boe"
 import { mockDocumentsList } from "@/lib/mock-data/document"
@@ -18,10 +18,13 @@ import { mockShipmentsList } from "@/lib/mock-data/shipment"
 const CLIENT_COMPANY_ID = "CL-1003"
 
 export default function DashboardPage() {
-  const user = useAuth();
-  const [role] = useState(() => {
-    return user ? user.role : "Admin";
-  });
+  const [role, setRole] = useState("Admin");
+
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data?.role) setRole(res.data.role as string);
+    });
+  }, []);
 
   const activeShipments = mockShipmentsList.filter(
     s => s.status !== "Completed" && s.status !== "Delivered" && s.status !== "Cancelled"

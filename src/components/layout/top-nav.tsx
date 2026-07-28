@@ -19,15 +19,12 @@ import { Role } from "./sidebar"
 import { CommandMenu } from "./command-menu"
 import { useState } from "react"
 
-import { User } from "@/lib/auth"
-
 interface TopNavProps {
   onMenuClick: () => void
   role?: Role
-  user?: User | null
 }
 
-export function TopNav({ onMenuClick, role = "Admin", user }: TopNavProps) {
+export function TopNav({ onMenuClick, role = "Admin" }: TopNavProps) {
   // Clients cannot create internal records
   const canCreate = role !== "Client"
   // Employees cannot create new employee accounts
@@ -82,32 +79,36 @@ export function TopNav({ onMenuClick, role = "Admin", user }: TopNavProps) {
                 <DropdownMenuLabel>Quick Add</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <Link href="/shipments/create" className="w-full">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FontAwesomeIcon icon={faTruck} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                      <span>New Shipment</span>
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href="/clients/new" className="w-full">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FontAwesomeIcon icon={faUsers} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                      <span>New Client</span>
-                    </DropdownMenuItem>
-                  </Link>
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/shipments/create" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faTruck} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>New Shipment</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/clients/new" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faUsers} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>New Client</span>
+                  </DropdownMenuItem>
                   {canCreateEmployee && (
-                    <Link href="/employees/new" className="w-full">
-                      <DropdownMenuItem className="cursor-pointer flex items-center">
-                        <FontAwesomeIcon icon={faBriefcase} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                        <span>New Employee</span>
-                      </DropdownMenuItem>
-                    </Link>
-                  )}
-                  <Link href="/boe/create" className="w-full">
-                    <DropdownMenuItem className="cursor-pointer flex items-center">
-                      <FontAwesomeIcon icon={faFileExcel} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-                      <span>New Bill of Entry</span>
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center"
+                      render={<Link href="/employees/new" className="w-full" />}
+                    >
+                      <FontAwesomeIcon icon={faBriefcase} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <span>New Employee</span>
                     </DropdownMenuItem>
-                  </Link>
+                  )}
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/boe/create" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faFileExcel} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                    <span>New Bill of Entry</span>
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -122,7 +123,7 @@ export function TopNav({ onMenuClick, role = "Admin", user }: TopNavProps) {
           />
 
           {/* Profile dropdown */}
-          <UserNav role={role} user={user} />
+          <UserNav role={role} />
         </div>
       </div>
       <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} />

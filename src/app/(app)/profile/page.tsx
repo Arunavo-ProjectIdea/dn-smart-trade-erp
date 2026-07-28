@@ -11,12 +11,23 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faShieldHalved, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
-import { useState, useRef } from "react"
-import { useAuth } from '@/components/auth-provider'
+import { useState, useRef, useEffect } from "react"
+import { getUserProfile } from "@/actions/auth.actions"
 
 export default function ProfilePage() {
-  const currentUser = useAuth()
-  const [firstName, lastName] = currentUser?.name?.split(" ") ?? ["Admin", "User"]
+  const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data) setCurrentUser(res.data)
+      setIsLoading(false)
+    })
+  }, [])
+
+  const nameParts = (currentUser?.full_name as string | undefined)?.split(" ") || []
+  const firstName = nameParts[0] || "Admin"
+  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "User"
 
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string>("https://github.com/shadcn.png")
@@ -104,6 +115,14 @@ export default function ProfilePage() {
     addActivity("Initiated Two-Factor Authentication Setup")
   }
 
+  if (isLoading) {
+    return <div className="p-8 text-center text-muted-foreground">Loading profile...</div>
+  }
+
+  if (!currentUser) {
+    return <div className="p-8 text-center text-muted-foreground">Failed to load profile.</div>
+  }
+
   return (
     <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div>
@@ -169,7 +188,7 @@ export default function ProfilePage() {
                 <CardTitle>Personal Information</CardTitle>
                 <CardDescription>Update your contact details and basic information.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
@@ -182,7 +201,7 @@ export default function ProfilePage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" defaultValue={currentUser?.email ?? "admin@dnsmarttrade.com"} required />
+                  <Input id="email" type="email" defaultValue={(currentUser?.email as string) ?? "admin@dnsmarttrade.com"} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
@@ -205,7 +224,7 @@ export default function ProfilePage() {
                 <CardTitle>Password</CardTitle>
                 <CardDescription>Change your password to keep your account secure.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="current">Current Password</Label>
                   <Input id="current" type="password" required />
@@ -251,7 +270,7 @@ export default function ProfilePage() {
                 <CardTitle>Notifications</CardTitle>
                 <CardDescription>Choose what updates you want to receive.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3">
                   <Checkbox id="email-notif" defaultChecked />
                   <div className="space-y-1 leading-none">

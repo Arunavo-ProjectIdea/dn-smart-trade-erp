@@ -1,5 +1,5 @@
 import { StatusType } from "@/components/erp/status-badge"
-import { UserRole } from "@/lib/auth"
+type UserRole = "Admin" | "Employee" | "Client"
 
 export interface Employee {
   id: string

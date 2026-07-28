@@ -100,7 +100,7 @@ export default function SettingsPage() {
                 <CardTitle>Organization Details</CardTitle>
                 <CardDescription>Update the primary business details used on invoices and reports.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                 <CardTitle>Security Policies</CardTitle>
                 <CardDescription>Manage global security policies for all users in the organization.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3 p-4 border rounded-lg">
                   <Checkbox id="req-2fa" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -194,7 +194,7 @@ export default function SettingsPage() {
                 <CardTitle>Alert Preferences</CardTitle>
                 <CardDescription>Manage how and when you receive system alerts.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3">
                   <Checkbox id="email-daily" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -235,7 +235,7 @@ export default function SettingsPage() {
                 <CardTitle>API Keys & Endpoints</CardTitle>
                 <CardDescription>Connect to third-party logistics providers and customs portals.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="api-key">Production API Key</Label>
                   <div className="flex gap-2">

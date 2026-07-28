@@ -1,8 +1,9 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { AuthService, User } from "@/lib/auth"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { signOut, getUserProfile } from "@/actions/auth.actions"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons"
 import {
@@ -18,16 +19,27 @@ import { Role } from "./sidebar"
 
 interface UserNavProps {
   role?: Role
-  user?: User | null
 }
 
-export function UserNav({ role, user }: UserNavProps) {
+export function UserNav({ role }: UserNavProps) {
   const router = useRouter()
+  const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
 
-  const handleLogout = () => {
-    AuthService.logout().then(() => {
-      window.location.replace("/login")
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data) {
+        setUser({
+          name: res.data.full_name || res.data.user?.user_metadata?.full_name || res.data.email?.split('@')[0] || "User",
+          email: res.data.email || "",
+          role: res.data.role || "Employee",
+        })
+      }
     })
+  }, [])
+
+  const handleLogout = async () => {
+    await signOut()
+    window.location.replace("/login")
   }
 
   const initials = user?.name

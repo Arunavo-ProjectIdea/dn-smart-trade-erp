@@ -5,22 +5,16 @@ import { TopNav } from "./top-nav"
 import { Sidebar, Role } from "./sidebar"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 
-
-import { User } from "@/lib/auth"
-
 interface DashboardShellProps {
   children: React.ReactNode
   role?: Role
-  user?: User | null
 }
 
-export function DashboardShell({ children, role: propRole = "Admin", user }: DashboardShellProps) {
+export function DashboardShell({ children, role: propRole = "Admin" }: DashboardShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true)
 
-  const [role] = useState<Role>(() => {
-    return (user?.role as Role) || propRole;
-  });
+  const [role] = useState<Role>(propRole);
 
   const initialized = useRef(false)
   useEffect(() => {
@@ -69,7 +63,6 @@ export function DashboardShell({ children, role: propRole = "Admin", user }: Das
         <TopNav
           onMenuClick={() => setSidebarOpen(true)}
           role={role}
-          user={user}
         />
 
         <main className="flex-1 py-8 bg-background relative">
