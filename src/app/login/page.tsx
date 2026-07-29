@@ -1,9 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { BarChart3, Briefcase, LayoutDashboard, Users } from "lucide-react"
+import { BarChart3, Briefcase, LayoutDashboard, Users, Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,7 @@ const itemVariants = {
 
 export default function LoginPage() {
   const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -85,17 +87,29 @@ export default function LoginPage() {
               <div className="relative mt-2">
                 <Input 
                   id="password" 
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   placeholder=" "
-                  className="peer pt-5 pb-1 h-12 bg-card"
+                  className="peer pt-5 pb-1 pr-10 h-12 bg-card"
                   required 
                 />
                 <Label 
                   htmlFor="password"
-                  className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary"
+                  className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary pointer-events-none"
                 >
                   Password
                 </Label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
