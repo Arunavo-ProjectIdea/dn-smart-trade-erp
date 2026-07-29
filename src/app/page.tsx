@@ -163,11 +163,11 @@ export default function LandingPage() {
 
           <div className="hidden md:flex items-center gap-3">
             <Link href="/login">
-              <Button variant="ghost" size="sm">Sign In</Button>
+              <Button variant="ghost" size="sm">Login</Button>
             </Link>
             <Link href="/login">
               <Button size="sm" className="gap-1">
-                Access Portal <ChevronRight className="h-3 w-3" />
+                Login <ChevronRight className="h-3 w-3" />
               </Button>
             </Link>
           </div>
