@@ -15,7 +15,7 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { Client } from "@/lib/mock-data/clients"
-import { deactivateClientAction } from "./actions"
+import { deactivateClientAction, activateClientAction } from "./actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
@@ -24,6 +24,7 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
   const [isPending, startTransition] = useTransition()
   const [viewMode, setViewMode] = useState<"table" | "grid">("table")
   const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null)
+  const [activateDialogId, setActivateDialogId] = useState<string | null>(null)
   
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [typeFilter, setTypeFilter] = useState<string>("all")
@@ -46,6 +47,21 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
         })
       }
       setDeleteDialogId(null)
+    }
+  }
+
+  const handleActivate = async () => {
+    if (activateDialogId) {
+      const { error } = await activateClientAction(activateDialogId)
+      if (error) {
+        toast.error("Failed to activate client")
+      } else {
+        toast.success("Client activated successfully")
+        startTransition(() => {
+          router.refresh()
+        })
+      }
+      setActivateDialogId(null)
     }
   }
 
@@ -108,14 +124,26 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
           >
             Edit
           </Link>
-          <Button 
-            variant="destructive" 
-            size="xs" 
-            onClick={() => setDeleteDialogId(item.id)}
-            disabled={isPending}
-          >
-            Delete
-          </Button>
+          {item.status === "Inactive" ? (
+            <Button 
+              variant="outline" 
+              size="xs" 
+              onClick={() => setActivateDialogId(item.id)}
+              disabled={isPending}
+              className="text-success border-success/20 hover:bg-success/10 hover:text-success"
+            >
+              Activate
+            </Button>
+          ) : (
+            <Button 
+              variant="destructive" 
+              size="xs" 
+              onClick={() => setDeleteDialogId(item.id)}
+              disabled={isPending}
+            >
+              Deactivate
+            </Button>
+          )}
         </div>
       )
     }
@@ -248,12 +276,23 @@ export default function ClientsClient({ initialClients }: { initialClients: Clie
       <ConfirmationDialog 
         open={!!deleteDialogId}
         onOpenChange={(open) => !open && setDeleteDialogId(null)}
-        title="Delete Client"
+        title="Deactivate Client"
         description="Are you sure you want to deactivate this client? They will be marked as Inactive but their records will be preserved."
         confirmText="Deactivate"
         variant="destructive"
         onConfirm={handleDelete}
         onCancel={() => setDeleteDialogId(null)}
+      />
+
+      <ConfirmationDialog 
+        open={!!activateDialogId}
+        onOpenChange={(open) => !open && setActivateDialogId(null)}
+        title="Activate Client"
+        description="Are you sure you want to activate this client? They will be marked as Active and can create new shipments."
+        confirmText="Activate"
+        variant="default"
+        onConfirm={handleActivate}
+        onCancel={() => setActivateDialogId(null)}
       />
     </div>
   )
