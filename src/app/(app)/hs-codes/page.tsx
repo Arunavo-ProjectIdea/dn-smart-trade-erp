@@ -2,26 +2,8 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { 
-  Eye, 
-  Calculator, 
-  Search, 
-  Filter, 
-  Clock, 
-  Tag, 
-  PackageSearch, 
-  Percent, 
-  TrendingUp, 
-  RefreshCcw, 
-  Sparkles, 
-  CheckCircle2, 
-  ArrowRight,
-  Layers,
-  ShieldCheck,
-  Zap,
-  SlidersHorizontal,
-  X
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faCalculator, faSearch, faFilter, faClock, faArrowTrendUp, faRotate, faCircleCheck, faArrowRight, faBolt, faXmark, faWandSparkles, faMagnifyingGlass, faReceipt, faHashtag, faCheck, faLayerGroup, faList, faPercent, faTags, faSliders, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion"
 
 import { PageHeader } from "@/components/erp/page-header"
@@ -99,12 +81,12 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2.5 text-amber-600 dark:text-amber-400 font-semibold tracking-tight text-lg">
             <div className="p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25 shadow-inner">
-              <Sparkles className="h-5 w-5 animate-pulse" />
+              <FontAwesomeIcon icon={faWandSparkles} className="h-5 w-5 animate-pulse" aria-hidden="true" />
             </div>
             AI Intelligent HS Code Assistant
           </CardTitle>
           <span className="text-[11px] font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-            <Zap className="h-3 w-3" /> Powered by AI
+            <FontAwesomeIcon icon={faBolt} className="h-3 w-3" /> Powered by AI
           </span>
         </div>
         <CardDescription className="text-muted-foreground text-sm mt-1">
@@ -129,7 +111,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
                 onClick={() => setProductDesc("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               >
-                <X className="h-4 w-4" />
+                <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
               </button>
             )}
           </div>
@@ -145,7 +127,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" /> Analyze Product
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="h-4 w-4" aria-hidden="true" /> Analyze Product
               </span>
             )}
           </Button>
@@ -171,7 +153,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
                         <h3 className="text-3xl font-extrabold font-mono tracking-tight text-foreground mt-1 flex items-center gap-3">
                           {result.hsCode}
                           <span className="inline-flex items-center justify-center p-1 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 rounded-full">
-                            <CheckCircle2 className="h-5 w-5" />
+                            <FontAwesomeIcon icon={faCircleCheck} className="h-5 w-5" />
                           </span>
                         </h3>
                       </div>
@@ -212,10 +194,10 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
                       size="sm"
                       className="bg-amber-600 hover:bg-amber-700 text-white font-medium shadow-md shadow-amber-600/20"
                     >
-                      <CheckCircle2 className="mr-1.5 h-4 w-4" /> Use HS Code
+                      <FontAwesomeIcon icon={faCircleCheck} className="mr-1.5 h-4 w-4" /> Use HS Code
                     </Button>
                     <Link href={`/hs-codes/${result.hsCode}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                      View Full Tariff Details <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                      View Full Tariff Details <FontAwesomeIcon icon={faArrowRight} className="ml-1.5 h-3.5 w-3.5" />
                     </Link>
                   </div>
                 </div>
@@ -225,7 +207,7 @@ function AIRecommendationCard({ onUseHSCode }: { onUseHSCode: (code: string) => 
                   <div>
                     <h4 className="text-sm font-bold text-foreground mb-4 flex items-center justify-between">
                       <span className="flex items-center gap-2">
-                        <Percent className="h-4 w-4 text-amber-500" /> Duty & Tax Breakdown
+                        <FontAwesomeIcon icon={faReceipt} className="h-4 w-4 text-amber-500" aria-hidden="true" /> Duty & Tax Breakdown
                       </span>
                       <span className="text-xs font-mono font-medium text-muted-foreground">Standard Rate</span>
                     </h4>
@@ -526,23 +508,25 @@ export default function HSCodesPage() {
       }
     },
     {
-      header: "Actions",
+      header: "Manage",
       cell: (item) => (
-        <div className="flex items-center justify-end gap-1.5">
+        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[200px]">
           <Link 
             href={`/hs-codes/${item.code}`}
             className={buttonVariants({ variant: "ghost", size: "sm" }) + " h-8 px-2.5 text-xs gap-1 hover:bg-primary/10 hover:text-primary"}
             title="View Details"
+            aria-label={`View full details for HS Code ${item.code}`}
           >
-            <Eye className="h-3.5 w-3.5" />
+            <FontAwesomeIcon icon={faEye} className="h-3.5 w-3.5" />
             <span>Details</span>
           </Link>
           <Link 
             href={`/duty-calculator?hsCode=${item.code}`}
             className={buttonVariants({ variant: "outline", size: "sm" }) + " h-8 px-2.5 text-xs gap-1 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground shadow-xs"}
             title="Calculate Duty"
+            aria-label={`Calculate duty for HS Code ${item.code}`}
           >
-            <Calculator className="h-3.5 w-3.5" />
+            <FontAwesomeIcon icon={faCalculator} className="h-3.5 w-3.5" />
             <span>Calculate</span>
           </Link>
         </div>
@@ -551,7 +535,7 @@ export default function HSCodesPage() {
   ]
 
   return (
-    <div className="flex flex-col gap-8 pb-12">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="Customs HS Code Database" 
         description="Comprehensive WCO Harmonized System classification, duty schedules, and intelligent search."
@@ -559,46 +543,46 @@ export default function HSCodesPage() {
 
       {/* 1. Statistics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total HS Codes</p>
               <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                <PackageSearch className="h-5 w-5" />
+                <FontAwesomeIcon icon={faHashtag} className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-3">
               <p className="text-3xl font-extrabold tracking-tight text-foreground">{stats.totalCodes}</p>
               <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-                <ShieldCheck className="h-3 w-3 text-emerald-500" /> Active tariffs indexed
+                <FontAwesomeIcon icon={faCheck} className="h-3 w-3 text-emerald-500" aria-hidden="true" /> Active tariffs indexed
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categories</p>
               <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                <Tag className="h-5 w-5" />
+                <FontAwesomeIcon icon={faLayerGroup} className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-3">
               <p className="text-3xl font-extrabold tracking-tight text-foreground">{stats.categories}</p>
               <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
-                <Layers className="h-3 w-3 text-blue-500" /> Major product sections
+                <FontAwesomeIcon icon={faList} className="h-3 w-3 text-blue-500" aria-hidden="true" /> Major product sections
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Avg CD Duty Rate</p>
               <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                <Percent className="h-5 w-5" />
+                <FontAwesomeIcon icon={faPercent} className="h-5 w-5" aria-hidden="true" />
               </div>
             </div>
             <div className="mt-3">
@@ -608,12 +592,12 @@ export default function HSCodesPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
+        <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 shadow-sm hover:shadow-md transition-all duration-200">
           <CardContent className="p-5 flex flex-col justify-between">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Top Category</p>
               <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <TrendingUp className="h-5 w-5" />
+                <FontAwesomeIcon icon={faArrowTrendUp} className="h-5 w-5" />
               </div>
             </div>
             <div className="mt-3">
@@ -631,7 +615,7 @@ export default function HSCodesPage() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-            <Layers className="h-4 w-4 text-primary" /> Browse Categories
+            <FontAwesomeIcon icon={faTags} className="h-4 w-4 text-primary" aria-hidden="true" /> Browse Categories
           </h3>
           <span className="text-xs text-muted-foreground">{categoriesList.length} categories available</span>
         </div>
@@ -676,7 +660,7 @@ export default function HSCodesPage() {
       </div>
 
       {/* 4. Search Bar & Filters */}
-      <Card className="shadow-md border-border/80 bg-card/80 backdrop-blur-xl">
+      <Card className="rounded-xl shadow-sm border-border/60 bg-card/80 backdrop-blur-xl">
         <CardContent className="p-5">
           <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-end">
             
@@ -704,7 +688,7 @@ export default function HSCodesPage() {
             <div className="flex-1 w-full space-y-1.5">
               <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Search Query</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -719,7 +703,7 @@ export default function HSCodesPage() {
                     onClick={() => setSearchQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    <X className="h-4 w-4" />
+                    <FontAwesomeIcon icon={faXmark} className="h-4 w-4" />
                   </button>
                 )}
               </div>
@@ -733,7 +717,7 @@ export default function HSCodesPage() {
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <Search className="h-4 w-4" /> Search
+                  <FontAwesomeIcon icon={faSearch} className="h-4 w-4" /> Search
                 </span>
               )}
             </Button>
@@ -742,7 +726,7 @@ export default function HSCodesPage() {
             <Sheet>
               <SheetTrigger render={
                 <Button variant="outline" className="h-11 gap-2 px-4 border-border/80">
-                  <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                  <FontAwesomeIcon icon={faSliders} className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   <span>Filters</span>
                   {activeFiltersCount > 0 && (
                     <span className="flex h-5 w-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold items-center justify-center">
@@ -755,7 +739,7 @@ export default function HSCodesPage() {
                 <SheetHeader className="pb-4 border-b border-border/60">
                   <div className="flex items-center justify-between">
                     <SheetTitle className="font-semibold text-lg flex items-center gap-2">
-                      <Filter className="h-4 w-4 text-primary" /> Advanced Filters
+                      <FontAwesomeIcon icon={faFilter} className="h-4 w-4 text-primary" /> Advanced Filters
                     </SheetTitle>
                     {activeFiltersCount > 0 && (
                       <Button variant="ghost" size="sm" onClick={clearFilters} className="h-auto p-1 text-xs text-primary hover:underline">
@@ -833,11 +817,11 @@ export default function HSCodesPage() {
         
         {/* Left Sidebar: Recent Searches */}
         <div className="lg:col-span-1 space-y-4">
-          <Card className="border-border/80 shadow-sm bg-card/70 backdrop-blur-xl">
+          <Card className="rounded-xl border-border/60 shadow-sm bg-card/70 backdrop-blur-xl">
             <CardHeader className="pb-3 border-b border-border/50">
               <CardTitle className="text-sm font-semibold flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" /> Recent Searches
+                  <FontAwesomeIcon icon={faClock} className="h-4 w-4 text-primary" /> Recent Searches
                 </span>
                 {recentSearches.length > 0 && (
                   <button 
@@ -868,14 +852,14 @@ export default function HSCodesPage() {
                       </div>
                       <p className="text-[10px] text-muted-foreground mt-1 flex items-center justify-between">
                         <span>{recent.time}</span>
-                        <ArrowRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                        <FontAwesomeIcon icon={faArrowRight} className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
                       </p>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="py-8 text-center">
-                  <Clock className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                  <FontAwesomeIcon icon={faClock} className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
                   <p className="text-xs text-muted-foreground">No recent search history</p>
                 </div>
               )}
@@ -887,7 +871,7 @@ export default function HSCodesPage() {
         <div className="lg:col-span-3 space-y-4">
           
           {/* Result Summary Bar */}
-          <div className="flex flex-wrap items-center justify-between bg-card/70 backdrop-blur-xl p-3.5 rounded-xl border border-border/80 shadow-sm gap-3">
+          <div className="flex flex-wrap items-center justify-between bg-card/70 backdrop-blur-xl p-3.5 rounded-xl border border-border/60 shadow-sm gap-3">
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <p className="font-semibold text-foreground flex items-center gap-2">
                 <span>Matching HS Codes:</span>
@@ -915,14 +899,14 @@ export default function HSCodesPage() {
 
             {(appliedQuery || activeFiltersCount > 0) && (
               <Button variant="ghost" size="sm" onClick={handleResetSearch} className="h-7 text-xs text-muted-foreground hover:text-foreground">
-                <RefreshCcw className="h-3 w-3 mr-1.5" /> Reset Filters
+                <FontAwesomeIcon icon={faRotate} className="h-3 w-3 mr-1.5" /> Reset Filters
               </Button>
             )}
           </div>
 
           {/* Results Table / Skeleton / Empty */}
           {isLoading ? (
-            <Card className="border-border/80">
+            <Card className="rounded-xl border-border/60">
               <CardContent className="p-6 space-y-4">
                 <Skeleton className="h-10 w-full rounded-xl" />
                 <Skeleton className="h-14 w-full rounded-xl" />
@@ -932,22 +916,22 @@ export default function HSCodesPage() {
               </CardContent>
             </Card>
           ) : filteredData.length === 0 ? (
-            <Card className="border-dashed border-2 border-border/80 bg-card/50">
+            <Card className="rounded-xl border-dashed border-2 border-border/60 bg-card/50">
               <CardContent className="py-16 flex flex-col items-center justify-center text-center">
                 <div className="p-4 rounded-full bg-muted/60 mb-4">
-                  <PackageSearch className="h-10 w-10 text-muted-foreground/50" />
+                  <FontAwesomeIcon icon={faBoxOpen} className="h-10 w-10 text-muted-foreground/50" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">No matching HS Codes found</h3>
                 <p className="text-xs text-muted-foreground mt-1 max-w-md mb-6">
                   We couldn&apos;t find any tariff code matching your search criteria. Try modifying your keywords or clearing active filters.
                 </p>
                 <Button onClick={handleResetSearch} size="sm" className="gap-2">
-                  <RefreshCcw className="h-3.5 w-3.5" /> Reset All Filters
+                  <FontAwesomeIcon icon={faRotate} className="h-3.5 w-3.5" /> Reset All Filters
                 </Button>
               </CardContent>
             </Card>
           ) : (
-            <div className="bg-card/70 backdrop-blur-xl rounded-2xl border border-border/80 shadow-sm overflow-hidden">
+            <div className="bg-card/70 backdrop-blur-xl rounded-xl border border-border/60 shadow-sm overflow-hidden">
               <DataTable 
                 columns={columns} 
                 data={filteredData}

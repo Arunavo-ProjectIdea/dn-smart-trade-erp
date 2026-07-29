@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Copy } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
 
 import { FormLayout } from "@/components/erp/form-layout"
 import { PageHeader } from "@/components/erp/page-header"
@@ -16,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { AuthService, UserRole } from "@/lib/auth"
+import { getUserProfile } from "@/actions/auth.actions"
+type UserRole = "Admin" | "Employee" | "Client"
 import { mockEmployees } from "@/lib/mock-data/employees"
 import { useToast } from "@/components/ui/use-toast"
 import { StatusType } from "@/components/erp/status-badge"
@@ -38,10 +40,13 @@ export default function AddEmployeePage() {
 
   // Client-side role protection
   useEffect(() => {
-    const user = AuthService.getCurrentUser()
-    if (user?.role !== "Admin") {
-      router.push("/dashboard")
-    }
+    getUserProfile().then((res) => {
+      if (res.success && res.data) {
+        if (res.data.role !== "Admin") {
+          router.push("/dashboard")
+        }
+      }
+    })
   }, [router])
 
   const handleChange = (field: string, value: string) => {
@@ -247,7 +252,7 @@ export default function AddEmployeePage() {
                 onClick={() => copyToClipboard(tempPassword)}
                 title="Copy password"
               >
-                <Copy className="h-4 w-4" />
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">

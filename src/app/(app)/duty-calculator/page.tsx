@@ -2,27 +2,8 @@
 
 import { useState, useMemo, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { 
-  Calculator, 
-  RefreshCcw, 
-  Search, 
-  DollarSign, 
-  Hash, 
-  Globe, 
-  Printer, 
-  Copy, 
-  Check, 
-  Percent, 
-  Scale, 
-  Tag, 
-  Info, 
-  ArrowRight,
-  ShieldCheck,
-  TrendingUp,
-  FileSpreadsheet,
-  CheckCircle2,
-  Sparkles
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalculator, faRotate, faCircle, faGlobe, faCheck, faFileExcel } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion"
 
 import { PageHeader } from "@/components/erp/page-header"
@@ -147,7 +128,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
   }, [results])
 
   return (
-    <div className="flex flex-col gap-8 pb-14">
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       <PageHeader 
         title="Customs Duty & Tariff Calculator" 
         description="Dynamic assessment of landed costs, customs duties, SD, VAT, AIT, and regulatory tariffs."
@@ -157,11 +138,11 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
         
         {/* Left Column: Calculation Inputs Form */}
         <div className="lg:col-span-5 space-y-6">
-          <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-md overflow-hidden">
+          <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
             <CardHeader className="border-b border-border/60 bg-muted/30 pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                  <Calculator className="h-5 w-5 text-primary" /> Calculation Parameters
+                  <FontAwesomeIcon icon={faCalculator} className="h-5 w-5 text-primary" /> Calculation Parameters
                 </CardTitle>
                 <span className="text-[11px] font-mono text-muted-foreground uppercase bg-muted px-2.5 py-1 rounded-full border border-border/50">
                   NBR Tariff Schedule
@@ -246,7 +227,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                     Assessable Value / Unit *
                   </Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faCircle} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="assessableValue" 
                       type="number" 
@@ -264,7 +245,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                     Quantity *
                   </Label>
                   <div className="relative">
-                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <FontAwesomeIcon icon={faCircle} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
                       id="quantity" 
                       type="number" 
@@ -301,7 +282,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                       Exchange Rate (1 USD = BDT) *
                     </Label>
                     <div className="relative">
-                      <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <FontAwesomeIcon icon={faGlobe} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input 
                         id="exchangeRate" 
                         type="number" 
@@ -331,10 +312,10 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                   className="w-1/3 h-11 text-xs font-medium border-border/80" 
                   onClick={handleReset}
                 >
-                  <RefreshCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
+                  <FontAwesomeIcon icon={faRotate} className="mr-1.5 h-3.5 w-3.5" /> Reset
                 </Button>
                 <Button className="w-2/3 h-11 text-xs font-bold gap-2 shadow-md bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-700">
-                  <Calculator className="h-4 w-4" /> Recalculate Duties
+                  <FontAwesomeIcon icon={faCalculator} className="h-4 w-4" /> Recalculate Duties
                 </Button>
               </div>
 
@@ -351,7 +332,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
               {/* Hero Metric Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 
-                <Card className="bg-card/70 backdrop-blur-xl border-border/80 p-4 shadow-sm">
+                <Card className="rounded-xl bg-card/70 backdrop-blur-xl border-border/60 p-4 shadow-sm">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Assessable Base (BDT)</p>
                   <p className="text-xl font-extrabold font-mono text-foreground mt-1.5">
                     {formatCurrency(results.baseValueBDT)}
@@ -359,7 +340,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                   <p className="text-[10px] text-muted-foreground mt-1">Landed items evaluation</p>
                 </Card>
 
-                <Card className="bg-amber-500/10 border-amber-500/25 p-4 shadow-sm">
+                <Card className="rounded-xl bg-amber-500/10 border-amber-500/25 p-4 shadow-sm">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">Total Duties & Taxes</p>
                   <p className="text-xl font-extrabold font-mono text-amber-600 dark:text-amber-400 mt-1.5">
                     {formatCurrency(results.totalTaxAmount)}
@@ -369,7 +350,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                   </p>
                 </Card>
 
-                <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-card border-primary/30 p-4 shadow-sm">
+                <Card className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-card border-primary/30 p-4 shadow-sm">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-primary">Grand Total Landed Cost</p>
                   <p className="text-xl font-extrabold font-mono text-primary mt-1.5">
                     {formatCurrency(results.grandTotalAmount)}
@@ -380,11 +361,11 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
               </div>
 
               {/* Detailed Breakdown Card */}
-              <Card className="border-border/80 bg-card/70 backdrop-blur-xl shadow-md overflow-hidden">
+              <Card className="rounded-xl border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
                 <CardHeader className="border-b border-border/60 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <CardTitle className="text-lg font-bold flex items-center gap-2">
-                      <FileSpreadsheet className="h-5 w-5 text-primary" /> Itemized Tax Schedule Breakdown
+                      <FontAwesomeIcon icon={faFileExcel} className="h-5 w-5 text-primary" /> Itemized Tax Schedule Breakdown
                     </CardTitle>
                     <CardDescription className="text-xs text-muted-foreground mt-1">
                       Individual NBR tariff schedules applied sequentially per valuation rules.
@@ -400,11 +381,11 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                     >
                       {copied ? (
                         <>
-                          <Check className="h-3.5 w-3.5 text-emerald-500" /> Copied
+                          <FontAwesomeIcon icon={faCheck} className="h-3.5 w-3.5 text-emerald-500" /> Copied
                         </>
                       ) : (
                         <>
-                          <Copy className="h-3.5 w-3.5 text-muted-foreground" /> Copy Report
+                          <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 text-muted-foreground" /> Copy Report
                         </>
                       )}
                     </Button>
@@ -414,7 +395,7 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                       onClick={handlePrint}
                       className="h-8 text-xs gap-1.5 border-border/80"
                     >
-                      <Printer className="h-3.5 w-3.5 text-muted-foreground" /> Print
+                      <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5 text-muted-foreground" /> Print
                     </Button>
                   </div>
                 </CardHeader>
@@ -531,10 +512,10 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
               </Card>
             </div>
           ) : (
-            <Card className="border-dashed border-2 border-border/80 bg-card/50">
+            <Card className="rounded-xl border-dashed border-2 border-border/60 bg-card/50">
               <CardContent className="py-20 flex flex-col items-center justify-center text-center">
                 <div className="p-4 rounded-full bg-primary/10 text-primary mb-4">
-                  <Calculator className="h-12 w-12 text-primary/60" />
+                  <FontAwesomeIcon icon={faCalculator} className="h-12 w-12 text-primary/60" />
                 </div>
                 <h3 className="text-lg font-bold text-foreground">Select an HS Code to Calculate</h3>
                 <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-6 leading-relaxed">

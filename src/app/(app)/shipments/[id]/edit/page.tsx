@@ -5,7 +5,8 @@ import { PageHeader } from "@/components/erp/page-header";
 import { ShipmentForm } from "@/components/erp/shipment-form";
 import { mockShipmentsList } from "@/lib/mock-data/shipment";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 export default function EditShipmentPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -18,7 +19,7 @@ export default function EditShipmentPage({ params }: { params: Promise<{ id: str
         <PageHeader title="Shipment Not Found" />
         <Card className="shadow-sm">
           <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <AlertCircle className="size-12 text-destructive mb-4 opacity-50" />
+            <FontAwesomeIcon icon={faCircleExclamation} className="size-12 text-destructive mb-4 opacity-50" />
             <h3 className="text-xl font-medium">No shipment found with ID: {id}</h3>
           </CardContent>
         </Card>
