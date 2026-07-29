@@ -1,0 +1,32 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Phase 1: High Volume Data Fetching (Read Heavy)
+    - duration: 20
+      arrivalRate: 10
+      name: "Scenario B: Concurrent Reads (200 requests)"
+      
+    # Phase 2: Mass Client Creation (Write Heavy)
+    - duration: 5
+      arrivalRate: 10
+      name: "Scenario A: Concurrent Writes (50 creations)"
+
+scenarios:
+  - name: "Fetch Clients Dashboard"
+    weight: 4 # 80% of traffic
+    flow:
+      - get:
+          url: "/clients" # Assumes Server Component fetch
+          
+  - name: "Create Client Action"
+    weight: 1 # 20% of traffic
+    flow:
+      - post:
+          url: "/api/clients" # Placeholder URL, would need dedicated Next.js API route
+          json:
+            companyName: "Load Test Co"
+            contactPerson: "John Doe"
+            email: "loadtest@example.com"
+            phone: "1234567890"
+            clientType: "Importer"
+            status: "Active"
