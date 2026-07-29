@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { BarChart3, Briefcase, LayoutDashboard, Users } from "lucide-react"
+import { BarChart3 } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
-import { AuthService, UserRole } from "@/lib/auth"
+import { AuthService } from "@/lib/auth"
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -35,11 +35,6 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     await AuthService.login("admin@dnsmarttrade.com", "Admin")
-    window.location.replace("/dashboard")
-  }
-
-  const handleDemoLogin = async (role: UserRole) => {
-    await AuthService.login("demo@dnsmarttrade.com", role)
     window.location.replace("/dashboard")
   }
 
@@ -118,44 +113,6 @@ export default function LoginPage() {
                 Sign In
               </Button>
             </form>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left bg-card"
-                onClick={() => handleDemoLogin("Admin")}
-              >
-                <LayoutDashboard className="mr-2 h-4 w-4 text-muted-foreground" />
-                Login as Admin
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left bg-card"
-                onClick={() => handleDemoLogin("Employee")}
-              >
-                <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
-                Login as Employee
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left bg-card"
-                onClick={() => handleDemoLogin("Client")}
-              >
-                <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                Login as Client
-              </Button>
-            </div>
           </motion.div>
         </motion.div>
       </div>
