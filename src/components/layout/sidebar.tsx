@@ -3,21 +3,25 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
-import { 
-  BarChart3, 
-  LayoutDashboard, 
-  Settings, 
-  Users,
-  Briefcase,
-  FileText,
-  Truck,
-  FileSpreadsheet,
-  Hash,
-  Bot,
-  UserCircle,
-  PanelLeftClose,
-  PanelLeftOpen
-} from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTableColumns,
+  faBriefcase,
+  faUsers,
+  faTruck,
+  faFileExcel,
+  faHashtag,
+  faFileLines,
+  faChartBar,
+  faRobot,
+  faCircleUser,
+  faGear,
+  faChevronLeft,
+  faChevronRight,
+  faCircle,
+  faBell,
+} from "@fortawesome/free-solid-svg-icons";
+import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 
 import { cn } from "@/lib/utils"
 
@@ -30,43 +34,54 @@ interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   onToggleCollapse?: () => void
 }
 
+interface NavItem {
+  name: string
+  href: string
+  icon: IconDefinition
+}
+
 export function Sidebar({ className, role = "Admin", onClose, isCollapsed = false, onToggleCollapse, ...props }: SidebarProps) {
   const pathname = usePathname()
 
-  const getNavigation = (role: Role) => {
+  const getNavigation = (role: Role): NavItem[] => {
     switch (role) {
       case "Admin":
         return [
-          { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-          { name: "Employees", href: "/employees", icon: Briefcase },
-          { name: "Clients", href: "/clients", icon: Users },
-          { name: "Shipments", href: "/shipments", icon: Truck },
-          { name: "BOE", href: "/boe", icon: FileSpreadsheet },
-          { name: "HS Codes", href: "/hs-codes", icon: Hash },
-          { name: "Documents", href: "/documents", icon: FileText },
-          { name: "Reports", href: "/reports", icon: BarChart3 },
-          { name: "AI Assistant", href: "/ai-assistant", icon: Bot },
-          { name: "Profile", href: "/profile", icon: UserCircle },
-          { name: "Settings", href: "/settings", icon: Settings },
+          { name: "Dashboard", href: "/dashboard", icon: faTableColumns },
+          { name: "Employees", href: "/employees", icon: faBriefcase },
+          { name: "Clients", href: "/clients", icon: faUsers },
+          { name: "Shipments", href: "/shipments", icon: faTruck },
+          { name: "BOE", href: "/boe", icon: faFileExcel },
+          { name: "HS Codes", href: "/hs-codes", icon: faHashtag },
+          { name: "Documents", href: "/documents", icon: faFileLines },
+          { name: "Reports", href: "/reports", icon: faChartBar },
+          { name: "AI Assistant", href: "/ai-assistant", icon: faRobot },
+          { name: "Notifications", href: "/notifications", icon: faBell },
+          { name: "Profile", href: "/profile", icon: faCircleUser },
+          { name: "Settings", href: "/settings", icon: faGear },
         ]
       case "Employee":
         return [
-          { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-          { name: "Clients", href: "/clients", icon: Users },
-          { name: "Shipments", href: "/shipments", icon: Truck },
-          { name: "BOE", href: "/boe", icon: FileSpreadsheet },
-          { name: "HS Codes", href: "/hs-codes", icon: Hash },
-          { name: "Documents", href: "/documents", icon: FileText },
-          { name: "Reports", href: "/reports", icon: BarChart3 },
-          { name: "AI Assistant", href: "/ai-assistant", icon: Bot },
-          { name: "Profile", href: "/profile", icon: UserCircle },
+          { name: "Dashboard", href: "/dashboard", icon: faTableColumns },
+          { name: "Clients", href: "/clients", icon: faUsers },
+          { name: "Shipments", href: "/shipments", icon: faTruck },
+          { name: "BOE", href: "/boe", icon: faFileExcel },
+          { name: "HS Codes", href: "/hs-codes", icon: faHashtag },
+          { name: "Duty Calculator", href: "/duty-calculator", icon: faChartBar },
+          { name: "Documents", href: "/documents", icon: faFileLines },
+          { name: "Reports", href: "/reports", icon: faChartBar },
+          { name: "AI Assistant", href: "/ai-assistant", icon: faRobot },
+          { name: "Notifications", href: "/notifications", icon: faBell },
+          { name: "Profile", href: "/profile", icon: faCircleUser },
         ]
       case "Client":
         return [
-          { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-          { name: "My Shipments", href: "/shipments", icon: Truck },
-          { name: "My Documents", href: "/documents", icon: FileText },
-          { name: "Profile", href: "/profile", icon: UserCircle },
+          { name: "Dashboard", href: "/dashboard", icon: faTableColumns },
+          { name: "My Shipments", href: "/shipments", icon: faTruck },
+          { name: "My Documents", href: "/documents", icon: faFileLines },
+          { name: "Notifications", href: "/notifications", icon: faBell },
+          { name: "AI Assistant", href: "/ai-assistant", icon: faRobot },
+          { name: "Profile", href: "/profile", icon: faCircleUser },
         ]
       default:
         return []
@@ -78,9 +93,9 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
   return (
     <div className={cn("flex h-full flex-col gap-y-5 bg-sidebar pb-4 transition-all duration-300", isCollapsed ? "px-1" : "px-6", className)} {...props}>
       <div className={cn("flex h-16 shrink-0 items-center transition-all duration-300", isCollapsed ? "justify-center" : "justify-between")}>
-        <div className={cn("flex items-center gap-3 transition-all duration-300 w-full rounded-md hover:bg-sidebar-accent p-2 cursor-pointer", isCollapsed ? "justify-center" : "")}>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-sm">
-            <BarChart3 className="h-5 w-5 text-primary-foreground" />
+        <div className={cn("flex items-center gap-3 transition-all duration-300 w-full rounded-md hover:bg-sidebar-accent/50 p-2 cursor-pointer", isCollapsed ? "justify-center" : "")}>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-md">
+            <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col flex-1 overflow-hidden">
@@ -97,7 +112,7 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
             title="Collapse Sidebar"
             className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer absolute right-[-16px] top-4 border border-border bg-background shadow-sm z-50 hover:shadow-md"
           >
-            <PanelLeftClose className="h-4 w-4" aria-hidden="true" />
+            <FontAwesomeIcon icon={faChevronLeft} className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
         {onToggleCollapse && isCollapsed && (
@@ -107,11 +122,11 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
             title="Expand Sidebar"
             className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-transparent text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground cursor-pointer absolute right-[-16px] top-4 border border-border bg-background shadow-sm z-50 hover:shadow-md"
           >
-            <PanelLeftOpen className="h-4 w-4" aria-hidden="true" />
+            <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
       </div>
-      <nav className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
+      <nav className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden" aria-label="Main navigation">
         <ul role="list" className="flex flex-1 flex-col gap-y-7">
           <li>
             <ul role="list" className="-mx-2 space-y-1">
@@ -129,26 +144,28 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
                     <Link
                       href={item.href}
                       onClick={() => onClose && onClose()}
+                      aria-current={isActive ? "page" : undefined}
                       className={cn(
                         isActive
                           ? "text-sidebar-accent-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground",
-                        "relative z-10 group/link flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 transition-all duration-200 hover:translate-x-1 active:scale-[0.98]",
+                        "relative z-10 group/link flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6 transition-all duration-200 hover:translate-x-1 active:scale-[0.98]",
                         isCollapsed && "justify-center hover:translate-x-0"
                       )}
                     >
-                      <item.icon
+                      <FontAwesomeIcon
+                        icon={item.icon}
                         className={cn(
-                          isActive ? "text-sidebar-accent-foreground" : "text-muted-foreground group-hover/link:text-sidebar-accent-foreground",
-                          "h-5 w-5 shrink-0 transition-colors"
+                          isActive ? "text-sidebar-accent-foreground drop-shadow-sm" : "text-muted-foreground group-hover/link:text-sidebar-accent-foreground",
+                          "h-5 w-5 shrink-0 transition-all duration-200"
                         )}
                         aria-hidden="true"
                       />
                       {!isCollapsed && <span className="truncate whitespace-nowrap">{item.name}</span>}
-                      
+
                       {isCollapsed && (
-                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200">
-                          <div className="bg-slate-900 text-slate-50 text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
+                        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200" role="tooltip">
+                          <div className="bg-popover text-popover-foreground border text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
                             {item.name}
                           </div>
                         </div>
@@ -168,16 +185,16 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
                 isCollapsed && "justify-center hover:translate-x-0"
               )}
             >
-              <FileText
+              <FontAwesomeIcon icon={faFileLines}
                 className="h-5 w-5 shrink-0 text-muted-foreground group-hover/link:text-sidebar-accent-foreground"
                 aria-hidden="true"
               />
               {!isCollapsed && <span className="truncate whitespace-nowrap">Documentation</span>}
-              
+
               {isCollapsed && (
-                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200">
-                  <div className="bg-slate-900 text-slate-50 text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
-                    Documentation
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200" role="tooltip">
+                  <div className="bg-popover text-popover-foreground border text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
+                    Help & Support
                   </div>
                 </div>
               )}

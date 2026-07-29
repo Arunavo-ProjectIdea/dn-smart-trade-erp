@@ -1,27 +1,36 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
 import { PageHeader } from "@/components/erp/page-header";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, FileSpreadsheet, MoreHorizontal, Download, Printer, Archive, Trash2, Edit, ChevronDown, ChevronUp } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faFileExcel, faDownload, faCircle, faTrash, faChevronDown, faEllipsisVertical, faEye, faPen } from "@fortawesome/free-solid-svg-icons";
 import { mockBOEList } from "@/lib/mock-data/boe";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { StatusBadge } from "@/components/erp/status-badge";
+import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
+import { ViewToggle } from "@/components/erp/view-toggle";
+import { DataTable, ColumnDef } from "@/components/erp/data-table";
+import { type BillOfEntry } from "@/lib/types/boe";
+import { getUserProfile } from "@/actions/auth.actions";
 
 function BOEContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [statusFilter, setStatusFilter] = useState<string>(searchParams.get("status") || "all");
   const [clientFilter, setClientFilter] = useState<string>(searchParams.get("client") || "all");
-  const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
+  const [userRole, setUserRole] = useState<string>("Admin");
+  
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data?.role) setUserRole(res.data.role as string);
+    });
+  }, []);
 
   const [, setForceUpdate] = useState(0);
 
@@ -39,69 +48,158 @@ function BOEContent() {
     }
   };
 
-  const handleSort = (key: string) => {
-    let direction: "asc" | "desc" = "asc";
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
+  const columns: ColumnDef<BillOfEntry>[] = [
+    {
+      header: "BOE Details",
+      accessorKey: "boeNumber",
+      sortable: true,
+      cell: (boe) => (
+        <div className="flex flex-col">
+          <Link href={`/boe/${boe.id}`} className="flex items-center gap-2 hover:underline text-primary font-medium">
+            <FontAwesomeIcon icon={faFileExcel} className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="truncate">{boe.boeNumber}</span>
+          </Link>
+          <div className="text-xs text-muted-foreground mt-0.5 ml-6">
+            {new Date(boe.createdAt).toLocaleDateString()}
+          </div>
+        </div>
+      ),
+    },
+    {
+      header: "Client",
+      sortable: true,
+      accessorKey: "id", 
+      cell: (boe) => (
+        <div className="flex flex-col">
+          <span className="font-medium truncate">{boe.importer.clientName}</span>
+          <span className="text-xs text-muted-foreground truncate">{boe.importer.companyName}</span>
+        </div>
+      ),
+    },
+    {
+      header: "Shipment",
+      cell: (boe) => (
+        <div className="flex flex-col">
+          <span className="font-medium truncate">{boe.shipment.port}</span>
+          <span className="text-xs text-muted-foreground truncate">HS: {boe.products[0]?.hsCode || 'N/A'}</span>
+        </div>
+      ),
+    },
+    {
+      header: "Status",
+      accessorKey: "status",
+      sortable: true,
+      cell: (boe) => <StatusBadge status={boe.status as StatusType} />,
+    },
+    {
+      header: "Duty",
+      cell: (boe) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal),
+    },
+    {
+      header: "",
+      cell: (boe) => (
+        <div className="flex justify-end pr-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "icon" }) + " h-8 w-8"}>
+              <FontAwesomeIcon icon={faEllipsisVertical} className="h-4 w-4 text-muted-foreground" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem className="p-0">
+                <Link href={`/boe/${boe.id}`} className="flex w-full cursor-pointer items-center px-2 py-1.5">
+                  <FontAwesomeIcon icon={faEye} className="mr-2 h-4 w-4" /> View
+                </Link>
+              </DropdownMenuItem>
+              {userRole !== "Client" && (
+                <DropdownMenuItem className="p-0">
+                  <Link href={`/boe/${boe.id}/edit`} className="flex w-full cursor-pointer items-center px-2 py-1.5">
+                    <FontAwesomeIcon icon={faPen} className="mr-2 h-4 w-4" /> Edit
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem className="cursor-pointer" onClick={() => toast({ title: "Download PDF", description: "Generating PDF..." })}>
+                <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Download PDF
+              </DropdownMenuItem>
+              {userRole !== "Client" && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer" onClick={() => handleDelete(boe.id)}>
+                    <FontAwesomeIcon icon={faTrash} className="mr-2 h-4 w-4" /> Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+    },
+  ];
 
-  const getSortIcon = (key: string) => {
-    if (sortConfig?.key !== key) return <ChevronDown className="h-4 w-4 opacity-20" />;
-    return sortConfig.direction === "asc" ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
-  };
+  const flattenedData = useMemo(() => {
+    return mockBOEList.map(boe => ({
+      ...boe,
+      clientName: boe.importer.clientName,
+      portName: boe.shipment.port,
+      dutyTotal: boe.duties.grandTotal
+    }));
+  }, []);
 
-  const filteredBOEList = mockBOEList.filter((boe) => {
-    const matchesSearch = 
-      boe.boeNumber.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      boe.importer.clientName.toLowerCase().includes(searchTerm.toLowerCase());
-      
+  const columnsForFlat: ColumnDef<typeof flattenedData[0]>[] = columns.map(c => {
+    if (c.header === "Client") return { ...c, accessorKey: "clientName", sortable: true };
+    if (c.header === "Shipment") return { ...c, accessorKey: "portName", sortable: true };
+    if (c.header === "Duty") return { ...c, accessorKey: "dutyTotal", sortable: true };
+    return c;
+  }) as ColumnDef<typeof flattenedData[0]>[];
+
+  const filteredData = flattenedData.filter((boe) => {
     const matchesStatus = statusFilter === "all" || boe.status === statusFilter;
     const matchesClient = clientFilter === "all" || boe.importer.clientName === clientFilter;
-    
-    return matchesSearch && matchesStatus && matchesClient;
+    return matchesStatus && matchesClient;
   });
 
-  if (sortConfig) {
-    filteredBOEList.sort((a, b) => {
-      let aValue: string | number | Date = "";
-      let bValue: string | number | Date = "";
+  const filters = (
+    <>
+      <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          <SelectItem value="Draft">Draft</SelectItem>
+          <SelectItem value="Submitted">Submitted</SelectItem>
+          <SelectItem value="Under Review">Under Review</SelectItem>
+          <SelectItem value="Approved">Approved</SelectItem>
+          <SelectItem value="Rejected">Rejected</SelectItem>
+          <SelectItem value="Completed">Completed</SelectItem>
+        </SelectContent>
+      </Select>
       
-      switch (sortConfig.key) {
-        case 'boeNumber':
-          aValue = a.boeNumber;
-          bValue = b.boeNumber;
-          break;
-        case 'client':
-          aValue = a.importer.clientName;
-          bValue = b.importer.clientName;
-          break;
-        case 'port':
-          aValue = a.shipment.port;
-          bValue = b.shipment.port;
-          break;
-        case 'status':
-          aValue = a.status;
-          bValue = b.status;
-          break;
-        case 'dutyAmount':
-          aValue = a.duties.grandTotal;
-          bValue = b.duties.grandTotal;
-          break;
-        case 'createdDate':
-          aValue = new Date(a.createdAt).getTime();
-          bValue = new Date(b.createdAt).getTime();
-          break;
-        default:
-          return 0;
-      }
-      
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }
+      <Select value={clientFilter} onValueChange={(val) => setClientFilter(val || "all")}>
+        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</span>
+            <div className="h-4 w-px bg-border mx-1"></div>
+            <SelectValue placeholder="All" />
+          </div>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All</SelectItem>
+          {Array.from(new Set(mockBOEList.map(b => b.importer.clientName))).map(c => (
+            <SelectItem key={c} value={c}>{c}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </>
+  );
+
+  const actions = (
+    <Button variant="outline" size="sm" className="w-full sm:w-auto" onClick={() => toast({ title: "Export", description: "Exporting BOE data..." })}>
+      <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Export
+    </Button>
+  );
 
   return (
     <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
@@ -109,173 +207,77 @@ function BOEContent() {
         title="Bill of Entry" 
         description="Manage customs declarations and bill of entry records."
         action={
-          <Link href="/boe/create" className={buttonVariants()}>
-            <Plus className="mr-2 h-4 w-4" /> Create BOE
-          </Link>
+          userRole !== "Client" ? (
+            <Link href="/boe/create" className={buttonVariants()}>
+              <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" /> Create BOE
+            </Link>
+          ) : undefined
         }
       />
       
+      <div className="flex justify-end -mt-4 mb-2">
+        <ViewToggle viewMode={viewMode} onViewModeChange={setViewMode} />
+      </div>
+
       <Card>
-        <CardHeader>
-          <CardTitle>Recent BOE Documents</CardTitle>
-          <CardDescription>A list of recently filed Bill of Entry records.</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between pb-4">
+          <div>
+            <CardTitle>Recent BOE Documents</CardTitle>
+            <CardDescription>A list of recently filed Bill of Entry records.</CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row items-center gap-2 mb-6 justify-between">
-            <div className="relative w-full sm:max-w-sm">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input 
-                type="search" 
-                placeholder="Search BOE number or client..." 
-                className="pl-9 bg-background shadow-sm" 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="flex items-center gap-2">
-                <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
-                  <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
-                      <div className="h-4 w-px bg-border mx-1"></div>
-                      <SelectValue placeholder="All" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="Draft">Draft</SelectItem>
-                    <SelectItem value="Submitted">Submitted</SelectItem>
-                    <SelectItem value="Under Review">Under Review</SelectItem>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="Rejected">Rejected</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="flex items-center gap-2 hidden md:flex">
-                <Select value={clientFilter} onValueChange={(val) => setClientFilter(val || "all")}>
-                  <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</span>
-                      <div className="h-4 w-px bg-border mx-1"></div>
-                      <SelectValue placeholder="All" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    {Array.from(new Set(mockBOEList.map(b => b.importer.clientName))).map(c => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button variant="outline" className="w-full sm:w-auto" onClick={() => toast({ title: "Export", description: "Exporting BOE data..." })}>
-                <Download className="mr-2 h-4 w-4" /> Export
-              </Button>
-            </div>
-          </div>
-          
-          <div className="rounded-md border overflow-x-auto">
-            <Table className="min-w-[1000px]">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('boeNumber')}>
-                    <div className="flex items-center gap-1">BOE Number {getSortIcon('boeNumber')}</div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('client')}>
-                    <div className="flex items-center gap-1">Client {getSortIcon('client')}</div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('port')}>
-                    <div className="flex items-center gap-1">Port {getSortIcon('port')}</div>
-                  </TableHead>
-                  <TableHead>HS Code (Primary)</TableHead>
-                  <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('status')}>
-                    <div className="flex items-center gap-1">Status {getSortIcon('status')}</div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('dutyAmount')}>
-                    <div className="flex items-center gap-1">Duty Amount {getSortIcon('dutyAmount')}</div>
-                  </TableHead>
-                  <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('createdDate')}>
-                    <div className="flex items-center gap-1">Created Date {getSortIcon('createdDate')}</div>
-                  </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredBOEList.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                      No Bill of Entry records found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredBOEList.map((boe) => (
-                    <TableRow key={boe.id}>
-                    <TableCell className="font-medium">
-                      <Link href={`/boe/${boe.id}`} className="flex items-center gap-2 hover:underline text-primary">
-                        <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
-                        {boe.boeNumber}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <div className="font-medium">{boe.importer.clientName}</div>
-                        <div className="text-xs text-muted-foreground">{boe.importer.companyName}</div>
+          {viewMode === "table" ? (
+            <DataTable 
+              columns={columnsForFlat} 
+              data={filteredData} 
+              searchKey="boeNumber"
+              searchPlaceholder="Search BOE number..."
+              filters={filters}
+              actions={actions}
+            />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
+              {filteredData.map((boe) => (
+                <Card key={boe.id} className="group relative transition-all duration-300 hover:shadow-card hover:border-border/80 flex flex-col">
+                  <CardHeader className="pb-4">
+                    <div className="flex justify-between items-start">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <FontAwesomeIcon icon={faFileExcel} className="size-5" />
                       </div>
-                    </TableCell>
-                    <TableCell>{boe.shipment.port}</TableCell>
-                    <TableCell>{boe.products[0]?.hsCode || 'N/A'}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={boe.status as any} />
-                    </TableCell>
-                    <TableCell>
-                      {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal)}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(boe.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", className: "h-8 w-8 p-0" })}>
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuGroup>
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          </DropdownMenuGroup>
-                          <DropdownMenuItem>
-                             <Link href={`/boe/${boe.id}`} className="flex w-full cursor-pointer">View Details</Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                             <Link href={`/boe/${boe.id}/edit`} className="flex w-full cursor-pointer items-center">
-                               <Edit className="mr-2 h-4 w-4" /> Edit
-                             </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => toast({ title: "Download PDF", description: "Generating PDF..." })}>
-                            <Download className="mr-2 h-4 w-4" /> Download PDF
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast({ title: "Print", description: "Sending to printer..." })}>
-                            <Printer className="mr-2 h-4 w-4" /> Print
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast({ title: "Archive", description: "This feature is coming soon." })}>
-                            <Archive className="mr-2 h-4 w-4" /> Archive
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => handleDelete(boe.id)}>
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                )))}
-              </TableBody>
-            </Table>
-          </div>
+                      <StatusBadge status={boe.status as StatusType} />
+                    </div>
+                    <CardTitle className="mt-4 truncate">
+                      <Link href={`/boe/${boe.id}`} className="hover:underline hover:text-primary transition-colors flex flex-col">
+                        <span>{boe.boeNumber}</span>
+                      </Link>
+                    </CardTitle>
+                    <CardDescription className="flex flex-col gap-1 mt-1">
+                      <span className="font-medium text-foreground">{boe.importer.clientName}</span>
+                      <span className="text-xs">{boe.importer.companyName}</span>
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-6 flex-1">
+                    <div className="space-y-4 text-sm">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Duty</span>
+                        <span className="font-medium text-lg text-foreground">
+                          {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BDT' }).format(boe.duties.grandTotal)}
+                        </span>
+                      </div>
+                      <div className="pt-2 border-t border-border/50 flex flex-col gap-1">
+                        <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Port & Date</span>
+                        <div className="flex justify-between items-center text-muted-foreground font-medium">
+                          <span>{boe.shipment.port}</span>
+                          <span>{new Date(boe.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

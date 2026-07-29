@@ -1,18 +1,18 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { PageTransition } from "@/components/layout/page-transition"
 import { AuthGuard } from "@/components/layout/auth-guard"
-import { AuthService } from "@/lib/auth"
+import { getUserProfile } from "@/actions/auth.actions"
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = AuthService.getCurrentUser()
-  const role = user?.role || "Admin" // SSR default
+  const profileRes = await getUserProfile()
+  const role = profileRes.data?.role || "Employee"
 
   return (
-    <AuthGuard>
+    <AuthGuard role={role}>
       <DashboardShell role={role}>
         <PageTransition>
           {children}

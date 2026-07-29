@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Search, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch, faChevronDown, faChevronLeft, faChevronRight, faDownload } from "@fortawesome/free-solid-svg-icons";
 import { cn } from "@/lib/utils"
 import { useToast } from "@/components/ui/use-toast"
 
@@ -38,6 +39,8 @@ interface DataTableProps<T> {
   searchPlaceholder?: string
   emptyStateTitle?: string
   emptyStateDescription?: string
+  filters?: React.ReactNode
+  actions?: React.ReactNode
 }
 
 export function DataTable<T>({
@@ -47,6 +50,8 @@ export function DataTable<T>({
   searchPlaceholder = "Search...",
   emptyStateTitle = "No data found",
   emptyStateDescription = "There are no records to display matching your criteria.",
+  filters,
+  actions,
 }: DataTableProps<T>) {
   const { toast } = useToast()
   const [searchQuery, setSearchQuery] = React.useState("")
@@ -101,13 +106,13 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex flex-1 items-center space-x-2 w-full sm:w-auto">
+        <div className="flex flex-1 flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
           {searchKey && (
             <div className="relative w-full sm:max-w-sm group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
+              <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 placeholder={searchPlaceholder}
                 value={searchQuery}
@@ -119,37 +124,50 @@ export function DataTable<T>({
               />
             </div>
           )}
+          {filters && (
+            <div className="flex flex-nowrap overflow-x-auto items-center gap-3 w-full sm:w-auto pb-1 sm:pb-0">
+              {filters}
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
-            <Download className="mr-2 h-4 w-4" />
-            CSV
-          </Button>
-          <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export Excel", description: "Exporting data..." })}>
-            <Download className="mr-2 h-4 w-4" />
-            Excel
-          </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {actions ? actions : (
+            <>
+              <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export CSV", description: "Exporting data..." })}>
+                <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" />
+                CSV
+              </Button>
+              <Button variant="outline" size="sm" className="bg-card" onClick={() => toast({ title: "Export Excel", description: "Exporting data..." })}>
+                <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" />
+                Excel
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-md border">
+      <div className="rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm relative w-full overflow-auto">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="bg-background/80 backdrop-blur-md sticky top-0 z-10 shadow-[0_1px_2px_rgba(0,0,0,0.05)] dark:shadow-[0_1px_2px_rgba(255,255,255,0.05)]">
+            <TableRow className="hover:bg-transparent border-b-0">
               {columns.map((col, index) => (
                 <TableHead 
                   key={index}
                   className={cn(
                     "transition-colors duration-200",
-                    col.sortable ? "cursor-pointer select-none hover:text-primary" : ""
+                    col.sortable ? "cursor-pointer select-none hover:text-primary" : "",
+                    ["Actions", "Manage"].includes(col.header) ? "text-center" : ""
                   )}
                   onClick={() => col.sortable && col.accessorKey && handleSort(col.accessorKey)}
                 >
-                  <div className="flex items-center space-x-1">
+                  <div className={cn(
+                    "flex items-center space-x-1",
+                    ["Actions", "Manage"].includes(col.header) ? "justify-center w-full" : "justify-start"
+                  )}>
                     <span>{col.header}</span>
                     {col.sortable && (
-                      <ChevronDown 
+                      <FontAwesomeIcon icon={faChevronDown} 
                         className={cn(
                           "h-4 w-4 transition-all duration-200", 
                           sortConfig?.key === col.accessorKey ? "opacity-100" : "opacity-0 -translate-y-1",
@@ -230,7 +248,7 @@ export function DataTable<T>({
                 disabled={currentPage === 1}
               >
                 <span className="sr-only">Go to previous page</span>
-                <ChevronLeft className="h-4 w-4" />
+                <FontAwesomeIcon icon={faChevronLeft} className="h-4 w-4" />
               </Button>
               <div className="flex w-[100px] items-center justify-center text-sm font-medium">
                 Page {currentPage} of {totalPages}
@@ -242,7 +260,7 @@ export function DataTable<T>({
                 disabled={currentPage === totalPages}
               >
                 <span className="sr-only">Go to next page</span>
-                <ChevronRight className="h-4 w-4" />
+                <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
               </Button>
             </div>
           </div>

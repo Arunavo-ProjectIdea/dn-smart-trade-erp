@@ -1,4 +1,5 @@
-import { PanelLeft, Search, Plus, Truck, Users, Briefcase, FileSpreadsheet } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars, faSearch, faPlus, faUsers, faBriefcase, faFileExcel, faTruck } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -14,12 +15,22 @@ import {
 import { DynamicBreadcrumbs } from "./breadcrumbs"
 import { Notifications } from "./notifications"
 import { UserNav } from "./user-nav"
+import { Role } from "./sidebar"
+import { CommandMenu } from "./command-menu"
+import { useState } from "react"
 
 interface TopNavProps {
   onMenuClick: () => void
+  role?: Role
 }
 
-export function TopNav({ onMenuClick }: TopNavProps) {
+export function TopNav({ onMenuClick, role = "Admin" }: TopNavProps) {
+  // Clients cannot create internal records
+  const canCreate = role !== "Client"
+  // Employees cannot create new employee accounts
+  const canCreateEmployee = role === "Admin"
+  const [commandOpen, setCommandOpen] = useState(false)
+
   return (
     <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background/80 backdrop-blur-md px-4 sm:gap-x-6 sm:px-6 lg:px-8 transition-all duration-300">
       <Button
@@ -27,9 +38,10 @@ export function TopNav({ onMenuClick }: TopNavProps) {
         size="icon"
         className="-m-2.5 p-2.5 text-muted-foreground lg:hidden"
         onClick={onMenuClick}
+        aria-label="Open sidebar"
       >
         <span className="sr-only">Open sidebar</span>
-        <PanelLeft className="h-6 w-6" aria-hidden="true" />
+        <FontAwesomeIcon icon={faBars} className="h-5 w-5" aria-hidden="true" />
       </Button>
 
       {/* Separator */}
@@ -38,15 +50,15 @@ export function TopNav({ onMenuClick }: TopNavProps) {
       <div className="flex flex-1 items-center justify-between gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1 items-center gap-x-6">
           <DynamicBreadcrumbs />
-          
-          <div className="hidden md:flex relative w-full max-w-md items-center">
-            <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search or type a command..."
-              className="h-9 w-full rounded-md border border-border bg-muted/50 pl-10 pr-12 text-sm outline-none transition-colors focus:bg-background focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-              readOnly
-            />
+
+          <div 
+            className="hidden md:flex relative w-full max-w-md items-center cursor-pointer"
+            onClick={() => setCommandOpen(true)}
+          >
+            <FontAwesomeIcon icon={faSearch} className="absolute left-3 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <div className="flex h-9 w-full items-center rounded-md border border-input bg-background/50 pl-10 pr-12 text-sm text-muted-foreground shadow-sm transition-all hover:bg-background/80 hover:border-ring/50">
+              Search or type a command...
+            </div>
             <div className="absolute right-2 flex items-center gap-1">
               <kbd className="inline-flex h-5 items-center gap-1 rounded border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
                 <span className="text-xs">⌘</span>K
@@ -56,45 +68,54 @@ export function TopNav({ onMenuClick }: TopNavProps) {
         </div>
 
         <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="hidden lg:flex h-9 border border-border bg-background shadow-sm hover:bg-accent/50 gap-2 items-center px-3 rounded-md text-sm font-medium">
-              <Plus className="h-4 w-4" />
-              <span>Create</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuLabel>Quick Add</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <Link href="/shipments/create" className="w-full">
-                  <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <Truck className="mr-2 h-4 w-4 text-muted-foreground" />
+          {/* "Create" quick-add — only for Admin and Employee, filtered by role */}
+          {canCreate && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="hidden lg:flex h-9 border border-input bg-background/50 shadow-sm transition-all hover:border-border/80 hover:bg-accent/50 focus-visible:ring-3 focus-visible:ring-ring/50 gap-2 items-center px-3 rounded-md text-sm font-medium outline-none">
+                <FontAwesomeIcon icon={faPlus} className="h-4 w-4" aria-hidden="true" />
+                <span>Create</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>Quick Add</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/shipments/create" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faTruck} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <span>New Shipment</span>
                   </DropdownMenuItem>
-                </Link>
-                <Link href="/clients/new" className="w-full">
-                  <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/clients/new" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faUsers} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <span>New Client</span>
                   </DropdownMenuItem>
-                </Link>
-                <Link href="/employees/new" className="w-full">
-                  <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
-                    <span>New Employee</span>
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/boe/create" className="w-full">
-                  <DropdownMenuItem className="cursor-pointer flex items-center">
-                    <FileSpreadsheet className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {canCreateEmployee && (
+                    <DropdownMenuItem 
+                      className="cursor-pointer flex items-center"
+                      render={<Link href="/employees/new" className="w-full" />}
+                    >
+                      <FontAwesomeIcon icon={faBriefcase} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <span>New Employee</span>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem 
+                    className="cursor-pointer flex items-center"
+                    render={<Link href="/boe/create" className="w-full" />}
+                  >
+                    <FontAwesomeIcon icon={faFileExcel} className="mr-2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
                     <span>New Bill of Entry</span>
                   </DropdownMenuItem>
-                </Link>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           <Notifications />
-          
+
           {/* Separator */}
           <div
             className="hidden lg:block lg:h-6 lg:w-px lg:bg-border"
@@ -102,9 +123,10 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           />
 
           {/* Profile dropdown */}
-          <UserNav />
+          <UserNav role={role} />
         </div>
       </div>
+      <CommandMenu open={commandOpen} onOpenChange={setCommandOpen} />
     </header>
   )
 }
