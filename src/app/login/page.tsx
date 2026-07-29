@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle, faBriefcase, faTableColumns, faUsers, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCircle, faArrowRight } from "@fortawesome/free-solid-svg-icons"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
@@ -49,35 +49,6 @@ export default function LoginPage() {
         router.push("/dashboard")
       } else {
         setError(res.error || "Failed to sign in")
-      }
-    } catch {
-      setError("An unexpected error occurred")
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleDemoLogin = async (role: "Admin" | "Employee" | "Client") => {
-    setError(null)
-    setIsLoading(true)
-    
-    try {
-      const emails = {
-        Admin: "admin@dnsmarttrade.com",
-        Employee: "employee@dnsmarttrade.com",
-        Client: "client@acmecorp.com"
-      }
-      
-      const formData = new FormData()
-      formData.append("email", emails[role])
-      formData.append("password", "Password123!") // default demo password
-      
-      const res = await signIn(formData)
-      
-      if (res.success) {
-        router.push("/dashboard")
-      } else {
-        setError(res.error || `Failed to sign in as ${role}. Ensure the user exists in Supabase.`)
       }
     } catch {
       setError("An unexpected error occurred")
@@ -175,53 +146,6 @@ export default function LoginPage() {
                 {!isLoading && <FontAwesomeIcon icon={faArrowRight} className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />}
               </Button>
             </form>
-
-            <div className="relative my-8">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border/60" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-3 text-muted-foreground font-medium tracking-wider">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left h-11 bg-card/40 hover:bg-muted/50 border-border/60 transition-colors shadow-sm"
-                onClick={() => handleDemoLogin("Admin")}
-                type="button"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded bg-primary/10 mr-3">
-                  <FontAwesomeIcon icon={faTableColumns} className="h-3.5 w-3.5 text-primary" />
-                </div>
-                <span className="font-medium">Login as Admin</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left h-11 bg-card/40 hover:bg-muted/50 border-border/60 transition-colors shadow-sm"
-                onClick={() => handleDemoLogin("Employee")}
-                type="button"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded bg-blue-500/10 mr-3">
-                  <FontAwesomeIcon icon={faBriefcase} className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <span className="font-medium">Login as Employee</span>
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full justify-start text-left h-11 bg-card/40 hover:bg-muted/50 border-border/60 transition-colors shadow-sm"
-                onClick={() => handleDemoLogin("Client")}
-                type="button"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded bg-green-500/10 mr-3">
-                  <FontAwesomeIcon icon={faUsers} className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                </div>
-                <span className="font-medium">Login as Client</span>
-              </Button>
-            </div>
           </motion.div>
         </motion.div>
       </div>
