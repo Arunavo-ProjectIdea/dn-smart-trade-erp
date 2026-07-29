@@ -86,3 +86,17 @@ export async function deactivateClientAction(id: string): Promise<{ data: Client
   revalidatePath('/clients')
   return { data: mapClient(data), error: null }
 }
+
+export async function activateClientAction(id: string): Promise<{ data: Client | null; error: unknown }> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.from('clients').update({ status: 'Active' }).eq('id', id).select().single()
+
+  if (error) {
+    console.error('Error activating client:', error)
+    return { data: null, error }
+  }
+
+  revalidatePath('/clients')
+  return { data: mapClient(data), error: null }
+}
