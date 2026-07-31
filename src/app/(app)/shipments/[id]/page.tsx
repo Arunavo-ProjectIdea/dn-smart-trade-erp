@@ -1,8 +1,8 @@
 "use client"
 
-import { use } from "react"
+import { use, useState, useEffect } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot, faCircle, faCalendar, faBox, faFileLines, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot, faCircle, faCalendar, faBox, faChevronRight, faCircleExclamation, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { PageHeader } from "@/components/erp/page-header"
 import { StatusBadge, StatusType } from "@/components/erp/status-badge"
@@ -12,17 +12,155 @@ import { DataTable } from "@/components/erp/data-table"
 import { useToast } from "@/components/ui/use-toast"
 import { mockDocumentsList } from "@/lib/mock-data/document"
 import { mockBOEList } from "@/lib/mock-data/boe"
-import { mockShipmentsList } from "@/lib/mock-data/shipment"
+import { Shipment } from "@/lib/types/shipment"
 import { TrackingTimeline } from "@/components/erp/tracking-timeline"
 import Link from "next/link"
 import { buttonVariants, Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getUserProfile } from "@/actions/auth.actions"
+import { getShipmentById, createTimelineEntryAction, createShipmentProductAction, deleteShipmentProductAction } from "../actions"
 
 export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const { toast } = useToast()
   
-  const shipment = mockShipmentsList.find(s => s.id === id) || mockShipmentsList[0];
-  
+  const [shipment, setShipment] = useState<Shipment | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string>("Admin")
+
+  // Timeline form state
+  const [showTimelineForm, setShowTimelineForm] = useState(false)
+  const [timelineStatus, setTimelineStatus] = useState<string>("In Transit")
+  const [timelineLocation, setTimelineLocation] = useState<string>("")
+  const [timelineNotes, setTimelineNotes] = useState<string>("")
+  const [addingTimeline, setAddingTimeline] = useState(false)
+
+  // Product form state
+  const [showProductForm, setShowProductForm] = useState(false)
+  const [productName, setProductName] = useState("")
+  const [productHsCode, setProductHsCode] = useState("")
+  const [productQuantity, setProductQuantity] = useState<number>(100)
+  const [productWeight, setProductWeight] = useState<number>(50)
+  const [addingProduct, setAddingProduct] = useState(false)
+
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data?.role) setUserRole(res.data.role as string)
+    })
+
+    async function loadDetails() {
+      setLoading(true)
+      const res = await getShipmentById(id)
+      if (res.error || !res.data) {
+        setError(res.error || "Shipment not found")
+      } else {
+        setShipment(res.data)
+      }
+      setLoading(false)
+    }
+
+    loadDetails()
+  }, [id])
+
+  const handleAddTimeline = async () => {
+    if (!shipment) return
+    setAddingTimeline(true)
+    const res = await createTimelineEntryAction({
+      shipmentId: shipment.id,
+      status: timelineStatus,
+      location: timelineLocation || "Port",
+      notes: timelineNotes,
+    })
+    setAddingTimeline(false)
+
+    if (!res.success) {
+      toast({ title: "Error", description: res.error || "Failed to add timeline entry", variant: "destructive" })
+      return
+    }
+
+    toast({ title: "Timeline Updated", description: "New timeline event added to Supabase." })
+    setShowTimelineForm(false)
+    setTimelineNotes("")
+    setTimelineLocation("")
+
+    const updated = await getShipmentById(id)
+    if (updated.data) setShipment(updated.data)
+  }
+
+  const handleAddProduct = async () => {
+    if (!shipment) return
+    if (!productName) {
+      toast({ title: "Validation Error", description: "Product name is required.", variant: "destructive" })
+      return
+    }
+
+    setAddingProduct(true)
+    const res = await createShipmentProductAction({
+      shipmentId: shipment.id,
+      name: productName,
+      hsCode: productHsCode,
+      quantity: productQuantity,
+      weight: productWeight,
+    })
+    setAddingProduct(false)
+
+    if (!res.success) {
+      toast({ title: "Error", description: res.error || "Failed to add product", variant: "destructive" })
+      return
+    }
+
+    toast({ title: "Product Added", description: "Cargo product recorded in Supabase." })
+    setShowProductForm(false)
+    setProductName("")
+    setProductHsCode("")
+
+    const updated = await getShipmentById(id)
+    if (updated.data) setShipment(updated.data)
+  }
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!shipment) return
+    if (!confirm("Are you sure you want to remove this product?")) return
+
+    const res = await deleteShipmentProductAction(productId, shipment.id)
+    if (!res.success) {
+      toast({ title: "Error", description: res.error || "Failed to delete product", variant: "destructive" })
+      return
+    }
+
+    toast({ title: "Product Removed", description: "Cargo product deleted from Supabase." })
+    const updated = await getShipmentById(id)
+    if (updated.data) setShipment(updated.data)
+  }
+
+  if (loading) {
+    return (
+      <div className="p-12 text-center text-muted-foreground font-medium">
+        Loading shipment details from Supabase...
+      </div>
+    )
+  }
+
+  if (error || !shipment) {
+    return (
+      <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
+        <PageHeader title="Shipment Not Found" />
+        <Card className="shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+            <FontAwesomeIcon icon={faCircleExclamation} className="size-12 text-destructive mb-4 opacity-50" />
+            <h3 className="text-xl font-medium">No shipment found with ID: {id}</h3>
+            <Link href="/shipments" className={buttonVariants({ variant: "outline", className: "mt-4" })}>
+              Back to Shipments
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   // Find related BOEs
   const shipmentBoes = mockBOEList.filter(b => b.shipment.shipmentId === shipment.id)
   
@@ -101,9 +239,11 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
         description={`Manage and track shipment details.`}
         action={
           <div className="flex gap-2">
-            <Link href={`/shipments/${shipment.id}/edit`} className={buttonVariants({ variant: "outline" })}>
-              Edit Shipment
-            </Link>
+            {userRole !== "Client" && (
+              <Link href={`/shipments/${shipment.id}/edit`} className={buttonVariants({ variant: "outline" })}>
+                Edit Shipment
+              </Link>
+            )}
             <Link href={`/documents/upload?shipmentId=${shipment.id}`} className={buttonVariants({ variant: "outline" })}>
               Add Document
             </Link>
@@ -118,7 +258,6 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
             )}
             <Button variant="outline" onClick={() => toast({ title: "Print", description: "Sending to printer..." })}>Print</Button>
             <Button variant="outline" onClick={() => toast({ title: "Download PDF", description: "Generating PDF..." })}>Download PDF</Button>
-            <Button variant="outline" onClick={() => toast({ title: "Track Shipment", description: "Tracking feature coming soon." })}>Track Shipment</Button>
           </div>
         }
       >
@@ -134,7 +273,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
             </div>
             <div>
               <p className="text-sm text-muted-foreground font-medium">Carrier</p>
-              <p className="font-semibold text-foreground text-lg">{shipment.shippingLine}</p>
+              <p className="font-semibold text-foreground text-lg">{shipment.shippingLine || "N/A"}</p>
             </div>
           </CardContent>
         </Card>
@@ -187,7 +326,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
                 Overview
               </TabsTrigger>
               <TabsTrigger value="cargo" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
-                Cargo Details
+                Cargo Details ({shipment.products.length})
               </TabsTrigger>
               <TabsTrigger value="customs" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-foreground text-muted-foreground rounded-none px-6 py-3 font-medium transition-colors">
                 Customs
@@ -199,236 +338,236 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
                 Documents ({shipmentDocs.length})
               </TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="overview" className="space-y-6 mt-0 animate-in fade-in duration-300">
-              <Card className="shadow-sm">
-                <CardHeader className="pb-4 border-b border-border/50 mb-4">
-                  <CardTitle>Shipment Information</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Vessel Name / Voyage</p>
-                    <p className="font-medium text-foreground">{shipment.vesselName} / {shipment.voyageNumber}</p>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Transport Type</p>
-                    <p className="font-medium text-foreground">{shipment.transportType}</p>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Incoterms</p>
-                    <p className="font-medium text-foreground">{shipment.incoterms}</p>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Container Type</p>
-                    <p className="font-medium text-foreground">{shipment.containerSize} {shipment.containerType}</p>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Departure Date (ETD)</p>
-                    <p className="font-medium text-foreground">{new Date(shipment.etd).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Arrival Date (ETA)</p>
-                    <p className="font-medium text-foreground">{new Date(shipment.eta).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                  </div>
-                </CardContent>
-              </Card>
 
+            <TabsContent value="overview" className="space-y-6 m-0">
               <Card className="shadow-sm">
-                <CardHeader className="pb-4 border-b border-border/50 mb-4">
-                  <CardTitle>Client Information</CardTitle>
+                <CardHeader>
+                  <CardTitle className="text-lg">Shipment Information</CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2 flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Client Entity</p>
-                    <Link href={`/clients/${shipment.clientId}`} className="font-medium text-primary hover:underline flex items-center w-fit">
-                      {shipment.clientName} <FontAwesomeIcon icon={faChevronRight} className="size-4 ml-1" />
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Client Name</span>
+                    <Link href={`/clients/${shipment.clientId}`} className="font-semibold text-primary hover:underline text-base">
+                      {shipment.clientName}
                     </Link>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Importer</p>
-                    <p className="font-medium text-foreground">{shipment.importer}</p>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Assigned Employee</span>
+                    <span className="font-medium text-foreground">{shipment.assignedEmployeeName}</span>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Exporter</p>
-                    <p className="font-medium text-foreground">{shipment.exporter}</p>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Importer</span>
+                    <span className="font-medium text-foreground">{shipment.importer}</span>
                   </div>
-                  <div className="md:col-span-2 flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Consignee</p>
-                    <p className="font-medium text-foreground">{shipment.consignee}</p>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Exporter</span>
+                    <span className="font-medium text-foreground">{shipment.exporter}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Consignee</span>
+                    <span className="font-medium text-foreground">{shipment.consignee}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Transport Type</span>
+                    <span className="font-medium text-foreground">{shipment.transportType} Freight</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Incoterms</span>
+                    <span className="font-medium text-foreground">{shipment.incoterms}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Vessel / Voyage</span>
+                    <span className="font-medium text-foreground">{shipment.vesselName || "N/A"} {shipment.voyageNumber ? `(${shipment.voyageNumber})` : ""}</span>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="cargo" className="mt-6 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cargo Information</CardTitle>
+            <TabsContent value="cargo" className="space-y-6 m-0">
+              <Card className="shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="text-lg">Cargo Specification & Products</CardTitle>
+                  {userRole !== "Client" && (
+                    <Button size="sm" onClick={() => setShowProductForm(!showProductForm)}>
+                      <FontAwesomeIcon icon={faPlus} className="mr-2 h-3.5 w-3.5" />
+                      {showProductForm ? "Cancel" : "Add Product"}
+                    </Button>
+                  )}
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-4">
-                  <div className="md:col-span-3">
-                    <p className="text-sm text-muted-foreground">Description</p>
-                    <p className="font-medium">{shipment.description}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Gross Weight</p>
-                    <p className="font-medium">{shipment.grossWeight} kg</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Net Weight</p>
-                    <p className="font-medium">{shipment.netWeight} kg</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Package Count / Type</p>
-                    <p className="font-medium">{shipment.packageCount} {shipment.packageType}</p>
-                  </div>
-                  <div className="md:col-span-3 mt-4">
-                    <p className="text-sm font-semibold mb-2 border-b pb-2">Products Included</p>
-                    <div className="rounded-md border overflow-hidden">
-                      <table className="w-full text-sm">
-                        <thead className="bg-muted">
-                          <tr>
-                            <th className="px-3 py-2 text-left font-medium">Name</th>
-                            <th className="px-3 py-2 text-left font-medium">HS Code</th>
-                            <th className="px-3 py-2 text-right font-medium">Quantity</th>
-                            <th className="px-3 py-2 text-right font-medium">Weight (kg)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {shipment.products.map(p => (
-                            <tr key={p.id} className="border-t">
-                              <td className="px-3 py-2">{p.name}</td>
-                              <td className="px-3 py-2">
-                                <Link href={`/hs-codes?search=${p.hsCode}`} className="text-primary hover:underline">{p.hsCode}</Link>
-                              </td>
-                              <td className="px-3 py-2 text-right">{p.quantity.toLocaleString()}</td>
-                              <td className="px-3 py-2 text-right">{p.weight}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                <CardContent className="space-y-6">
+                  {showProductForm && (
+                    <div className="p-4 bg-muted/40 rounded-xl border border-border/80 space-y-4 animate-in fade-in duration-300">
+                      <h4 className="font-semibold text-sm">Add New Cargo Product</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label>Product Name</Label>
+                          <Input value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g. Electronics, Cotton Fabrics" />
+                        </div>
+                        <div>
+                          <Label>HS Code</Label>
+                          <Input value={productHsCode} onChange={(e) => setProductHsCode(e.target.value)} placeholder="e.g. 8517.12.00" />
+                        </div>
+                        <div>
+                          <Label>Quantity</Label>
+                          <Input type="number" value={productQuantity} onChange={(e) => setProductQuantity(Number(e.target.value))} />
+                        </div>
+                        <div>
+                          <Label>Weight (kg)</Label>
+                          <Input type="number" value={productWeight} onChange={(e) => setProductWeight(Number(e.target.value))} />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="sm" onClick={() => setShowProductForm(false)}>Cancel</Button>
+                        <Button size="sm" onClick={handleAddProduct} disabled={addingProduct}>
+                          {addingProduct ? "Saving..." : "Save Product"}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  )}
 
-            <TabsContent value="customs" className="mt-6 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Customs Status</CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Customs Status</p>
-                    <div className="mt-1">
-                      <StatusBadge status={shipment.customsStatus === 'Cleared' ? 'Active' : 'Pending'} />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-muted/20 rounded-lg">
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase font-semibold">Gross Weight</span>
+                      <p className="font-semibold text-lg">{shipment.grossWeight} kg</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase font-semibold">Net Weight</span>
+                      <p className="font-semibold text-lg">{shipment.netWeight} kg</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase font-semibold">Package Count</span>
+                      <p className="font-semibold text-lg">{shipment.packageCount}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground uppercase font-semibold">Package Type</span>
+                      <p className="font-semibold text-lg">{shipment.packageType}</p>
                     </div>
                   </div>
+
                   <div>
-                    <p className="text-sm text-muted-foreground">Clearance Status</p>
-                    <p className="font-medium">{shipment.clearanceStatus}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Estimated Duty Amount</p>
-                    <p className="font-medium text-lg">${shipment.dutyAmount?.toLocaleString()}</p>
-                  </div>
-                  <div className="flex items-center">
-                    <Link href={`/duty-calculator?shipmentId=${shipment.id}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-                      Open Duty Calculator
-                    </Link>
-                  </div>
-                  <div className="md:col-span-2 pt-4 border-t mt-2">
-                    <p className="text-sm text-muted-foreground">Linked BOE</p>
-                    {shipment.boeId ? (
-                      <Link href={`/boe/${shipment.boeId}`} className="font-medium text-primary hover:underline text-lg flex items-center mt-1">
-                        <FontAwesomeIcon icon={faFileLines} className="h-5 w-5 mr-2" /> {shipment.boeNumber}
-                      </Link>
+                    <h4 className="text-sm font-semibold mb-3">Linked Cargo Products ({shipment.products.length})</h4>
+                    {shipment.products.length === 0 ? (
+                      <p className="text-sm text-muted-foreground italic py-2">No products added yet. Click "Add Product" above to record items.</p>
                     ) : (
-                      <p className="font-medium text-muted-foreground italic">No BOE linked yet.</p>
+                      <div className="divide-y border rounded-lg">
+                        {shipment.products.map((p) => (
+                          <div key={p.id} className="p-3 flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-sm">{p.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                HS Code: {p.hsCode || "N/A"} | Qty: {p.quantity} | Weight: {p.weight} kg
+                              </p>
+                            </div>
+                            {userRole !== "Client" && (
+                              <Button variant="ghost" size="xs" onClick={() => handleDeleteProduct(p.id)} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                                <FontAwesomeIcon icon={faTrash} className="h-3.5 w-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
+
+                  {shipment.description && (
+                    <div className="pt-2">
+                      <span className="text-xs text-muted-foreground uppercase font-semibold block mb-1">Description</span>
+                      <p className="text-sm leading-relaxed">{shipment.description}</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="boe" className="mt-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Bills of Entry</CardTitle>
-                    <CardDescription>Customs declarations associated with this shipment.</CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/boe?shipment=${shipment.id}`} className={buttonVariants({ variant: "ghost" })}>
-                      View All
-                    </Link>
-                    <Link href={`/boe/create?shipmentId=${shipment.id}`} className={buttonVariants({ variant: "default" })}>
-                      Create BOE
-                    </Link>
-                  </div>
+            <TabsContent value="customs" className="space-y-6 m-0">
+              <Card className="shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Customs Information</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <DataTable columns={boeColumns} data={shipmentBoes} searchKey="boeNumber" />
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Customs Status</span>
+                    <span className="font-semibold text-foreground">{shipment.customsStatus}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Clearance Status</span>
+                    <span className="font-semibold text-foreground">{shipment.clearanceStatus}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">BOE Number</span>
+                    <span className="font-semibold text-foreground">{shipment.boeNumber || "Not Linked"}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-xs uppercase tracking-wider mb-1">Duty Amount</span>
+                    <span className="font-semibold text-foreground">${shipment.dutyAmount || 0}</span>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
-            
-            <TabsContent value="documents" className="mt-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Documents</CardTitle>
-                    <CardDescription>All shipping and customs documents.</CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/documents?shipment=${shipment.id}`} className={buttonVariants({ variant: "ghost" })}>
-                      View All
-                    </Link>
-                    <Link href={`/documents/upload?shipmentId=${shipment.id}`} className={buttonVariants({ variant: "outline" })}>
-                      Upload
-                    </Link>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <DataTable columns={documentColumns} data={shipmentDocs} searchKey="name" />
-                </CardContent>
-              </Card>
+
+            <TabsContent value="boe" className="m-0">
+              <DataTable columns={boeColumns} data={shipmentBoes} emptyStateTitle="No BOEs found" emptyStateDescription="No Bill of Entry has been generated for this shipment yet." />
+            </TabsContent>
+
+            <TabsContent value="documents" className="m-0">
+              <DataTable columns={documentColumns} data={shipmentDocs} emptyStateTitle="No documents found" emptyStateDescription="No documents attached to this shipment." />
             </TabsContent>
           </Tabs>
 
         </div>
-        
-        {/* Sidebar */}
+
+        {/* Sidebar Tracking Timeline */}
         <div className="flex flex-col gap-6">
           <Card className="shadow-sm">
-            <CardHeader className="pb-4 border-b border-border/50 mb-4">
-              <CardTitle>Tracking Timeline</CardTitle>
-              <CardDescription>Lifecycle of the shipment</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TrackingTimeline events={shipment.timeline} />
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-sm">
-            <CardHeader className="pb-4 border-b border-border/50 mb-4">
-              <CardTitle>Assigned Personnel</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 bg-muted/20 p-3 rounded-lg border border-border/50">
-                <div className="size-10 bg-primary/20 rounded-full flex items-center justify-center font-bold text-primary shrink-0 shadow-inner">
-                  {shipment.assignedEmployeeName.split(' ').map(n => n[0]).join('')}
-                </div>
-                <div>
-                  <p className="font-medium text-foreground">
-                    <Link href={`/employees/${shipment.assignedEmployeeId}`} className="hover:underline hover:text-primary transition-colors">
-                      {shipment.assignedEmployeeName}
-                    </Link>
-                  </p>
-                  <p className="text-xs text-muted-foreground font-medium">Logistics Coordinator</p>
-                </div>
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Tracking Timeline</CardTitle>
+                <CardDescription>Lifecycle of the shipment</CardDescription>
               </div>
+              {userRole !== "Client" && (
+                <Button size="xs" onClick={() => setShowTimelineForm(!showTimelineForm)}>
+                  <FontAwesomeIcon icon={faPlus} className="mr-1 h-3 w-3" /> Event
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {showTimelineForm && (
+                <div className="p-3 bg-muted/40 rounded-lg border border-border/80 space-y-3 animate-in fade-in duration-300">
+                  <h4 className="font-semibold text-xs uppercase tracking-wider">Add Timeline Event</h4>
+                  <div>
+                    <Label className="text-xs">Status Event</Label>
+                    <Select value={timelineStatus} onValueChange={(val) => setTimelineStatus(val || "In Transit")}>
+                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Booked">Booked</SelectItem>
+                        <SelectItem value="Loaded">Loaded</SelectItem>
+                        <SelectItem value="In Transit">In Transit</SelectItem>
+                        <SelectItem value="Arrived">Arrived</SelectItem>
+                        <SelectItem value="Customs Clearance">Customs Clearance</SelectItem>
+                        <SelectItem value="Released">Released</SelectItem>
+                        <SelectItem value="Delivered">Delivered</SelectItem>
+                        <SelectItem value="Delayed">Delayed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Location</Label>
+                    <Input className="h-8 text-xs" value={timelineLocation} onChange={(e) => setTimelineLocation(e.target.value)} placeholder="e.g. Chittagong Port, Warehouse" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Notes / Remarks</Label>
+                    <Input className="h-8 text-xs" value={timelineNotes} onChange={(e) => setTimelineNotes(e.target.value)} placeholder="e.g. Container cleared customs" />
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button variant="outline" size="xs" onClick={() => setShowTimelineForm(false)}>Cancel</Button>
+                    <Button size="xs" onClick={handleAddTimeline} disabled={addingTimeline}>
+                      {addingTimeline ? "Adding..." : "Add Event"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <TrackingTimeline events={shipment.timeline || []} />
             </CardContent>
           </Card>
         </div>
