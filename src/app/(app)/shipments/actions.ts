@@ -262,6 +262,44 @@ export async function updateShipmentAction(id: string, formData: Partial<Shipmen
   }
 }
 
+export async function deleteShipmentAction(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can delete shipments." }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("shipments")
+      .delete()
+      .eq("id", id)
+
+    if (deleteError) {
+      console.error("Error deleting shipment from Supabase:", deleteError)
+      return { success: false, error: deleteError.message }
+    }
+
+    revalidatePath("/shipments")
+    revalidatePath("/dashboard")
+    return { success: true }
+  } catch (err) {
+    console.error("Unexpected error in deleteShipmentAction:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to delete shipment" }
+  }
+}
+
 export async function createTimelineEntryAction(payload: {
   shipmentId: string
   status: string

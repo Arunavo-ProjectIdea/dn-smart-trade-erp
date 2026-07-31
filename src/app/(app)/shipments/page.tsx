@@ -17,7 +17,7 @@ import { PageHeader } from "@/components/erp/page-header";
 import { ViewToggle } from "@/components/erp/view-toggle";
 import { DataTable, ColumnDef } from "@/components/erp/data-table";
 import { getUserProfile } from "@/actions/auth.actions";
-import { getShipments } from "./actions";
+import { getShipments, deleteShipmentAction } from "./actions";
 
 function ShipmentsContent() {
   const { toast } = useToast();
@@ -60,12 +60,21 @@ function ShipmentsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this shipment?")) {
+      const res = await deleteShipmentAction(id);
+      if (!res.success) {
+        toast({
+          title: "Delete Failed",
+          description: res.error || "Failed to delete shipment from Supabase.",
+          variant: "destructive",
+        });
+        return;
+      }
       setShipments((prev) => prev.filter((s) => s.id !== id));
       toast({
-        title: "Shipment Removed",
-        description: "The shipment has been removed from view.",
+        title: "Shipment Deleted",
+        description: "The shipment has been successfully removed from Supabase.",
       });
     }
   };
@@ -79,11 +88,15 @@ function ShipmentsContent() {
   ).filter(Boolean);
 
   const filteredShipments = shipments.filter((shipment) => {
+    const query = searchTerm.toLowerCase().trim();
     const matchesSearch =
-      shipment.shipmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      shipment.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (shipment.containerNumber &&
-        shipment.containerNumber.toLowerCase().includes(searchTerm.toLowerCase()));
+      !query ||
+      shipment.shipmentNumber.toLowerCase().includes(query) ||
+      shipment.clientName.toLowerCase().includes(query) ||
+      shipment.loadingPort.toLowerCase().includes(query) ||
+      shipment.dischargePort.toLowerCase().includes(query) ||
+      shipment.transportType.toLowerCase().includes(query) ||
+      (shipment.containerNumber && shipment.containerNumber.toLowerCase().includes(query));
 
     const matchesStatus = statusFilter === "all" || shipment.status === statusFilter;
     const matchesPort =
@@ -187,7 +200,7 @@ function ShipmentsContent() {
         <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-primary" />
         <Input 
           type="search" 
-          placeholder="Search by ID, Client, Container..." 
+          placeholder="Search by ID, Client, Port, Container..." 
           className="pl-9 bg-muted/30 border-muted/50 focus-visible:bg-background rounded-full transition-all duration-300 focus-visible:ring-2 shadow-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
