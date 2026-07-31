@@ -14,7 +14,7 @@ import { Shipment } from "@/lib/types/shipment";
 import { Client } from "@/lib/mock-data/clients";
 import { useToast } from "@/components/ui/use-toast";
 import { getClients } from "@/app/(app)/clients/actions";
-import { createShipmentAction } from "@/app/(app)/shipments/actions";
+import { createShipmentAction, updateShipmentAction } from "@/app/(app)/shipments/actions";
 
 interface ShipmentFormProps {
   initialData?: Shipment;
@@ -108,13 +108,18 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
 
     setSubmitting(true);
 
-    const res = await createShipmentAction(formData);
+    let res;
+    if (isEditing && initialData?.id) {
+      res = await updateShipmentAction(initialData.id, formData);
+    } else {
+      res = await createShipmentAction(formData);
+    }
 
     setSubmitting(false);
 
     if (!res.success) {
       toast({
-        title: "Failed to Create Shipment",
+        title: isEditing ? "Failed to Update Shipment" : "Failed to Create Shipment",
         description: res.error || "An unexpected error occurred.",
         variant: "destructive",
       });
@@ -122,11 +127,13 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
     }
 
     toast({
-      title: "Shipment Created",
-      description: "A new shipment has been successfully recorded in Supabase.",
+      title: isEditing ? "Shipment Updated" : "Shipment Created",
+      description: isEditing
+        ? "The shipment has been successfully updated in Supabase."
+        : "A new shipment has been successfully recorded in Supabase.",
     });
 
-    router.push("/shipments");
+    router.push(isEditing && initialData?.id ? `/shipments/${initialData.id}` : "/shipments");
     router.refresh();
   };
 
@@ -211,7 +218,9 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a client..." />
+                      <SelectValue placeholder="Select a client...">
+                        {formData.clientName || "Select a client..."}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {clientsList.map(c => (
@@ -328,6 +337,23 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={formData.status} onValueChange={(val) => updateField("status", val as Shipment["status"])}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Booked">Booked</SelectItem>
+                      <SelectItem value="Loaded">Loaded</SelectItem>
+                      <SelectItem value="In Transit">In Transit</SelectItem>
+                      <SelectItem value="Arrived">Arrived</SelectItem>
+                      <SelectItem value="Customs Clearance">Customs Clearance</SelectItem>
+                      <SelectItem value="Released">Released</SelectItem>
+                      <SelectItem value="Delivered">Delivered</SelectItem>
+                      <SelectItem value="Delayed">Delayed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             )}
 
@@ -439,7 +465,7 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
               ) : (
                 <Button onClick={handleSubmit} disabled={submitting} className="shadow-sm">
                   <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> 
-                  {submitting ? "Submitting..." : isEditing ? "Save Changes" : "Submit Shipment"}
+                  {submitting ? "Saving..." : isEditing ? "Save Changes" : "Submit Shipment"}
                 </Button>
               )}
             </div>

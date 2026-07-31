@@ -8,6 +8,7 @@ import { Database } from "@/types/database.types"
 
 type DbShipmentStatus = Database["public"]["Enums"]["shipment_status"]
 type DbTransportType = Database["public"]["Enums"]["transport_type"]
+type ShipmentUpdate = Database["public"]["Tables"]["shipments"]["Update"]
 
 export async function getShipments(): Promise<{ data: Shipment[] | null; error: string | null }> {
   try {
@@ -38,6 +39,39 @@ export async function getShipments(): Promise<{ data: Shipment[] | null; error: 
   } catch (err) {
     console.error("Unexpected error in getShipments action:", err)
     return { data: null, error: err instanceof Error ? err.message : "Failed to load shipments" }
+  }
+}
+
+export async function getShipmentById(id: string): Promise<{ data: Shipment | null; error: string | null }> {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from("shipments")
+      .select(`
+        *,
+        clients!client_id (
+          id,
+          company_name
+        ),
+        assigned_employee:profiles!assigned_employee_id (
+          id,
+          full_name
+        )
+      `)
+      .or(`id.eq.${id},shipment_number.eq.${id}`)
+      .single()
+
+    if (error || !data) {
+      console.error("Error fetching shipment by ID:", error)
+      return { data: null, error: error?.message || "Shipment not found" }
+    }
+
+    const mapped = mapShipment(data as unknown as RawShipmentFromSupabase)
+    return { data: mapped, error: null }
+  } catch (err) {
+    console.error("Unexpected error in getShipmentById action:", err)
+    return { data: null, error: err instanceof Error ? err.message : "Failed to load shipment details" }
   }
 }
 
@@ -139,5 +173,100 @@ export async function createShipmentAction(formData: Partial<Shipment>): Promise
   } catch (err) {
     console.error("Unexpected error in createShipmentAction:", err)
     return { success: false, error: err instanceof Error ? err.message : "Failed to create shipment" }
+  }
+}
+
+export async function updateShipmentAction(id: string, formData: Partial<Shipment>): Promise<{ success: boolean; data?: Shipment; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, id")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can edit shipments." }
+    }
+
+    const validStatuses: DbShipmentStatus[] = [
+      "Pending", "Booked", "Loaded", "In Transit", "Arrived",
+      "Customs Clearance", "Released", "Delivered", "Delayed"
+    ]
+    const validTransportTypes: DbTransportType[] = ["Sea", "Air", "Land"]
+
+    const status: DbShipmentStatus = validStatuses.includes(formData.status as DbShipmentStatus)
+      ? (formData.status as DbShipmentStatus)
+      : "Pending"
+
+    const transportType: DbTransportType = validTransportTypes.includes(formData.transportType as DbTransportType)
+      ? (formData.transportType as DbTransportType)
+      : "Sea"
+
+    const updateData: ShipmentUpdate = {
+      status,
+      transport_type: transportType,
+      updated_at: new Date().toISOString()
+    }
+
+    if (formData.clientId) updateData.client_id = formData.clientId
+    if (formData.shipmentNumber) updateData.shipment_number = formData.shipmentNumber.trim()
+    if (formData.exporter !== undefined) updateData.exporter = formData.exporter
+    if (formData.consignee !== undefined) updateData.consignee = formData.consignee
+    if (formData.containerNumber !== undefined) updateData.container_number = formData.containerNumber || null
+    if (formData.containerSize !== undefined) updateData.container_size = formData.containerSize
+    if (formData.containerType !== undefined) updateData.container_type = formData.containerType
+    if (formData.shippingLine !== undefined) updateData.shipping_line = formData.shippingLine || null
+    if (formData.vesselName !== undefined) updateData.vessel_name = formData.vesselName || null
+    if (formData.voyageNumber !== undefined) updateData.voyage_number = formData.voyageNumber || null
+    if (formData.loadingPort !== undefined) updateData.loading_port = formData.loadingPort
+    if (formData.dischargePort !== undefined) updateData.discharge_port = formData.dischargePort
+    if (formData.eta) updateData.eta = formData.eta
+    if (formData.etd) updateData.etd = formData.etd
+    if (formData.incoterms !== undefined) updateData.incoterms = formData.incoterms
+    if (formData.grossWeight !== undefined) updateData.gross_weight = formData.grossWeight ? Number(formData.grossWeight) : null
+    if (formData.netWeight !== undefined) updateData.net_weight = formData.netWeight ? Number(formData.netWeight) : null
+    if (formData.packageCount !== undefined) updateData.package_count = formData.packageCount ? Number(formData.packageCount) : null
+    if (formData.packageType !== undefined) updateData.package_type = formData.packageType
+    if (formData.assignedEmployeeId) updateData.assigned_employee_id = formData.assignedEmployeeId
+
+    const { data: updatedRow, error: updateError } = await supabase
+      .from("shipments")
+      .update(updateData)
+      .eq("id", id)
+      .select(`
+        *,
+        clients!client_id (
+          id,
+          company_name
+        ),
+        assigned_employee:profiles!assigned_employee_id (
+          id,
+          full_name
+        )
+      `)
+      .single()
+
+    if (updateError) {
+      console.error("Error updating shipment in Supabase:", updateError)
+      return { success: false, error: updateError.message }
+    }
+
+    revalidatePath("/shipments")
+    revalidatePath(`/shipments/${id}`)
+    revalidatePath(`/shipments/${id}/edit`)
+    revalidatePath("/dashboard")
+
+    const mapped = mapShipment(updatedRow as unknown as RawShipmentFromSupabase)
+    return { success: true, data: mapped }
+  } catch (err) {
+    console.error("Unexpected error in updateShipmentAction:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to update shipment" }
   }
 }
