@@ -32,11 +32,18 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
   // In a real app we'd refresh this from the server after mutation.
   const [documentItem, setDocumentItem] = useState<Document>(initialDocument)
   const [status, setStatus] = useState<DocumentStatus>(documentItem.status)
-  const [activities] = useState<DocumentActivity[]>(documentItem.activities)
-  const [versions] = useState<DocumentVersion[]>(documentItem.versions || [])
+  const [activities, setActivities] = useState<DocumentActivity[]>(documentItem.activities)
+  const [versions, setVersions] = useState<DocumentVersion[]>(documentItem.versions || [])
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   
+  useEffect(() => {
+    setDocumentItem(initialDocument)
+    setStatus(initialDocument.status)
+    setActivities(initialDocument.activities)
+    setVersions(initialDocument.versions || [])
+  }, [initialDocument])
+
   useEffect(() => {
     // Fetch preview URL if document has a file
     const fetchPreview = async () => {
