@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { createDocument } from "@/actions/document.actions";
 import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -112,22 +113,56 @@ export function DocumentUploadForm({ clients = [], shipments = [], billsOfEntry 
 
     setIsUploading(true);
     let hasError = false;
+    
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // For each file, we will call createDocument
+    // For each file, generate UUID, upload to Storage, and then insert DB row
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       setFiles(prev => {
         const newFiles = [...prev];
         if (newFiles[i]) {
           newFiles[i].status = 'uploading';
-          newFiles[i].progress = 50; // Fake progress since no storage yet
+          // Using exactly 50 logic was part of mock; we remove the progress entirely 
+          // or just keep it 0 in UI, but the UI expects a status string. We will just set it to 100 once done.
         }
         return newFiles;
       });
 
+      let filePath = "";
+      const documentId = crypto.randomUUID(); // Pre-generate Document UUID
+
+      if (user) {
+        const timestamp = Date.now();
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        filePath = `documents/${user.id}/${documentId}/${timestamp}-${safeName}`;
+        
+        const { error: storageError } = await supabase.storage
+          .from("documents")
+          .upload(filePath, file);
+          
+        if (storageError) {
+          console.error("Storage upload error:", storageError);
+          setFiles(prev => {
+            const newFiles = [...prev];
+            if (newFiles[i]) newFiles[i].status = 'error';
+            return newFiles;
+          });
+          hasError = true;
+          toast({
+            title: "Upload Failed",
+            description: storageError.message,
+            variant: "destructive"
+          });
+          continue; // Skip DB insert if storage upload fails
+        }
+      }
+
       const tagsArray = metadata.tags ? metadata.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
 
       const res = await createDocument({
+        id: documentId,
         name: file.name,
         category: "Shipment Documents", // Assuming default category if not provided
         client_id: metadata.clientId || undefined,
@@ -135,14 +170,16 @@ export function DocumentUploadForm({ clients = [], shipments = [], billsOfEntry 
         boe_id: metadata.boeId || undefined,
         description: metadata.description || undefined,
         tags: tagsArray,
-        type: metadata.type
+        type: metadata.type,
+        current_file_url: filePath,
+        file_type: file.type,
+        file_size: file.size
       });
 
       setFiles(prev => {
         const newFiles = [...prev];
         if (newFiles[i]) {
           if (res.success) {
-            newFiles[i].progress = 100;
             newFiles[i].status = 'completed';
           } else {
             newFiles[i].status = 'error';
@@ -323,13 +360,18 @@ export function DocumentUploadForm({ clients = [], shipments = [], billsOfEntry 
                     </div>
                     
                     {file.status === 'uploading' && (
-                      <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className="bg-primary h-1.5 rounded-full transition-all duration-200" 
-                          style={{ width: `${file.progress}%` }}
-                        />
-                      </div>
-                    )}
+                    <div className="text-xs text-muted-foreground flex items-center gap-2">
+                      Uploading...
+                    </div>
+                  )}
+                  {file.status === 'completed' && (
+                    <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                      <FontAwesomeIcon icon={faCheckCircle} className="h-3 w-3" /> Complete
+                    </div>
+                  )}
+                  {file.status === 'error' && (
+                    <div className="text-xs text-red-600 dark:text-red-400 font-medium">Failed to upload</div>
+                  )}
                   </div>
                 ))}
               </div>

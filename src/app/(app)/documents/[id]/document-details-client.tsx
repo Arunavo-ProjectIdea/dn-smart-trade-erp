@@ -17,7 +17,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Database } from "@/types/database.types"
 import { Document, DocumentStatus, DocumentActivity, DocumentVersion, DocumentCategory } from "@/lib/mock-data/documents"
-import { archiveDocument, updateDocumentStatus, updateDocument } from "@/actions/document.actions"
+import { archiveDocument, updateDocumentStatus, updateDocument, downloadDocument, replaceDocumentFile } from "@/actions/document.actions"
+import { createClient } from "@/lib/supabase/client"
+import { useEffect } from "react"
 
 interface DocumentDetailsClientProps {
   document: Document
@@ -33,6 +35,18 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
   const [activities] = useState<DocumentActivity[]>(documentItem.activities)
   const [versions] = useState<DocumentVersion[]>(documentItem.versions || [])
   const [isUpdating, setIsUpdating] = useState<string | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  
+  useEffect(() => {
+    // Fetch preview URL if document has a file
+    const fetchPreview = async () => {
+      const res = await downloadDocument(documentItem.id)
+      if (res.success && res.data) {
+        setPreviewUrl(res.data.url)
+      }
+    }
+    fetchPreview()
+  }, [documentItem.id])
 
   // Edit Metadata State
   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false)
@@ -127,11 +141,29 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
     setIsUpdating(null)
   }
 
-  const handleDownload = (versionNum?: string) => {
+  const handleDownload = async (versionNum?: string) => {
     toast({
       title: "Download Started",
       description: `Downloading ${documentItem.name} ${versionNum ? `(${versionNum})` : ''}...`,
     })
+    
+    const res = await downloadDocument(documentItem.id)
+    if (res.success && res.data) {
+      // Create a temporary anchor element to trigger the download
+      const a = document.createElement("a")
+      a.href = res.data.url
+      a.target = "_blank"
+      a.download = documentItem.name || "document"
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } else {
+      toast({
+        title: "Download Failed",
+        description: res.error || "Could not retrieve document file.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 25, 200))
@@ -181,6 +213,50 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
           <Button variant="outline" onClick={() => setIsEditSheetOpen(true)}>
             <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Edit Metadata
           </Button>
+          <Button variant="outline" onClick={() => document.getElementById('replace-file-input')?.click()}>
+            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Replace File
+          </Button>
+          <input 
+            type="file" 
+            id="replace-file-input" 
+            className="hidden" 
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              
+              toast({ title: "Uploading...", description: "Replacing document file." });
+              
+              const supabase = createClient();
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) return;
+              
+              const timestamp = Date.now();
+              const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+              // Format: documents/{userId}/{documentId}/{timestamp}-{filename}
+              const filePath = `documents/${user.id}/${documentItem.id}/${timestamp}-${safeName}`;
+              
+              const { error: storageError } = await supabase.storage.from("documents").upload(filePath, file);
+              if (storageError) {
+                toast({ title: "Upload Failed", description: storageError.message, variant: "destructive" });
+                return;
+              }
+              
+              const res = await replaceDocumentFile(documentItem.id, {
+                current_file_url: filePath,
+                file_type: file.type,
+                file_size: file.size
+              });
+              
+              if (res.success) {
+                toast({ title: "Success", description: "File replaced successfully." });
+                // Fetch new preview
+                const dlRes = await downloadDocument(documentItem.id);
+                if (dlRes.success && dlRes.data) setPreviewUrl(dlRes.data.url);
+              } else {
+                toast({ title: "Error", description: res.error, variant: "destructive" });
+              }
+            }}
+          />
           <Button variant="default" onClick={() => handleDownload()}>
             <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Download File
           </Button>
@@ -260,6 +336,17 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   transformOrigin: "center center"
                 }}
               >
+                {previewUrl ? (
+                  <div className="absolute inset-0 z-10 bg-white">
+                    {/* Check if it's an image or generic iframe */}
+                    {previewUrl.toLowerCase().includes(".png") || previewUrl.toLowerCase().includes(".jpg") || previewUrl.toLowerCase().includes(".jpeg") ? (
+                      <img src={previewUrl} alt="Document Preview" className="w-full h-full object-contain" />
+                    ) : (
+                      <iframe src={previewUrl} className="w-full h-full border-0" title="Document Preview" />
+                    )}
+                  </div>
+                ) : null}
+                
                 {/* Watermark/Stamp overlay */}
                 <div className="absolute right-6 top-6 opacity-15 pointer-events-none select-none">
                   <div className={`text-4xl font-black uppercase border-4 rounded-xl px-4 py-2 rotate-[-15deg] ${

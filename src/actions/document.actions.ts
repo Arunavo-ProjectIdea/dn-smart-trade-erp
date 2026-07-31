@@ -51,6 +51,7 @@ export async function getDocumentById(id: string) {
 }
 
 export async function createDocument(formData: {
+  id: string
   name: string
   category: Database["public"]["Enums"]["document_category"]
   client_id?: string
@@ -59,6 +60,9 @@ export async function createDocument(formData: {
   description?: string
   tags?: string[]
   type: string
+  current_file_url: string
+  file_type: string
+  file_size: number
 }) {
   const supabase = await createClient()
   
@@ -76,6 +80,7 @@ export async function createDocument(formData: {
   const { data: document, error: insertError } = await supabase
     .from("documents")
     .insert({
+      id: formData.id,
       name: formData.name,
       category: formData.category,
       client_id: isValidUuid(formData.client_id) ? formData.client_id : null,
@@ -88,10 +93,10 @@ export async function createDocument(formData: {
       uploaded_by_id: user.id,
       upload_date: new Date().toISOString(),
       last_modified: new Date().toISOString(),
-      // Dummy storage fields
-      current_file_url: "",
-      file_type: "",
-      file_size: null,
+      // Storage fields
+      current_file_url: formData.current_file_url,
+      file_type: formData.file_type,
+      file_size: formData.file_size,
     })
     .select()
     .single()
@@ -104,13 +109,22 @@ export async function createDocument(formData: {
   // 2. Insert Activity Logging
   const { error: activityError } = await supabase
     .from("document_activities")
-    .insert({
-      document_id: document.id,
-      action: "Created",
-      actor_id: user.id,
-      date: new Date().toISOString(),
-      details: "Document uploaded and metadata created."
-    })
+    .insert([
+      {
+        document_id: document.id,
+        action: "Created",
+        actor_id: user.id,
+        date: new Date().toISOString(),
+        details: "Document record created."
+      },
+      {
+        document_id: document.id,
+        action: "File Uploaded",
+        actor_id: user.id,
+        date: new Date().toISOString(),
+        details: "Initial physical file uploaded."
+      }
+    ])
 
   if (activityError) {
     console.error("Error logging document creation activity:", activityError)
@@ -320,7 +334,7 @@ export async function updateDocument(id: string, formData: {
   }
 
   // Insert Activity Logging
-  await supabase
+  const { error: activityError } = await supabase
     .from("document_activities")
     .insert({
       document_id: id,
@@ -330,7 +344,107 @@ export async function updateDocument(id: string, formData: {
       details: "Document metadata updated."
     })
 
+  if (activityError) {
+    console.error("Error logging metadata update activity:", activityError)
+  }
+
   revalidatePath(`/documents/${id}`)
   revalidatePath("/documents")
+  return { success: true }
+}
+
+export async function downloadDocument(id: string) {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  const { data: document, error: fetchError } = await supabase
+    .from("documents")
+    .select("current_file_url")
+    .eq("id", id)
+    .single()
+
+  if (fetchError || !document) {
+    console.error("Error fetching document for download:", fetchError)
+    return { success: false, error: fetchError?.message || "Document not found" }
+  }
+
+  if (!document.current_file_url) {
+    return { success: false, error: "No file associated with this document" }
+  }
+
+  // Generate signed URL valid for 60 seconds (since bucket is private)
+  const { data: signedUrl, error: signedUrlError } = await supabase
+    .storage
+    .from("documents")
+    .createSignedUrl(document.current_file_url, 60)
+
+  if (signedUrlError) {
+    console.error("Error creating signed URL:", signedUrlError)
+    return { success: false, error: signedUrlError.message }
+  }
+
+  return { success: true, data: { url: signedUrl.signedUrl } }
+}
+
+export async function replaceDocumentFile(id: string, fileData: {
+  current_file_url: string
+  file_type: string
+  file_size: number
+}) {
+  const supabase = await createClient()
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  if (authError || !user) {
+    return { success: false, error: "Unauthorized" }
+  }
+
+  // 1. Fetch current document to get old metadata
+  const { data: oldDoc, error: fetchError } = await supabase
+    .from("documents")
+    .select("current_file_url, file_size, file_type")
+    .eq("id", id)
+    .single()
+
+  if (fetchError) {
+    console.error("Error fetching old document metadata:", fetchError)
+    return { success: false, error: "Failed to fetch previous file metadata" }
+  }
+
+  // 2. Update document with new file details
+  const { error: updateError } = await supabase
+    .from("documents")
+    .update({ 
+      current_file_url: fileData.current_file_url,
+      file_type: fileData.file_type,
+      file_size: fileData.file_size,
+      last_modified: new Date().toISOString()
+    })
+    .eq("id", id)
+
+  if (updateError) {
+    console.error("Error replacing document file:", updateError)
+    return { success: false, error: updateError.message }
+  }
+
+  // 3. Insert Activity Logging with old metadata preserved in details
+  const { error: activityError } = await supabase
+    .from("document_activities")
+    .insert({
+      document_id: id,
+      action: "File Replaced",
+      actor_id: user.id,
+      date: new Date().toISOString(),
+      details: `Replaced file. Old metadata: url=${oldDoc?.current_file_url || 'none'}, size=${oldDoc?.file_size || 'none'}, type=${oldDoc?.file_type || 'none'}`
+    })
+
+  if (activityError) {
+    console.error("Error logging file replace activity:", activityError)
+  }
+
+  revalidatePath(`/documents/${id}`)
   return { success: true }
 }
