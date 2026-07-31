@@ -16,10 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { mockEmployees } from "@/lib/mock-data/employees"
+import { Employee } from "@/types/employee"
 import { useToast } from "@/components/ui/use-toast"
 import Link from "next/link"
 import { getUserProfile } from "@/actions/auth.actions"
+import { getEmployeeById, updateEmployeeStatus } from "@/actions/employees.actions"
 import { use } from "react"
 
 interface EmployeeDetailsPageProps {
@@ -33,34 +34,49 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
   const id = decodeURIComponent(unwrappedParams.id)
   const { toast } = useToast()
   const router = useRouter()
-  const employee = mockEmployees.find((e) => e.id === id)
+  const [employee, setEmployee] = useState<Employee | null>(null)
+  const [loading, setLoading] = useState(true)
   
   const [deactivateOpen, setDeactivateOpen] = useState(false)
   const [resetOpen, setResetOpen] = useState(false)
 
-
-  // Client-side role protection
+  // Client-side role protection and data fetching
   useEffect(() => {
-    getUserProfile().then((res) => {
+    async function init() {
+      const res = await getUserProfile()
       if (res.success && res.data) {
         if (res.data.role !== "Admin") {
           router.push("/dashboard")
+          return
         }
       }
-    })
-  }, [router])
+      
+      const empRes = await getEmployeeById(id)
+      if (empRes.success && empRes.data) {
+        setEmployee(empRes.data)
+      } else {
+        toast({ title: "Error", description: empRes.error || "Failed to load employee.", variant: "destructive" })
+      }
+      setLoading(false)
+    }
+    init()
+  }, [id])
 
+  if (loading) return <div className="flex h-40 items-center justify-center">Loading employee details...</div>
+  
   if (!employee) {
     notFound()
   }
 
-  const handleDeactivate = () => {
-    setTimeout(() => {
+  const handleDeactivate = async () => {
+    const res = await updateEmployeeStatus(employee.id, "Inactive")
+    if (res.success) {
       setDeactivateOpen(false)
       toast({ title: "Employee deactivated", description: "Employee deactivated successfully." })
-      // In a real app we'd redirect or mutate the data
       router.push("/employees")
-    }, 800)
+    } else {
+      toast({ title: "Error", description: res.error, variant: "destructive" })
+    }
   }
 
   const handleResetPassword = () => {
@@ -169,7 +185,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{employee.assignedClients}</div>
+              <div className="text-2xl font-bold">—</div>
             </CardContent>
           </Card>
         </Link>
@@ -181,7 +197,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{employee.activeShipments}</div>
+              <div className="text-2xl font-bold">—</div>
             </CardContent>
           </Card>
         </Link>
@@ -193,7 +209,7 @@ export default function EmployeeDetailsPage({ params }: EmployeeDetailsPageProps
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{employee.documentsProcessed}</div>
+              <div className="text-2xl font-bold">—</div>
             </CardContent>
           </Card>
         </Link>

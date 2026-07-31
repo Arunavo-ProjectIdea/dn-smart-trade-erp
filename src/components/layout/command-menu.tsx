@@ -6,7 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faSearch, faTimes, faBuilding, faBox, faFileExcel, faBriefcase } from "@fortawesome/free-solid-svg-icons"
 import { mockClients } from "@/lib/mock-data/clients"
 import { mockShipmentsList } from "@/lib/mock-data/shipment"
-import { mockEmployees } from "@/lib/mock-data/employees"
+import { getEmployees } from "@/actions/employees.actions"
+import { Employee } from "@/types/employee"
 
 // Mock BOE data for search since it's not centralized in a file
 const mockBOEs = [
@@ -23,6 +24,15 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
   const router = useRouter()
   const [search, setSearch] = React.useState("")
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const [employees, setEmployees] = React.useState<Employee[]>([])
+
+  React.useEffect(() => {
+    getEmployees().then(res => {
+      if (res.success && res.data) {
+        setEmployees(res.data)
+      }
+    })
+  }, [])
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -58,9 +68,9 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
     s.clientName.toLowerCase().includes(lowerSearch)
   ).slice(0, 3) : []
 
-  const filteredEmployees = search ? mockEmployees.filter(e => 
+  const filteredEmployees = search ? employees.filter(e => 
     e.fullName.toLowerCase().includes(lowerSearch) || 
-    e.department.toLowerCase().includes(lowerSearch)
+    (e.department && e.department.toLowerCase().includes(lowerSearch))
   ).slice(0, 3) : []
 
   const filteredBOEs = search ? mockBOEs.filter(b => 
