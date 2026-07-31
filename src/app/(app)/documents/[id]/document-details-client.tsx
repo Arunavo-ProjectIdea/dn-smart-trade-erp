@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft, faDownload, faCheck, faXmark, faCircle, faFileLines, faCalendar, faUser, faBuilding, faBox, faClock, faChevronRight } from "@fortawesome/free-solid-svg-icons"
 
@@ -19,7 +20,6 @@ import { Database } from "@/types/database.types"
 import { Document, DocumentStatus, DocumentActivity, DocumentVersion, DocumentCategory } from "@/lib/mock-data/documents"
 import { archiveDocument, updateDocumentStatus, updateDocument, downloadDocument, replaceDocumentFile } from "@/actions/document.actions"
 import { createClient } from "@/lib/supabase/client"
-import { useEffect } from "react"
 
 interface DocumentDetailsClientProps {
   document: Document
@@ -340,7 +340,13 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   <div className="absolute inset-0 z-10 bg-white">
                     {/* Check if it's an image or generic iframe */}
                     {previewUrl.toLowerCase().includes(".png") || previewUrl.toLowerCase().includes(".jpg") || previewUrl.toLowerCase().includes(".jpeg") ? (
-                      <img src={previewUrl} alt="Document Preview" className="w-full h-full object-contain" />
+                      <Image 
+                        src={previewUrl} 
+                        alt="Document Preview" 
+                        fill
+                        className="object-contain" 
+                        unoptimized 
+                      />
                     ) : (
                       <iframe src={previewUrl} className="w-full h-full border-0" title="Document Preview" />
                     )}
