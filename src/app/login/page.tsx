@@ -1,18 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCircle, faArrowRight } from "@fortawesome/free-solid-svg-icons"
+import { Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { signIn } from "@/actions/auth.actions"
 
 const containerVariants = {
@@ -33,6 +33,7 @@ const itemVariants = {
 
 export default function LoginPage() {
   const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -112,9 +113,9 @@ export default function LoginPage() {
                 <Input 
                   id="password" 
                   name="password"
-                  type="password" 
+                  type={showPassword ? "text" : "password"} 
                   placeholder=" "
-                  className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
+                  className="peer pt-5 pb-1 pr-10 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
                   required 
                 />
                 <Label 
@@ -123,6 +124,18 @@ export default function LoginPage() {
                 >
                   Password
                 </Label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3.5 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
               </div>
               <div className="flex items-center justify-between pt-1">
                 <div className="flex items-center space-x-2">
