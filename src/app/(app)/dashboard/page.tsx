@@ -11,18 +11,24 @@ import { getUserProfile } from "@/actions/auth.actions"
 import { mockClients } from "@/lib/mock-data/clients"
 import { mockBOEList } from "@/lib/mock-data/boe"
 import { mockDocumentsList } from "@/lib/mock-data/document"
-import { mockEmployees } from "@/lib/mock-data/employees"
 import { mockShipmentsList } from "@/lib/mock-data/shipment"
+import { getEmployees } from "@/actions/employees.actions"
 
 // CLIENT_USER_ID corresponds to the mock client account (John Smith at Acme Corp)
 const CLIENT_COMPANY_ID = "CL-1003"
 
 export default function DashboardPage() {
   const [role, setRole] = useState("Admin");
+  const [activeEmpCount, setActiveEmpCount] = useState("—");
 
   useEffect(() => {
     getUserProfile().then((res) => {
       if (res.success && res.data?.role) setRole(res.data.role as string);
+    });
+    getEmployees().then(res => {
+      if (res.success && res.data) {
+        setActiveEmpCount(res.data.filter(e => e.status === "Active").length.toString());
+      }
     });
   }, []);
 
@@ -36,7 +42,7 @@ export default function DashboardPage() {
     { name: "Total BOE", link: "/boe", value: mockBOEList.length.toString(), icon: faFileLines, trend: "-2.4%", positive: false },
     { name: "Total Documents", link: "/documents", value: mockDocumentsList.length.toString(), icon: faFileLines, trend: "+5.2%", positive: true },
     { name: "Total Clients", link: "/clients", value: mockClients.length.toString(), icon: faUsers, trend: "+18.1%", positive: true },
-    { name: "Active Employees", link: "/employees", value: mockEmployees.filter(e => e.status === "Active").length.toString(), icon: faBriefcase, trend: "0%", positive: true },
+    { name: "Active Employees", link: "/employees", value: activeEmpCount, icon: faBriefcase, trend: "0%", positive: true },
     { name: "Monthly Revenue", link: "/reports", value: "৳1,42,500", icon: faBox, trend: "+24.5%", positive: true },
   ]
 

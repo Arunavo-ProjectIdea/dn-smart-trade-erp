@@ -97,7 +97,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   name="email"
-                  type="email"
+                  type="text"
                   placeholder=" "
                   className="peer pt-5 pb-1 h-12 bg-card/60 backdrop-blur-sm shadow-sm transition-all focus-visible:ring-1 focus-visible:ring-primary/50"
                   required
@@ -106,7 +106,7 @@ export default function LoginPage() {
                   htmlFor="email"
                   className="absolute left-3 top-3.5 origin-[0] -translate-y-2.5 scale-75 transform text-muted-foreground transition-all duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-2.5 peer-focus:scale-75 peer-focus:text-primary pointer-events-none"
                 >
-                  Email address
+                  Email or Username
                 </Label>
               </div>
               <div className="relative">

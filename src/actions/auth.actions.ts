@@ -14,17 +14,26 @@ export type ActionResponse<T = unknown> = {
 }
 
 export async function signIn(formData: FormData): Promise<ActionResponse> {
-  const email = formData.get("email") as string
+  const emailOrUsername = formData.get("email") as string
   const password = formData.get("password") as string
 
-  if (!email || !password) {
-    return { success: false, error: "Email and password are required" }
+  if (!emailOrUsername || !password) {
+    return { success: false, error: "Email or Username and password are required" }
   }
 
   const supabase = await createClient()
 
+  let loginEmail = emailOrUsername
+  if (!loginEmail.includes("@")) {
+    const { data, error } = await supabase.rpc("get_email_by_username", { p_username: loginEmail })
+    if (error || !data) {
+      return { success: false, error: "Invalid login credentials" }
+    }
+    loginEmail = data
+  }
+
   const { data, error } = await supabase.auth.signInWithPassword({
-    email,
+    email: loginEmail,
     password,
   })
 
@@ -67,6 +76,24 @@ export async function resetPassword(formData: FormData): Promise<ActionResponse>
   return { success: true, data }
 }
 
+export async function updateUserPassword(password: string): Promise<ActionResponse> {
+  if (!password) {
+    return { success: false, error: "Password is required" }
+  }
+
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.updateUser({
+    password,
+  })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, data }
+}
+
 export async function getCurrentUser(): Promise<ActionResponse<User>> {
   const supabase = await createClient()
   
@@ -99,4 +126,25 @@ export async function getUserProfile(): Promise<ActionResponse<Profile & { user:
   }
 
   return { success: true, data: { ...profileData, user: userData.user } }
+}
+
+export async function updateUserProfile(updates: Partial<Profile>): Promise<ActionResponse> {
+  const supabase = await createClient()
+  
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+
+  if (userError || !userData?.user) {
+    return { success: false, error: userError?.message || "User not found" }
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(updates)
+    .eq("id", userData.user.id)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true }
 }

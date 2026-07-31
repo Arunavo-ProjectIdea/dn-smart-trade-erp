@@ -12,7 +12,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faShieldHalved, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState, useRef, useEffect } from "react"
-import { getUserProfile } from "@/actions/auth.actions"
+import { getUserProfile, updateUserPassword } from "@/actions/auth.actions"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function ProfilePage() {
   const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(null)
@@ -42,6 +43,10 @@ export default function ProfilePage() {
     { action: "Enabled Two-Factor Authentication", date: "Oct 10, 2023, 10:00:00 AM" }
   ])
 
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
   const addActivity = (action: string) => {
     setActivities(prev => [{ action, date: new Date().toLocaleString() }, ...prev])
   }
@@ -68,17 +73,34 @@ export default function ProfilePage() {
     }, 1000)
   }
 
-  const handlePersonalSubmit = (e: React.FormEvent) => {
+  const handlePersonalSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    const formData = new FormData(e.currentTarget as HTMLFormElement)
+    const phone = formData.get("phone") as string
+    const firstName = formData.get("firstName") as string
+    const lastName = formData.get("lastName") as string
+    
     setIsSavingPersonal(true)
-    setTimeout(() => {
-      setIsSavingPersonal(false)
+    
+    const fullName = `${firstName} ${lastName}`.trim()
+    
+    const res = await updateUserProfile({
+      phone,
+      full_name: fullName
+    })
+    
+    setIsSavingPersonal(false)
+    
+    if (res.success) {
       toast.success("Personal information saved successfully!")
       addActivity("Updated Personal Information")
-    }, 1000)
+    } else {
+      toast.error(res.error || "Failed to update profile.")
+    }
   }
 
-  const handlePasswordSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     const formData = new FormData(e.currentTarget)
@@ -91,12 +113,16 @@ export default function ProfilePage() {
     }
 
     setIsUpdatingPassword(true)
-    setTimeout(() => {
-      setIsUpdatingPassword(false)
+    const res = await updateUserPassword(newPassword)
+    setIsUpdatingPassword(false)
+    
+    if (res.success) {
       toast.success("Password updated successfully!")
       addActivity("Changed Password")
       ;(e.target as HTMLFormElement).reset()
-    }, 1000)
+    } else {
+      toast.error(res.error || "Failed to update password.")
+    }
   }
 
   const handlePreferencesSubmit = (e: React.FormEvent) => {
@@ -192,20 +218,32 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue={firstName} required />
+                    <Input id="firstName" name="firstName" defaultValue={firstName} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue={lastName} required />
+                    <Input id="lastName" name="lastName" defaultValue={lastName} required />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" defaultValue={(currentUser?.email as string) ?? "admin@dnsmarttrade.com"} required />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input id="email" type="email" defaultValue={(currentUser?.email as string) ?? "admin@dnsmarttrade.com"} disabled />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input id="phone" name="phone" type="tel" defaultValue={(currentUser?.phone as string) ?? "+880 "} required />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" defaultValue="+880 1711-123456" required />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="department">Department</Label>
+                    <Input id="department" defaultValue={(currentUser?.department as string) ?? "Not assigned"} disabled />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="designation">Designation</Label>
+                    <Input id="designation" defaultValue={(currentUser?.designation as string) ?? "Not assigned"} disabled />
+                  </div>
                 </div>
               </CardContent>
               <CardFooter>
@@ -225,17 +263,44 @@ export default function ProfilePage() {
                 <CardDescription>Change your password to keep your account secure.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pb-6">
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label htmlFor="current">Current Password</Label>
-                  <Input id="current" type="password" required />
+                  <div className="relative">
+                    <Input id="current" type={showCurrentPassword ? "text" : "password"} required />
+                    <Button 
+                      type="button" variant="ghost" size="icon" 
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label htmlFor="new">New Password</Label>
-                  <Input id="new" name="new" type="password" required minLength={8} />
+                  <div className="relative">
+                    <Input id="new" name="new" type={showNewPassword ? "text" : "password"} required minLength={8} />
+                    <Button 
+                      type="button" variant="ghost" size="icon" 
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-2 relative">
                   <Label htmlFor="confirm">Confirm New Password</Label>
-                  <Input id="confirm" name="confirm" type="password" required minLength={8} />
+                  <div className="relative">
+                    <Input id="confirm" name="confirm" type={showConfirmPassword ? "text" : "password"} required minLength={8} />
+                    <Button 
+                      type="button" variant="ghost" size="icon" 
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
               <CardFooter>

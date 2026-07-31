@@ -1,5 +1,4 @@
 import { mockClients } from "./clients"
-import { mockEmployees } from "./employees"
 
 export interface Shipment {
   id: string
@@ -20,7 +19,7 @@ const countries = ["USA", "UK", "China", "Germany", "Japan", "UAE", "India", "Ca
 
 export const mockShipments: Shipment[] = Array.from({ length: 50 }).map((_, i) => {
   const client = mockClients[i % 20]
-  const employee = mockEmployees[i % 10]
+  const employeeId = `EMP-100${i % 10}`
   const type = i % 3 === 0 ? "Export" : "Import"
   const origin = type === "Import" ? countries[i % countries.length] : "USA"
   const dest = type === "Export" ? countries[(i + 1) % countries.length] : "USA"
@@ -34,7 +33,7 @@ export const mockShipments: Shipment[] = Array.from({ length: 50 }).map((_, i) =
     id: `SHP-2026-${(1001 + i).toString()}`,
     trackingNumber: `TRK${Math.random().toString().substring(2, 10)}`,
     clientId: client.id,
-    employeeId: employee.id,
+    employeeId: employeeId,
     type,
     status: statuses[i % statuses.length],
     originCountry: origin,

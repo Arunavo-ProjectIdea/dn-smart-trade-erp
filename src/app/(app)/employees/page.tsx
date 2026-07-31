@@ -14,15 +14,17 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { ConfirmationDialog } from "@/components/erp/confirmation-dialog"
 import { ViewToggle } from "@/components/erp/view-toggle"
-import { mockEmployees, Employee } from "@/lib/mock-data/employees"
+import { Employee } from "@/types/employee"
 import { useToast } from "@/components/ui/use-toast"
 import { getUserProfile } from "@/actions/auth.actions"
+import { getEmployees, updateEmployeeStatus } from "@/actions/employees.actions"
 
 export default function EmployeesPage() {
   const router = useRouter()
   const { toast } = useToast()
   const [viewMode, setViewMode] = useState<"table" | "grid">("table")
-  const [data, setData] = useState<Employee[]>(mockEmployees)
+  const [data, setData] = useState<Employee[]>([])
+  const [loading, setLoading] = useState(true)
   
   // Filter States
   const [roleFilter, setRoleFilter] = useState<string>("all")
@@ -41,20 +43,37 @@ export default function EmployeesPage() {
   const [deactivateId, setDeactivateId] = useState<string | null>(null)
   const [resetId, setResetId] = useState<string | null>(null)
 
-  // Client-side role protection
+  // Client-side role protection and Data fetching
   useEffect(() => {
-    getUserProfile().then((res) => {
+    async function init() {
+      const res = await getUserProfile()
       if (res.success && res.data) {
         if (res.data.role !== "Admin") {
           router.push("/dashboard")
+          return
         }
       }
-    })
-  }, [router])
+      
+      const empRes = await getEmployees()
+      if (empRes.success && empRes.data) {
+        setData(empRes.data)
+      } else {
+        toast({ title: "Error fetching employees", description: empRes.error, variant: "destructive" })
+      }
+      setLoading(false)
+    }
+    init()
+  }, [])
 
-  const handleDeactivate = () => {
+  const handleDeactivate = async () => {
     if (deactivateId) {
-      setData(data.map(emp => emp.id === deactivateId ? { ...emp, status: "Inactive" } : emp))
+      const res = await updateEmployeeStatus(deactivateId, "Inactive")
+      if (res.success) {
+        setData(data.map(emp => emp.id === deactivateId ? { ...emp, status: "Inactive" } : emp))
+        toast({ title: "Employee Deactivated", description: "The employee account has been set to Inactive." })
+      } else {
+        toast({ title: "Error", description: res.error, variant: "destructive" })
+      }
       setDeactivateId(null)
     }
   }
@@ -149,7 +168,7 @@ export default function EmployeesPage() {
     }
   ]
 
-  const departments = Array.from(new Set(mockEmployees.map(e => e.department)))
+  const departments = Array.from(new Set(data.map(e => e.department).filter(Boolean)))
 
   const filters = (
     <>

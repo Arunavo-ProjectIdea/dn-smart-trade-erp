@@ -18,10 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { getUserProfile } from "@/actions/auth.actions"
-type UserRole = "Admin" | "Employee" | "Client"
-import { mockEmployees } from "@/lib/mock-data/employees"
+import { createEmployee } from "@/actions/employees.actions"
 import { useToast } from "@/components/ui/use-toast"
 import { StatusType } from "@/components/erp/status-badge"
+import { UserRole } from "@/types/employee"
 
 export default function AddEmployeePage() {
   const router = useRouter()
@@ -31,8 +31,9 @@ export default function AddEmployeePage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
-    phone: "",
+    phone: "+880 ",
     department: "Logistics",
+    designation: "",
     role: "Employee" as UserRole,
     status: "Active" as StatusType,
     username: "",
@@ -53,39 +54,27 @@ export default function AddEmployeePage() {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Generate new ID based on existing mock data length (simplistic but works for mock)
-    const newId = `EMP-${1000 + mockEmployees.length + 1}`
-    
-    const newEmployee = {
-      id: newId,
-      fullName: formData.fullName,
-      email: formData.email,
-      phone: formData.phone,
-      department: formData.department,
-      role: formData.role,
-      status: formData.status,
-      username: formData.username || formData.email.split('@')[0],
-      lastLogin: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      assignedClients: 0,
-      activeShipments: 0,
-      documentsProcessed: 0,
-    }
+    // We pass the tempPassword to the action so it can create the user securely
+    const res = await createEmployee({ ...formData, password: tempPassword })
 
-    mockEmployees.push(newEmployee)
-
-    setTimeout(() => {
-      setIsSubmitting(false)
+    setIsSubmitting(false)
+    if (res.success) {
       toast({
         title: "Employee Created",
-        description: `${newEmployee.fullName} has been successfully added.`,
+        description: `${formData.fullName} has been successfully added.`,
       })
       router.push("/employees")
-    }, 800)
+    } else {
+      toast({
+        title: "Error",
+        description: res.error || "Failed to create employee.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleCancel = () => {
@@ -174,6 +163,16 @@ export default function AddEmployeePage() {
                 <SelectItem value="IT & Systems">IT & Systems</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="designation">Designation</Label>
+            <Input 
+              id="designation" 
+              placeholder="e.g. Senior Logistics Manager" 
+              value={formData.designation}
+              onChange={(e) => handleChange("designation", e.target.value)}
+            />
           </div>
         </div>
 
