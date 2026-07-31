@@ -207,11 +207,11 @@ function ShipmentsContent() {
         />
       </div>
       <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val || "all")}>
-        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
-            <div className="h-4 w-px bg-border mx-1"></div>
-            <SelectValue placeholder="All" />
+        <SelectTrigger className="w-auto min-w-[140px] max-w-[240px] bg-background shadow-sm border-dashed rounded-full px-4 h-9 shrink-0">
+          <div className="flex items-center gap-2 overflow-hidden truncate">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Status</span>
+            <div className="h-4 w-px bg-border mx-1 shrink-0"></div>
+            <div className="truncate"><SelectValue placeholder="All" /></div>
           </div>
         </SelectTrigger>
         <SelectContent>
@@ -225,11 +225,11 @@ function ShipmentsContent() {
         </SelectContent>
       </Select>
       <Select value={clientFilter} onValueChange={(val) => setClientFilter(val || "all")}>
-        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</span>
-            <div className="h-4 w-px bg-border mx-1"></div>
-            <SelectValue placeholder="All" />
+        <SelectTrigger className="w-auto min-w-[140px] max-w-[240px] bg-background shadow-sm border-dashed rounded-full px-4 h-9 shrink-0">
+          <div className="flex items-center gap-2 overflow-hidden truncate">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Client</span>
+            <div className="h-4 w-px bg-border mx-1 shrink-0"></div>
+            <div className="truncate"><SelectValue placeholder="All" /></div>
           </div>
         </SelectTrigger>
         <SelectContent>
@@ -240,11 +240,11 @@ function ShipmentsContent() {
         </SelectContent>
       </Select>
       <Select value={portFilter} onValueChange={(val) => setPortFilter(val || "all")}>
-        <SelectTrigger className="w-auto min-w-[140px] bg-background shadow-sm border-dashed rounded-full px-4 h-9">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Port</span>
-            <div className="h-4 w-px bg-border mx-1"></div>
-            <SelectValue placeholder="All" />
+        <SelectTrigger className="w-auto min-w-[140px] max-w-[240px] bg-background shadow-sm border-dashed rounded-full px-4 h-9 shrink-0">
+          <div className="flex items-center gap-2 overflow-hidden truncate">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground shrink-0">Port</span>
+            <div className="h-4 w-px bg-border mx-1 shrink-0"></div>
+            <div className="truncate"><SelectValue placeholder="All" /></div>
           </div>
         </SelectTrigger>
         <SelectContent>
