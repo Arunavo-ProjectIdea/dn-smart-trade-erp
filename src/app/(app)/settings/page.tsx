@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Separator } from "@/components/ui/separator"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Building2, ShieldCheck, Bell, Link as LinkIcon, Eye, EyeOff, RefreshCw } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBuilding, faShieldHalved, faBell, faLink, faEye, faEyeSlash, faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState } from "react"
 
@@ -64,7 +65,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full pb-10">
+    <div className="flex flex-col gap-8 max-w-5xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">System Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -75,31 +76,31 @@ export default function SettingsPage() {
       <Tabs defaultValue="organization" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="organization" className="flex items-center gap-2">
-            <Building2 className="size-4" />
+            <FontAwesomeIcon icon={faBuilding} className="size-4" />
             <span>Organization</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <ShieldCheck className="size-4" />
+            <FontAwesomeIcon icon={faShieldHalved} className="size-4" aria-hidden="true" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
-            <Bell className="size-4" />
+            <FontAwesomeIcon icon={faBell} className="size-4" />
             <span>Notifications</span>
           </TabsTrigger>
           <TabsTrigger value="integrations" className="flex items-center gap-2">
-            <LinkIcon className="size-4" />
+            <FontAwesomeIcon icon={faLink} className="size-4" />
             <span>Integrations</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="organization" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveOrganization}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Organization Details</CardTitle>
                 <CardDescription>Update the primary business details used on invoices and reports.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
@@ -107,12 +108,12 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="regNumber">Registration Number</Label>
-                    <Input id="regNumber" defaultValue="TR-998822" required />
+                    <Input id="regNumber" defaultValue="RJSC-2024-88220" required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Registered Address</Label>
-                  <Input id="address" defaultValue="123 Logistics Avenue, Trade City" required />
+                  <Input id="address" defaultValue="42 Port Connecting Road, Agrabad C/A, Chattogram-4100, Bangladesh" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="industry">Industry / Sector</Label>
@@ -139,13 +140,13 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleApplySecurity}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Security Policies</CardTitle>
                 <CardDescription>Manage global security policies for all users in the organization.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3 p-4 border rounded-lg">
                   <Checkbox id="req-2fa" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -187,13 +188,13 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveAlerts}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>Alert Preferences</CardTitle>
                 <CardDescription>Manage how and when you receive system alerts.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3">
                   <Checkbox id="email-daily" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -228,13 +229,13 @@ export default function SettingsPage() {
         </TabsContent>
 
         <TabsContent value="integrations" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handleSaveConfig}>
-              <CardHeader>
+              <CardHeader className="pb-4 border-b mb-4">
                 <CardTitle>API Keys & Endpoints</CardTitle>
                 <CardDescription>Connect to third-party logistics providers and customs portals.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="api-key">Production API Key</Label>
                   <div className="flex gap-2">
@@ -250,7 +251,7 @@ export default function SettingsPage() {
                       onClick={() => setShowApiKey(!showApiKey)}
                       className="flex items-center gap-2"
                     >
-                      {showApiKey ? <EyeOff className="size-4"/> : <Eye className="size-4"/>}
+                      {showApiKey ? <FontAwesomeIcon icon={faEyeSlash} className="size-4"/> : <FontAwesomeIcon icon={faEye} className="size-4"/>}
                       {showApiKey ? "Hide" : "Reveal"}
                     </Button>
                     <Button 
@@ -259,7 +260,7 @@ export default function SettingsPage() {
                       onClick={handleRegenerateApiKey}
                       className="flex items-center gap-2"
                     >
-                      <RefreshCw className="size-4"/>
+                      <FontAwesomeIcon icon={faRotateRight} className="size-4"/>
                       Regenerate
                     </Button>
                   </div>

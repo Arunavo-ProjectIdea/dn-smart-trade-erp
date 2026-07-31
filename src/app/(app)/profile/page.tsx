@@ -8,11 +8,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
-import { User, Lock, Settings, Activity } from "lucide-react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faShieldHalved, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
+import { getUserProfile } from "@/actions/auth.actions"
 
 export default function ProfilePage() {
+  const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  
+  useEffect(() => {
+    getUserProfile().then((res) => {
+      if (res.success && res.data) setCurrentUser(res.data)
+      setIsLoading(false)
+    })
+  }, [])
+
+  const nameParts = (currentUser?.full_name as string | undefined)?.split(" ") || []
+  const firstName = nameParts[0] || "Admin"
+  const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "User"
+
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string>("https://github.com/shadcn.png")
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -99,8 +115,16 @@ export default function ProfilePage() {
     addActivity("Initiated Two-Factor Authentication Setup")
   }
 
+  if (isLoading) {
+    return <div className="p-8 text-center text-muted-foreground">Loading profile...</div>
+  }
+
+  if (!currentUser) {
+    return <div className="p-8 text-center text-muted-foreground">Failed to load profile.</div>
+  }
+
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full pb-10">
+    <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
         <p className="text-muted-foreground mt-2">
@@ -111,25 +135,25 @@ export default function ProfilePage() {
       <Tabs defaultValue="personal" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="personal" className="flex items-center gap-2">
-            <User className="size-4" />
+            <FontAwesomeIcon icon={faUser} className="size-4" />
             <span>Personal</span>
           </TabsTrigger>
           <TabsTrigger value="security" className="flex items-center gap-2">
-            <Lock className="size-4" />
+            <FontAwesomeIcon icon={faShieldHalved} className="size-4" aria-hidden="true" />
             <span>Security</span>
           </TabsTrigger>
           <TabsTrigger value="preferences" className="flex items-center gap-2">
-            <Settings className="size-4" />
+            <FontAwesomeIcon icon={faGear} className="size-4" />
             <span>Preferences</span>
           </TabsTrigger>
           <TabsTrigger value="activity" className="flex items-center gap-2">
-            <Activity className="size-4" />
+            <FontAwesomeIcon icon={faChartLine} className="size-4" />
             <span>Activity</span>
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="personal" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>Avatar & Public Profile</CardTitle>
               <CardDescription>Update how you appear to others.</CardDescription>
@@ -147,7 +171,7 @@ export default function ProfilePage() {
                 onClick={handleAvatarClick}
               >
                 <AvatarImage src={avatarPreview} />
-                <AvatarFallback>AU</AvatarFallback>
+                <AvatarFallback>{(firstName[0] ?? "A") + (lastName[0] ?? "U")}</AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <Button variant="outline" onClick={handleAvatarChange} disabled={isUpdatingAvatar}>
@@ -158,30 +182,30 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handlePersonalSubmit}>
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
                 <CardDescription>Update your contact details and basic information.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue="Admin" required />
+                    <Input id="firstName" defaultValue={firstName} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue="User" required />
+                    <Input id="lastName" defaultValue={lastName} required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" defaultValue="admin@dnsmarttrade.com" required />
+                  <Input id="email" type="email" defaultValue={(currentUser?.email as string) ?? "admin@dnsmarttrade.com"} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" defaultValue="+1 (555) 123-4567" required />
+                  <Input id="phone" type="tel" defaultValue="+880 1711-123456" required />
                 </div>
               </CardContent>
               <CardFooter>
@@ -194,13 +218,13 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="security" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handlePasswordSubmit}>
               <CardHeader>
                 <CardTitle>Password</CardTitle>
                 <CardDescription>Change your password to keep your account secure.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="space-y-2">
                   <Label htmlFor="current">Current Password</Label>
                   <Input id="current" type="password" required />
@@ -222,7 +246,7 @@ export default function ProfilePage() {
             </form>
           </Card>
           
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>Two-Factor Authentication</CardTitle>
               <CardDescription>Add an extra layer of security to your account.</CardDescription>
@@ -240,13 +264,13 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="preferences" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <form onSubmit={handlePreferencesSubmit}>
               <CardHeader>
                 <CardTitle>Notifications</CardTitle>
                 <CardDescription>Choose what updates you want to receive.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pb-6">
                 <div className="flex items-start space-x-3">
                   <Checkbox id="email-notif" defaultChecked />
                   <div className="space-y-1 leading-none">
@@ -281,7 +305,7 @@ export default function ProfilePage() {
         </TabsContent>
 
         <TabsContent value="activity" className="space-y-6">
-          <Card>
+          <Card className="rounded-xl border-border/60 shadow-sm">
             <CardHeader>
               <CardTitle>Recent Activity</CardTitle>
               <CardDescription>Review your recent account actions.</CardDescription>

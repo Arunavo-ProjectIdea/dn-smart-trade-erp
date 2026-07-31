@@ -1,12 +1,11 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { buttonVariants } from "@/components/ui/button"
-import Link from "next/link"
-import { AuthService } from "@/lib/auth"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { LogOut, Settings, User } from "lucide-react"
+import { signOut, getUserProfile } from "@/actions/auth.actions"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowRightFromBracket, faGear, faUser } from "@fortawesome/free-solid-svg-icons"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,62 +15,88 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Role } from "./sidebar"
 
-export function UserNav() {
+interface UserNavProps {
+  role?: Role
+}
+
+export function UserNav({ role }: UserNavProps) {
   const router = useRouter()
-  const [user, setUser] = useState<{name: string, email: string} | null>(null)
+  const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
 
   useEffect(() => {
-    const currentUser = AuthService.getCurrentUser()
-    if (currentUser) {
-      setUser(currentUser)
-    }
+    getUserProfile().then((res) => {
+      if (res.success && res.data) {
+        setUser({
+          name: res.data.full_name || res.data.user?.user_metadata?.full_name || res.data.email?.split('@')[0] || "User",
+          email: res.data.email || "",
+          role: res.data.role || "Employee",
+        })
+      }
+    })
   }, [])
 
-  const handleLogout = () => {
-    AuthService.logout().then(() => {
-      window.location.replace("/login")
-    })
+  const handleLogout = async () => {
+    await signOut()
+    window.location.replace("/login")
   }
 
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase()
     : "AD"
 
+  // Only Admin can access Settings
+  const canAccessSettings = role === "Admin"
+
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", className: "relative h-8 w-8 rounded-full" })}>
-        <Avatar className="h-8 w-8">
+      <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <Avatar className="h-8 w-8 ring-2 ring-background shadow-sm hover:ring-primary/30 transition-all duration-200">
           <AvatarImage src="/avatars/01.png" alt={user?.name || "User"} />
-          <AvatarFallback>{initials}</AvatarFallback>
+          <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user?.name || "Admin User"}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user?.email || "admin@dnsmarttrade.com"}
-            </p>
+      <DropdownMenuContent className="w-60" align="end" sideOffset={8}>
+        <DropdownMenuLabel className="font-normal p-3">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-9 w-9">
+              <AvatarImage src="/avatars/01.png" alt={user?.name || "User"} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <p className="text-sm font-semibold leading-none text-foreground">{user?.name || "Admin User"}</p>
+              <p className="text-xs leading-none text-muted-foreground mt-1">
+                {user?.email || "admin@dnsmarttrade.com"}
+              </p>
+              {user?.role && (
+                <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                  {user.role}
+                </span>
+              )}
+            </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => router.push("/profile")}>
-            <User className="mr-2 h-4 w-4" />
+          <DropdownMenuItem onClick={() => router.push("/profile")} className="cursor-pointer">
+            <FontAwesomeIcon icon={faUser} className="mr-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/settings")}>
-            <Settings className="mr-2 h-4 w-4" />
-            Settings
-          </DropdownMenuItem>
+          {canAccessSettings && (
+            <DropdownMenuItem onClick={() => router.push("/settings")} className="cursor-pointer">
+              <FontAwesomeIcon icon={faGear} className="mr-2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              Settings
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
-          render={<button type="button" onClick={handleLogout} />}
+          onClick={handleLogout}
+          className="cursor-pointer"
         >
-          <LogOut className="mr-2 h-4 w-4" />
+          <FontAwesomeIcon icon={faArrowRightFromBracket} className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>
