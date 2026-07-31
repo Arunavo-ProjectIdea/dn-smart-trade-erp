@@ -10,23 +10,44 @@ type DbShipmentStatus = Database["public"]["Enums"]["shipment_status"]
 type DbTransportType = Database["public"]["Enums"]["transport_type"]
 type ShipmentUpdate = Database["public"]["Tables"]["shipments"]["Update"]
 
+const SELECT_SHIPMENT_QUERY = `
+  *,
+  clients!client_id (
+    id,
+    company_name
+  ),
+  assigned_employee:profiles!assigned_employee_id (
+    id,
+    full_name
+  ),
+  shipment_products (
+    id,
+    name,
+    hs_code,
+    quantity,
+    weight
+  ),
+  shipment_timeline (
+    id,
+    status,
+    date,
+    time,
+    location,
+    notes,
+    responsible_employee:profiles!responsible_employee_id (
+      id,
+      full_name
+    )
+  )
+`
+
 export async function getShipments(): Promise<{ data: Shipment[] | null; error: string | null }> {
   try {
     const supabase = await createClient()
 
     const { data, error } = await supabase
       .from("shipments")
-      .select(`
-        *,
-        clients!client_id (
-          id,
-          company_name
-        ),
-        assigned_employee:profiles!assigned_employee_id (
-          id,
-          full_name
-        )
-      `)
+      .select(SELECT_SHIPMENT_QUERY)
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -48,17 +69,7 @@ export async function getShipmentById(id: string): Promise<{ data: Shipment | nu
 
     const { data, error } = await supabase
       .from("shipments")
-      .select(`
-        *,
-        clients!client_id (
-          id,
-          company_name
-        ),
-        assigned_employee:profiles!assigned_employee_id (
-          id,
-          full_name
-        )
-      `)
+      .select(SELECT_SHIPMENT_QUERY)
       .or(`id.eq.${id},shipment_number.eq.${id}`)
       .single()
 
@@ -147,17 +158,7 @@ export async function createShipmentAction(formData: Partial<Shipment>): Promise
     const { data: newRow, error: insertError } = await supabase
       .from("shipments")
       .insert(insertData)
-      .select(`
-        *,
-        clients!client_id (
-          id,
-          company_name
-        ),
-        assigned_employee:profiles!assigned_employee_id (
-          id,
-          full_name
-        )
-      `)
+      .select(SELECT_SHIPMENT_QUERY)
       .single()
 
     if (insertError) {
@@ -240,17 +241,7 @@ export async function updateShipmentAction(id: string, formData: Partial<Shipmen
       .from("shipments")
       .update(updateData)
       .eq("id", id)
-      .select(`
-        *,
-        clients!client_id (
-          id,
-          company_name
-        ),
-        assigned_employee:profiles!assigned_employee_id (
-          id,
-          full_name
-        )
-      `)
+      .select(SELECT_SHIPMENT_QUERY)
       .single()
 
     if (updateError) {
@@ -268,5 +259,159 @@ export async function updateShipmentAction(id: string, formData: Partial<Shipmen
   } catch (err) {
     console.error("Unexpected error in updateShipmentAction:", err)
     return { success: false, error: err instanceof Error ? err.message : "Failed to update shipment" }
+  }
+}
+
+export async function createTimelineEntryAction(payload: {
+  shipmentId: string
+  status: string
+  date?: string
+  time?: string
+  location?: string
+  notes?: string
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, id")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can update timeline." }
+    }
+
+    const today = new Date().toISOString().split("T")[0]
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+    const { error: timelineError } = await supabase
+      .from("shipment_timeline")
+      .insert({
+        shipment_id: payload.shipmentId,
+        status: payload.status,
+        date: payload.date || today,
+        time: payload.time || nowTime,
+        location: payload.location || "Port",
+        responsible_employee_id: profile.id,
+        notes: payload.notes || null
+      })
+
+    if (timelineError) {
+      console.error("Error creating timeline entry:", timelineError)
+      return { success: false, error: timelineError.message }
+    }
+
+    const validStatuses: DbShipmentStatus[] = [
+      "Pending", "Booked", "Loaded", "In Transit", "Arrived",
+      "Customs Clearance", "Released", "Delivered", "Delayed"
+    ]
+    if (validStatuses.includes(payload.status as DbShipmentStatus)) {
+      await supabase
+        .from("shipments")
+        .update({ status: payload.status as DbShipmentStatus, updated_at: new Date().toISOString() })
+        .eq("id", payload.shipmentId)
+    }
+
+    revalidatePath("/shipments")
+    revalidatePath(`/shipments/${payload.shipmentId}`)
+
+    return { success: true }
+  } catch (err) {
+    console.error("Unexpected error in createTimelineEntryAction:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to add timeline entry" }
+  }
+}
+
+export async function createShipmentProductAction(payload: {
+  shipmentId: string
+  name: string
+  hsCode?: string
+  quantity: number
+  weight?: number
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can manage products." }
+    }
+
+    if (!payload.name) return { success: false, error: "Product name is required." }
+
+    const { error: insertError } = await supabase
+      .from("shipment_products")
+      .insert({
+        shipment_id: payload.shipmentId,
+        name: payload.name,
+        hs_code: payload.hsCode || null,
+        quantity: payload.quantity || 1,
+        weight: payload.weight ? Number(payload.weight) : null
+      })
+
+    if (insertError) {
+      console.error("Error creating shipment product:", insertError)
+      return { success: false, error: insertError.message }
+    }
+
+    revalidatePath(`/shipments/${payload.shipmentId}`)
+    return { success: true }
+  } catch (err) {
+    console.error("Unexpected error in createShipmentProductAction:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to add product" }
+  }
+}
+
+export async function deleteShipmentProductAction(productId: string, shipmentId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can delete products." }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("shipment_products")
+      .delete()
+      .eq("id", productId)
+
+    if (deleteError) {
+      console.error("Error deleting product:", deleteError)
+      return { success: false, error: deleteError.message }
+    }
+
+    revalidatePath(`/shipments/${shipmentId}`)
+    return { success: true }
+  } catch (err) {
+    console.error("Unexpected error in deleteShipmentProductAction:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to delete product" }
   }
 }

@@ -1,4 +1,4 @@
-import { Shipment, ShipmentStatus } from "@/lib/types/shipment"
+import { CargoProduct, Shipment, ShipmentStatus, TimelineEvent, TimelineEventStatus } from "@/lib/types/shipment"
 
 export interface RawShipmentFromSupabase {
   id: string
@@ -38,11 +38,50 @@ export interface RawShipmentFromSupabase {
     id: string
     full_name: string
   } | null
+  shipment_products?: Array<{
+    id: string
+    name: string
+    hs_code: string | null
+    quantity: number
+    weight: number | null
+  }> | null
+  shipment_timeline?: Array<{
+    id: string
+    status: string
+    date: string
+    time: string | null
+    location: string | null
+    notes: string | null
+    responsible_employee?: {
+      id: string
+      full_name: string
+    } | null
+  }> | null
 }
 
 export function mapShipment(raw: RawShipmentFromSupabase): Shipment {
   const clientName = raw.clients?.company_name || "Unknown Client"
   const assignedEmployeeName = raw.assigned_employee?.full_name || "Unassigned"
+
+  const products: CargoProduct[] = (raw.shipment_products || []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    hsCode: p.hs_code || "",
+    quantity: Number(p.quantity || 0),
+    weight: Number(p.weight || 0),
+  }))
+
+  const hsCodes = Array.from(new Set(products.map((p) => p.hsCode).filter(Boolean)))
+
+  const timeline: TimelineEvent[] = (raw.shipment_timeline || []).map((t) => ({
+    id: t.id,
+    status: (t.status as TimelineEventStatus) || "Booked",
+    date: t.date || new Date().toISOString().split("T")[0],
+    time: t.time || "12:00 PM",
+    location: t.location || "Port",
+    responsibleEmployee: t.responsible_employee?.full_name || assignedEmployeeName,
+    notes: t.notes || "",
+  }))
 
   return {
     id: raw.id,
@@ -69,8 +108,8 @@ export function mapShipment(raw: RawShipmentFromSupabase): Shipment {
     etd: raw.etd || new Date().toISOString().split("T")[0],
     incoterms: raw.incoterms || "FOB",
     transportType: (raw.transport_type as "Sea" | "Air" | "Land") || "Sea",
-    products: [],
-    hsCodes: [],
+    products,
+    hsCodes,
     grossWeight: Number(raw.gross_weight || 0),
     netWeight: Number(raw.net_weight || 0),
     packageCount: Number(raw.package_count || 0),
@@ -78,7 +117,7 @@ export function mapShipment(raw: RawShipmentFromSupabase): Shipment {
     description: "",
     customsStatus: "Pending",
     clearanceStatus: "Pending",
-    timeline: [],
+    timeline,
     assignedEmployeeId: raw.assigned_employee_id || "",
     assignedEmployeeName,
     createdAt: raw.created_at || new Date().toISOString(),
