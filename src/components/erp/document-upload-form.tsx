@@ -366,7 +366,7 @@ export function DocumentUploadForm({ clients = [], shipments = [], billsOfEntry 
                   )}
                   {file.status === 'completed' && (
                     <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
-                      <FontAwesomeIcon icon={faCheckCircle} className="h-3 w-3" /> Complete
+                      <FontAwesomeIcon icon={faCircleCheck} className="h-3 w-3" /> Complete
                     </div>
                   )}
                   {file.status === 'error' && (
