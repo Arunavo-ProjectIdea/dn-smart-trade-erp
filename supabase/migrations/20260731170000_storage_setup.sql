@@ -3,9 +3,6 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('documents', 'documents', false) 
 ON CONFLICT (id) DO NOTHING;
 
--- Enable RLS on storage.objects if not already enabled
-ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
-
 -- Storage Policies for 'documents' bucket
 -- Allow authenticated users to upload files
 DROP POLICY IF EXISTS "Authenticated users can upload documents" ON storage.objects;
