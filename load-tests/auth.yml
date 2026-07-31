@@ -1,0 +1,34 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    # Phase 1: Spike Test - 100 users hitting the login endpoint instantly
+    - duration: 1
+      arrivalRate: 100
+      name: "Scenario A: Login Spike (100 users)"
+      
+    # Phase 2: Mass Password Reset
+    - duration: 10
+      arrivalRate: 10
+      name: "Scenario B: Password Reset (100 users)"
+
+  payload:
+    # Mock data file for user emails (to be created later)
+    # path: "test-users.csv"
+    # fields:
+    #   - "email"
+
+scenarios:
+  - name: "Login Flow"
+    flow:
+      - post:
+          url: "/api/auth/login" # Placeholder URL, would need dedicated Next.js API route
+          json:
+            email: "test@example.com"
+            password: "password123"
+
+  - name: "Forgot Password Flow"
+    flow:
+      - post:
+          url: "/api/auth/reset-password" # Placeholder URL
+          json:
+            email: "test@example.com"
