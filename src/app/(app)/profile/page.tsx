@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faShieldHalved, faGear, faChartLine } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "sonner"
 import { useState, useRef, useEffect } from "react"
-import { getUserProfile, updateUserPassword } from "@/actions/auth.actions"
+import { getUserProfile, updateUserPassword, updateUserProfile } from "@/actions/auth.actions"
 import { Eye, EyeOff } from "lucide-react"
 
 export default function ProfilePage() {
