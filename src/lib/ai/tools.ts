@@ -1,31 +1,30 @@
 import { SupabaseClient } from "@supabase/supabase-js";
+import { expandTradeSynonym } from "@/lib/trade-synonyms";
 
 export async function searchHSCodes(supabase: SupabaseClient, query: string): Promise<string> {
+  const { searchTerm } = expandTradeSynonym(query.trim());
   const { data, error } = await supabase
-    .from("hs_codes")
-    .select("code, description, category")
-    .ilike("description", `%${query}%`)
-    .limit(5);
+    .rpc("match_hs_codes_ai", { search_term: searchTerm, match_limit: 5 });
 
   if (error || !data || data.length === 0) {
     return `No HS Codes found matching: ${query}`;
   }
 
-  return `HS Codes matching "${query}":\n` + data.map(c => `- ${c.code}: ${c.description} (Category: ${c.category})`).join("\n");
+  return `HS Codes matching "${query}":\n` + data.map((c: { hscode: string, tariff_description: string, category: string }) => `- ${c.hscode}: ${c.tariff_description} (Category: ${c.category})`).join("\n");
 }
 
 export async function getDutyInformation(supabase: SupabaseClient, hsCode: string): Promise<string> {
   const { data, error } = await supabase
     .from("hs_codes")
-    .select("code, description, cd, sd, vat, ait, rd, at, tti")
-    .eq("code", hsCode)
+    .select("hscode, tariff_description, cd, sd, vat, ait, rd, at, tti")
+    .eq("hscode", hsCode)
     .single();
 
   if (error || !data) {
     return `Could not find duty information for HS Code: ${hsCode}`;
   }
 
-  return `Duty Information for ${hsCode} (${data.description}):
+  return `Duty Information for ${hsCode} (${data.tariff_description}):
 - CD (Customs Duty): ${data.cd}%
 - SD (Supplementary Duty): ${data.sd}%
 - VAT (Value Added Tax): ${data.vat}%

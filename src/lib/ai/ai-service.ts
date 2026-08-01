@@ -13,7 +13,8 @@ import {
 export async function processChatRequest(
   supabase: SupabaseClient,
   messages: Array<{ role: 'user' | 'assistant' | 'system', content: string }>,
-  role: UserRole
+  role: UserRole,
+  sessionId?: string | null
 ) {
   if (!process.env.GROQ_API_KEY) {
     throw new Error("GROQ_API_KEY is not configured.");
@@ -54,5 +55,19 @@ export async function processChatRequest(
     model: defaultModel,
     system: systemPrompt,
     messages,
+    onFinish: async ({ text }) => {
+      if (sessionId) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase as any).from('chat_messages').insert({
+            session_id: sessionId,
+            role: 'assistant',
+            content: text
+          });
+        } catch (e) {
+          console.error("Failed to save assistant message", e);
+        }
+      }
+    }
   });
 }
