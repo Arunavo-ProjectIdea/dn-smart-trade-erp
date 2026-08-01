@@ -1,3 +1,22 @@
+-- Handle column rename: the hs_codes table may have 'code'/'name' (old) or 'hscode'/'tariff_description' (new)
+-- This migration is safe to run on both old and new schemas
+DO $$
+BEGIN
+  IF EXISTS(
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'hs_codes' AND column_name = 'code'
+  ) THEN
+    ALTER TABLE public.hs_codes RENAME COLUMN code TO hscode;
+  END IF;
+
+  IF EXISTS(
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' AND table_name = 'hs_codes' AND column_name = 'name'
+  ) THEN
+    ALTER TABLE public.hs_codes RENAME COLUMN name TO tariff_description;
+  END IF;
+END $$;
+
 -- Enable trigram extension for fuzzy text search
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
