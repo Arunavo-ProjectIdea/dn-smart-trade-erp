@@ -1,6 +1,7 @@
 import * as fs from "fs"
 import * as path from "path"
-import { parse } from "csv-parse"
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const parse = require("csv-parse")
 import { createClient } from "@supabase/supabase-js"
 import * as dotenv from "dotenv"
 
@@ -38,7 +39,7 @@ async function main() {
       trim: true,
       relax_quotes: true,
       relax_column_count: true
-    })
+    } as any)
   )
 
   for await (const record of parser) {
