@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faChevronRight, faCircle } from "@fortawesome/free-solid-svg-icons";
@@ -11,9 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shipment } from "@/lib/types/shipment";
-import { mockClients } from "@/lib/mock-data/clients";
-import { mockShipmentsList } from "@/lib/mock-data/shipment";
+import { Client } from "@/lib/mock-data/clients";
 import { useToast } from "@/components/ui/use-toast";
+import { getClients } from "@/app/(app)/clients/actions";
+import { createShipmentAction, updateShipmentAction } from "@/app/(app)/shipments/actions";
 
 interface ShipmentFormProps {
   initialData?: Shipment;
@@ -25,6 +26,17 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 6;
   const isEditing = !!initialData;
+  const [submitting, setSubmitting] = useState(false);
+
+  const [clientsList, setClientsList] = useState<Client[]>([]);
+
+  useEffect(() => {
+    async function loadClients() {
+      const res = await getClients();
+      if (res.data) setClientsList(res.data);
+    }
+    loadClients();
+  }, []);
 
   const [formData, setFormData] = useState<Partial<Shipment>>(initialData || {
     clientId: "",
@@ -61,7 +73,7 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
     dutyAmount: 0,
     customsStatus: "Pending",
     clearanceStatus: "Pending",
-    status: "Draft",
+    status: "Pending",
   });
 
   const updateField = (field: keyof Shipment, value: Shipment[keyof Shipment] | null) => {
@@ -69,6 +81,14 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
   };
 
   const handleNext = () => {
+    if (currentStep === 1 && !formData.clientId) {
+      toast({
+        title: "Validation Error",
+        description: "Please select a client before proceeding.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
   };
 
@@ -76,26 +96,44 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
-  const handleSubmit = () => {
-    if (isEditing && initialData) {
-      const index = mockShipmentsList.findIndex(s => s.id === initialData.id);
-      if (index !== -1) {
-        mockShipmentsList[index] = { ...mockShipmentsList[index], ...(formData as Shipment) };
-      }
-    } else {
-      mockShipmentsList.unshift({
-        ...(formData as Shipment),
-        id: `shp-${Math.random().toString(36).substr(2, 9)}`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+  const handleSubmit = async () => {
+    if (!formData.clientId) {
+      toast({
+        title: "Validation Error",
+        description: "Client selection is required.",
+        variant: "destructive",
       });
+      return;
     }
-    
-    toast({ 
-      title: isEditing ? "Shipment Updated" : "Shipment Created", 
-      description: isEditing ? "The shipment details have been successfully updated." : "A new shipment has been successfully created." 
+
+    setSubmitting(true);
+
+    let res;
+    if (isEditing && initialData?.id) {
+      res = await updateShipmentAction(initialData.id, formData);
+    } else {
+      res = await createShipmentAction(formData);
+    }
+
+    setSubmitting(false);
+
+    if (!res.success) {
+      toast({
+        title: isEditing ? "Failed to Update Shipment" : "Failed to Create Shipment",
+        description: res.error || "An unexpected error occurred.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: isEditing ? "Shipment Updated" : "Shipment Created",
+      description: isEditing
+        ? "The shipment has been successfully updated in Supabase."
+        : "A new shipment has been successfully recorded in Supabase.",
     });
-    router.push("/shipments");
+
+    router.push(isEditing && initialData?.id ? `/shipments/${initialData.id}` : "/shipments");
     router.refresh();
   };
 
@@ -174,16 +212,18 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                   <Select 
                     value={formData.clientId} 
                     onValueChange={(val) => {
-                      const client = mockClients.find(c => c.id === val);
+                      const client = clientsList.find(c => c.id === val);
                       updateField("clientId", val as string);
                       if (client) updateField("clientName", client.companyName);
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a client..." />
+                      <SelectValue placeholder="Select a client...">
+                        {formData.clientName || "Select a client..."}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {mockClients.map(c => (
+                      {clientsList.map(c => (
                         <SelectItem key={c.id} value={c.id}>{c.companyName}</SelectItem>
                       ))}
                     </SelectContent>
@@ -209,7 +249,7 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label>Shipment Number</Label>
-                  <Input value={formData.shipmentNumber} onChange={(e) => updateField("shipmentNumber", e.target.value)} />
+                  <Input value={formData.shipmentNumber} onChange={(e) => updateField("shipmentNumber", e.target.value)} placeholder="Auto-generated if left blank" />
                 </div>
                 <div className="space-y-2">
                   <Label>Container Number</Label>
@@ -297,6 +337,23 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={formData.status} onValueChange={(val) => updateField("status", val as Shipment["status"])}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Booked">Booked</SelectItem>
+                      <SelectItem value="Loaded">Loaded</SelectItem>
+                      <SelectItem value="In Transit">In Transit</SelectItem>
+                      <SelectItem value="Arrived">Arrived</SelectItem>
+                      <SelectItem value="Customs Clearance">Customs Clearance</SelectItem>
+                      <SelectItem value="Released">Released</SelectItem>
+                      <SelectItem value="Delivered">Delivered</SelectItem>
+                      <SelectItem value="Delayed">Delayed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             )}
 
@@ -328,7 +385,6 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                   <Label>Package Type</Label>
                   <Input value={formData.packageType} onChange={(e) => updateField("packageType", e.target.value)} placeholder="e.g. Pallets, Cartons, Crates" />
                 </div>
-                {/* Note: Product dynamic list omitted for brevity, usually a complex sub-form */}
               </div>
             )}
 
@@ -381,7 +437,7 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
                   <h4 className="font-semibold text-lg mb-4 text-foreground">Review Shipment Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
                     <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Client</span> <span className="font-medium text-base">{formData.clientName || "Not selected"}</span></div>
-                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Shipment No</span> <span className="font-medium text-base">{formData.shipmentNumber || "Not provided"}</span></div>
+                    <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Shipment No</span> <span className="font-medium text-base">{formData.shipmentNumber || "Auto-generated"}</span></div>
                     <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Route</span> <span className="font-medium text-base">{formData.loadingPort || "?"} → {formData.dischargePort || "?"}</span></div>
                     <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">ETA</span> <span className="font-medium text-base">{formData.eta || "Not provided"}</span></div>
                     <div className="flex flex-col gap-1"><span className="text-muted-foreground text-xs uppercase tracking-wider">Carrier</span> <span className="font-medium text-base">{formData.shippingLine || "Not provided"}</span></div>
@@ -407,7 +463,10 @@ export function ShipmentForm({ initialData }: ShipmentFormProps) {
               {currentStep < totalSteps ? (
                 <Button onClick={handleNext} className="shadow-sm">Next Step <FontAwesomeIcon icon={faChevronRight} className="ml-2 h-4 w-4" /></Button>
               ) : (
-                <Button onClick={handleSubmit} className="shadow-sm"><FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> {isEditing ? 'Save Changes' : 'Submit Shipment'}</Button>
+                <Button onClick={handleSubmit} disabled={submitting} className="shadow-sm">
+                  <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> 
+                  {submitting ? "Saving..." : isEditing ? "Save Changes" : "Submit Shipment"}
+                </Button>
               )}
             </div>
           </CardFooter>

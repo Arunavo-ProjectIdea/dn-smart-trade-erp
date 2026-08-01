@@ -1,7 +1,6 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { Database } from "@/types/database.types"
 import { Client } from "@/lib/mock-data/clients"
 import { mapClient, mapClientToInsert, mapClientToUpdate } from "./mappers"
 import { revalidatePath } from "next/cache"

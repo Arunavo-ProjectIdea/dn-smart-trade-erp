@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, Suspense } from "react"
+import { useState, useMemo, useEffect, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalculator, faRotate, faCircle, faGlobe, faCheck, faFileExcel } from "@fortawesome/free-solid-svg-icons";
@@ -24,16 +24,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { getHSCodes, HSCodeItem } from "@/app/(app)/boe/actions"
-import { useEffect } from "react"
+import { getHSCodes, type HSCodeRow } from "@/actions/hs-codes.actions"
 
 function DutyCalculatorInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialHsCode = searchParams?.get("hsCode") || ""
 
-  const [hsCodesList, setHsCodesList] = useState<HSCodeItem[]>([])
-  const [isLoadingCodes, setIsLoadingCodes] = useState<boolean>(true)
+  const [liveHSCodes, setLiveHSCodes] = useState<HSCodeRow[]>([])
+  const [codesLoading, setCodesLoading] = useState(true)
   const [selectedHsCodeStr, setSelectedHsCodeStr] = useState<string>(initialHsCode)
   const [assessableValue, setAssessableValue] = useState<string>("")
   const [quantity, setQuantity] = useState<string>("1")
@@ -42,14 +41,14 @@ function DutyCalculatorInner() {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    getHSCodes().then((res) => {
-      if (res.data) setHsCodesList(res.data)
-      setIsLoadingCodes(false)
+    getHSCodes({ page: 1, query: "" }).then(res => {
+      setLiveHSCodes(res.data)
+      setCodesLoading(false)
     })
   }, [])
-  
-  // Calculate whenever inputs change
-  const selectedCode = useMemo(() => hsCodesList.find(c => c.code === selectedHsCodeStr), [hsCodesList, selectedHsCodeStr])
+
+  // Find selected code from live data
+  const selectedCode = useMemo(() => liveHSCodes.find(c => c.hscode === selectedHsCodeStr), [liveHSCodes, selectedHsCodeStr])
 
   // Exact unchanged formula logic
   const results = useMemo(() => {
@@ -62,19 +61,19 @@ function DutyCalculatorInner() {
     const baseValueBDT = val * exRate * qty
     
     // Customs Duty = Base Value * CD Rate
-    const cdAmount = baseValueBDT * (selectedCode.cd / 100)
+    const cdAmount = baseValueBDT * ((selectedCode.cd ?? 0) / 100)
     
     // Supplementary Duty = (Base Value + CD) * SD Rate
-    const sdAmount = (baseValueBDT + cdAmount) * (selectedCode.sd / 100)
+    const sdAmount = (baseValueBDT + cdAmount) * ((selectedCode.sd ?? 0) / 100)
     
     // VAT = (Base Value + CD + SD) * VAT Rate
-    const vatAmount = (baseValueBDT + cdAmount + sdAmount) * (selectedCode.vat / 100)
+    const vatAmount = (baseValueBDT + cdAmount + sdAmount) * ((selectedCode.vat ?? 0) / 100)
     
     // AIT = Base Value * AIT Rate
-    const aitAmount = baseValueBDT * (selectedCode.ait / 100)
+    const aitAmount = baseValueBDT * ((selectedCode.ait ?? 0) / 100)
     
     // Regulatory Duty = Base Value * RD Rate
-    const rdAmount = baseValueBDT * (selectedCode.rd / 100)
+    const rdAmount = baseValueBDT * ((selectedCode.rd ?? 0) / 100)
     
     const totalTaxAmount = cdAmount + sdAmount + vatAmount + aitAmount + rdAmount
     const grandTotalAmount = baseValueBDT + totalTaxAmount
@@ -108,16 +107,16 @@ function DutyCalculatorInner() {
     if (!selectedCode || !results) return
     const text = `DUTY CALCULATOR REPORT
 -------------------------------
-HS Code: ${selectedCode.code} - ${selectedCode.name}
-Quantity: ${quantity} ${selectedCode.uom}
+HS Code: ${selectedCode.hscode} - ${selectedCode.tariff_description ?? selectedCode.hscode}
+Quantity: ${quantity}
 Assessable Value: ${assessableValue} ${currency} (Rate: ${exchangeRate})
 Base Landed Value: BDT ${results.baseValueBDT.toFixed(2)}
 -------------------------------
-Customs Duty (CD ${selectedCode.cd}%): BDT ${results.cdAmount.toFixed(2)}
-Supplementary Duty (SD ${selectedCode.sd}%): BDT ${results.sdAmount.toFixed(2)}
-VAT (${selectedCode.vat}%): BDT ${results.vatAmount.toFixed(2)}
-AIT (${selectedCode.ait}%): BDT ${results.aitAmount.toFixed(2)}
-Regulatory Duty (RD ${selectedCode.rd}%): BDT ${results.rdAmount.toFixed(2)}
+Customs Duty (CD ${selectedCode.cd ?? 0}%): BDT ${results.cdAmount.toFixed(2)}
+Supplementary Duty (SD ${selectedCode.sd ?? 0}%): BDT ${results.sdAmount.toFixed(2)}
+VAT (${selectedCode.vat ?? 0}%): BDT ${results.vatAmount.toFixed(2)}
+AIT (${selectedCode.ait ?? 0}%): BDT ${results.aitAmount.toFixed(2)}
+Regulatory Duty (RD ${selectedCode.rd ?? 0}%): BDT ${results.rdAmount.toFixed(2)}
 -------------------------------
 TOTAL TAXES: BDT ${results.totalTaxAmount.toFixed(2)}
 GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
@@ -180,18 +179,14 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                     <SelectValue placeholder="Search or select HS Code..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
-                    {isLoadingCodes ? (
-                      <div className="p-4 text-center text-xs text-muted-foreground">Loading HS codes from database...</div>
-                    ) : hsCodesList.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-muted-foreground">No HS codes found</div>
-                    ) : (
-                      hsCodesList.map((code) => (
-                        <SelectItem key={code.code} value={code.code} className="font-mono text-xs">
-                          <span className="font-bold text-primary mr-2">{code.code}</span>
-                          <span className="text-muted-foreground font-sans truncate">{code.name}</span>
-                        </SelectItem>
-                      ))
-                    )}
+                    {codesLoading ? (
+                      <SelectItem value="__loading" disabled>Loading HS Codes...</SelectItem>
+                    ) : liveHSCodes.map(code => (
+                      <SelectItem key={code.id} value={code.hscode} className="font-mono text-xs">
+                        <span className="font-bold text-primary mr-2">{code.hscode}</span>
+                        <span className="text-muted-foreground font-sans truncate">{code.tariff_description}</span>
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -208,28 +203,28 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-[10px] font-semibold text-primary uppercase tracking-wider">Selected Item</p>
-                        <p className="text-sm font-bold text-foreground leading-tight mt-0.5">{selectedCode.name}</p>
+                        <p className="text-sm font-bold text-foreground leading-tight mt-0.5">{selectedCode.tariff_description ?? selectedCode.hscode}</p>
                       </div>
                       <span className="text-xs font-mono font-medium bg-background px-2 py-0.5 rounded border border-border/60">
-                        UOM: {selectedCode.uom}
+                        TTI: {selectedCode.tti ?? 0}%
                       </span>
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       <span className="text-[10px] font-mono font-bold bg-slate-500/15 text-foreground px-2 py-0.5 rounded border border-border/40">
-                        CD: {selectedCode.cd}%
+                        CD: {selectedCode.cd ?? 0}%
                       </span>
                       <span className="text-[10px] font-mono font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded border border-amber-500/20">
-                        SD: {selectedCode.sd}%
+                        SD: {selectedCode.sd ?? 0}%
                       </span>
                       <span className="text-[10px] font-mono font-bold bg-blue-500/15 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded border border-blue-500/20">
-                        VAT: {selectedCode.vat}%
+                        VAT: {selectedCode.vat ?? 0}%
                       </span>
                       <span className="text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/20">
-                        AIT: {selectedCode.ait}%
+                        AIT: {selectedCode.ait ?? 0}%
                       </span>
                       <span className="text-[10px] font-mono font-bold bg-purple-500/15 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded border border-purple-500/20">
-                        RD: {selectedCode.rd}%
+                        RD: {selectedCode.rd ?? 0}%
                       </span>
                     </div>
                   </motion.div>

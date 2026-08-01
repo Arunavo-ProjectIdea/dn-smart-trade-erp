@@ -8,17 +8,12 @@ import { FormLayout } from "@/components/erp/form-layout"
 import { PageHeader } from "@/components/erp/page-header"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { mockEmployees } from "@/lib/mock-data/employees"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { getUserProfile } from "@/actions/auth.actions"
+import { getEmployeeById, updateEmployee } from "@/actions/employees.actions"
+import { Employee } from "@/types/employee"
 
 export default function EditEmployeePage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params)
@@ -28,57 +23,84 @@ export default function EditEmployeePage({ params }: { params: Promise<{ id: str
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userRole, setUserRole] = useState<string | null>(null)
 
-  // Client-side role protection
+  const [loading, setLoading] = useState(true)
+  const [employee, setEmployee] = useState<Employee | null>(null)
+  
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    department: "",
+    designation: "",
+    role: "",
+    status: "",
+    username: "",
+  })
+
+  // Client-side role protection and data fetching
   useEffect(() => {
-    getUserProfile().then((res) => {
+    async function init() {
+      const res = await getUserProfile()
       if (res.success && res.data) {
         setUserRole(res.data.role)
         if (res.data.role !== "Admin") {
           router.push("/dashboard")
+          return
         }
       }
-    })
-  }, [router])
+      
+      const empRes = await getEmployeeById(id)
+      if (empRes.success && empRes.data) {
+        const emp = empRes.data
+        setEmployee(emp)
+        setFormData({
+          fullName: emp.fullName,
+          email: emp.email,
+          phone: emp.phone,
+          department: emp.department,
+          designation: emp.designation || "",
+          role: emp.role,
+          status: emp.status,
+          username: emp.username,
+        })
+      } else {
+        toast({ title: "Error", description: empRes.error || "Failed to load employee.", variant: "destructive" })
+        router.push("/employees")
+      }
+      setLoading(false)
+    }
+    init()
+  }, [id])
 
-  const employee = mockEmployees.find((e) => e.id === id)
-
-  if (!employee) {
-    notFound()
-  }
-
-  const [formData, setFormData] = useState({
-    fullName: employee.fullName,
-    email: employee.email,
-    phone: employee.phone,
-    department: employee.department,
-    role: employee.role,
-    status: employee.status,
-    username: employee.username,
-  })
+  if (loading) return <div className="flex h-40 items-center justify-center">Loading...</div>
+  if (!employee) return notFound()
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Update mock data in place
-    const index = mockEmployees.findIndex((e) => e.id === id)
-    if (index !== -1) {
-      Object.assign(mockEmployees[index], formData)
-    }
-
-    setTimeout(() => {
-      setIsSubmitting(false)
+    const res = await updateEmployee(id, formData as any)
+    
+    setIsSubmitting(false)
+    
+    if (res.success) {
       toast({
         title: "Employee Updated",
         description: `${formData.fullName}'s profile has been updated.`,
       })
       router.push(`/employees/${id}`)
       router.refresh()
-    }, 600)
+    } else {
+      toast({
+        title: "Error",
+        description: res.error || "Failed to update employee.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleCancel = () => {
@@ -150,6 +172,16 @@ export default function EditEmployeePage({ params }: { params: Promise<{ id: str
                 <SelectItem value="IT & Systems">IT &amp; Systems</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="designation">Designation</Label>
+            <Input
+              id="designation"
+              value={formData.designation}
+              onChange={(e) => handleChange("designation", e.target.value)}
+              placeholder="e.g. Senior Logistics Manager"
+            />
           </div>
         </div>
 
