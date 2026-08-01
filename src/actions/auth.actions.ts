@@ -148,3 +148,50 @@ export async function updateUserProfile(updates: Partial<Profile>): Promise<Acti
 
   return { success: true }
 }
+
+export async function uploadAvatar(formData: FormData): Promise<ActionResponse<string>> {
+  const supabase = await createClient()
+
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  if (userError || !userData?.user) {
+    return { success: false, error: "Not authenticated" }
+  }
+
+  const file = formData.get("avatar") as File
+  if (!file || file.size === 0) {
+    return { success: false, error: "No file provided" }
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    return { success: false, error: "File exceeds 2MB limit" }
+  }
+
+  const ext = file.name.split(".").pop()
+  const path = `${userData.user.id}/avatar.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { upsert: true, contentType: file.type })
+
+  if (uploadError) {
+    return { success: false, error: uploadError.message }
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from("avatars")
+    .getPublicUrl(path)
+
+  const avatarUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+
+  const { error: updateError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: avatarUrl })
+    .eq("id", userData.user.id)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
+  }
+
+  revalidatePath("/profile")
+  return { success: true, data: avatarUrl }
+}

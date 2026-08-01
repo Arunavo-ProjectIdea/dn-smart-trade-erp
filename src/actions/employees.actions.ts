@@ -1,5 +1,6 @@
 "use server"
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
@@ -118,9 +119,6 @@ export async function createEmployee(data: any): Promise<{ success: boolean; err
     await new Promise(resolve => setTimeout(resolve, 500))
 
     // 2. Update the profile with remaining details
-    // We can use the standard client for this because of our new Admin RLS policy,
-    // OR we can just use the admin client again. The requirement states: 
-    // "Use the Supabase Admin API (service_role) ONLY for creating Auth users inside createEmployee(). Do not use service_role anywhere else."
     const supabase = await createClient()
     
     const { error: profileError } = await supabase
@@ -135,7 +133,6 @@ export async function createEmployee(data: any): Promise<{ success: boolean; err
       .eq('id', newUserId)
 
     if (profileError) {
-      // If profile update fails, we might want to log it, but the user is created.
       throw profileError
     }
 

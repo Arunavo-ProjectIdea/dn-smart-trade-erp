@@ -447,7 +447,7 @@ export default function ShipmentDetailsPage({ params }: { params: Promise<{ id: 
                   <div>
                     <h4 className="text-sm font-semibold mb-3">Linked Cargo Products ({shipment.products.length})</h4>
                     {shipment.products.length === 0 ? (
-                      <p className="text-sm text-muted-foreground italic py-2">No products added yet. Click "Add Product" above to record items.</p>
+                      <p className="text-sm text-muted-foreground italic py-2">No products added yet. Click &quot;Add Product&quot; above to record items.</p>
                     ) : (
                       <div className="divide-y border rounded-lg">
                         {shipment.products.map((p) => (

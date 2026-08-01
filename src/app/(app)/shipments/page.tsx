@@ -19,6 +19,29 @@ import { DataTable, ColumnDef } from "@/components/erp/data-table";
 import { getUserProfile } from "@/actions/auth.actions";
 import { getShipments, deleteShipmentAction } from "./actions";
 
+// Helper to parse port strings into City and Facility for a two-tiered display
+function parsePortName(port: string) {
+  if (!port) return { main: "-", sub: "" };
+  
+  const lower = port.toLowerCase();
+  
+  // Specific long strings from mock data
+  if (lower.includes("hazrat shahjalal")) {
+    return { main: "Dhaka, BD", sub: "Hazrat Shahjalal Int. Airport" };
+  }
+  if (lower.includes("kl international") || lower.includes("kuala lumpur")) {
+    return { main: "Kuala Lumpur, MY", sub: "KL International Airport" };
+  }
+  
+  // Generic splitting if comma exists
+  if (port.includes(",")) {
+    return { main: port, sub: "Port Facility" };
+  }
+
+  // Fallback
+  return { main: port, sub: "Terminal" };
+}
+
 function ShipmentsContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -138,23 +161,35 @@ function ShipmentsContent() {
       header: "Origin",
       accessorKey: "loadingPort",
       sortable: true,
-      cell: (item) => (
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <FontAwesomeIcon icon={faLocationDot} className="size-3.5" />{" "}
-          <span className="text-foreground font-medium">{item.loadingPort}</span>
-        </div>
-      ),
+      cell: (item) => {
+        const port = parsePortName(item.loadingPort);
+        return (
+          <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+            <FontAwesomeIcon icon={faLocationDot} className="size-3.5 mt-0.5" />
+            <div className="flex flex-col">
+              <span className="text-foreground font-medium">{port.main}</span>
+              <span className="text-[11px] leading-tight text-muted-foreground max-w-[150px] truncate">{port.sub}</span>
+            </div>
+          </div>
+        );
+      },
     },
     {
       header: "Destination",
       accessorKey: "dischargePort",
       sortable: true,
-      cell: (item) => (
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <FontAwesomeIcon icon={faLocationDot} className="size-3.5" />{" "}
-          <span className="text-foreground font-medium">{item.dischargePort}</span>
-        </div>
-      ),
+      cell: (item) => {
+        const port = parsePortName(item.dischargePort);
+        return (
+          <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+            <FontAwesomeIcon icon={faLocationDot} className="size-3.5 mt-0.5" />
+            <div className="flex flex-col">
+              <span className="text-foreground font-medium">{port.main}</span>
+              <span className="text-[11px] leading-tight text-muted-foreground max-w-[150px] truncate">{port.sub}</span>
+            </div>
+          </div>
+        );
+      },
     },
     {
       header: "ETA",
@@ -175,10 +210,7 @@ function ShipmentsContent() {
     {
       header: "Manage",
       cell: (item) => (
-        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[200px]">
-          <Link href={`/shipments/${item.id}`} className={buttonVariants({ variant: "ghost", size: "xs" })}>
-            View
-          </Link>
+        <div className="flex h-full items-center justify-center gap-2 whitespace-nowrap flex-nowrap w-[130px]">
           {userRole !== "Client" && (
             <>
               <Link href={`/shipments/${item.id}/edit`} className={buttonVariants({ variant: "outline", size: "xs" })}>
@@ -346,16 +378,22 @@ function ShipmentsContent() {
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Origin</span>
-                            <div className="flex items-center gap-2 font-medium">
-                              <FontAwesomeIcon icon={faLocationDot} className="size-3.5 text-muted-foreground" />
-                              <span className="truncate">{shipment.loadingPort}</span>
+                            <div className="flex items-start gap-2 font-medium">
+                              <FontAwesomeIcon icon={faLocationDot} className="size-3.5 text-muted-foreground mt-0.5" />
+                              <div className="flex flex-col">
+                                <span className="text-foreground">{parsePortName(shipment.loadingPort).main}</span>
+                                <span className="text-[11px] text-muted-foreground font-normal leading-tight truncate">{parsePortName(shipment.loadingPort).sub}</span>
+                              </div>
                             </div>
                           </div>
                           <div className="space-y-1">
                             <span className="text-xs text-muted-foreground uppercase font-semibold tracking-wider">Destination</span>
-                            <div className="flex items-center gap-2 font-medium">
-                              <FontAwesomeIcon icon={faLocationDot} className="size-3.5 text-muted-foreground" />
-                              <span className="truncate">{shipment.dischargePort}</span>
+                            <div className="flex items-start gap-2 font-medium">
+                              <FontAwesomeIcon icon={faLocationDot} className="size-3.5 text-muted-foreground mt-0.5" />
+                              <div className="flex flex-col">
+                                <span className="text-foreground">{parsePortName(shipment.dischargePort).main}</span>
+                                <span className="text-[11px] text-muted-foreground font-normal leading-tight truncate">{parsePortName(shipment.dischargePort).sub}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
