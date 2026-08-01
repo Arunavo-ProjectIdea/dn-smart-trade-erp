@@ -4,12 +4,24 @@ import { use, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { BillOfEntry, BOEProduct } from "@/lib/types/boe";
-import { getBOEById, deleteBOE, createBOEProduct, updateBOEProduct, deleteBOEProduct } from "@/app/(app)/boe/actions";
+import {
+  getBOEById,
+  deleteBOE,
+  createBOEProduct,
+  updateBOEProduct,
+  deleteBOEProduct,
+  getHSCodes,
+  calculateDuty,
+  updateCalculatedAmounts,
+  HSCodeItem,
+  DutyCalculationResult,
+} from "@/app/(app)/boe/actions";
 import { getUserProfile } from "@/actions/auth.actions";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,6 +37,7 @@ import {
   faTrash,
   faPlus,
   faTimes,
+  faCalculator,
 } from "@fortawesome/free-solid-svg-icons";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/erp/data-table";
@@ -43,6 +56,9 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // HS Codes reference list
+  const [hsCodesList, setHsCodesList] = useState<HSCodeItem[]>([]);
+
   // Product CRUD states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<BOEProduct | null>(null);
@@ -55,6 +71,10 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
   const [prodUnit, setProdUnit] = useState("Pieces");
   const [prodDeclaredVal, setProdDeclaredVal] = useState<number>(100);
   const [prodCurrency, setProdCurrency] = useState("USD");
+
+  // Dynamic calculation preview state
+  const [dutyPreview, setDutyPreview] = useState<DutyCalculationResult | null>(null);
+  const [isRecalculating, setIsRecalculating] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -73,7 +93,9 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
     getUserProfile().then((res) => {
       if (res.success && res.data?.role) setUserRole(res.data.role as string);
     });
-
+    getHSCodes().then((res) => {
+      if (res.data) setHsCodesList(res.data);
+    });
     getBOEById(resolvedParams.id).then((res) => {
       if (res.error || !res.data) {
         setErrorMessage(res.error || "Bill of Entry not found.");
@@ -84,6 +106,28 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
       setIsLoading(false);
     });
   }, [resolvedParams.id]);
+
+  // Recalculate duty preview when form values change in modal
+  useEffect(() => {
+    let isCancelled = false;
+
+    if (prodHsCode && prodQty > 0 && prodDeclaredVal > 0) {
+      calculateDuty({
+        hsCode: prodHsCode,
+        quantity: prodQty,
+        unitPrice: prodDeclaredVal / (prodQty || 1),
+        currency: prodCurrency,
+      }).then((res) => {
+        if (!isCancelled) {
+          setDutyPreview(res.success && res.data ? res.data : null);
+        }
+      });
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [prodHsCode, prodQty, prodDeclaredVal, prodCurrency]);
 
   const handleDeleteBOE = async () => {
     if (!boe) return;
@@ -115,6 +159,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
     setProdDeclaredVal(100);
     setProdCurrency("USD");
     setProductError(null);
+    setDutyPreview(null);
     setIsAddModalOpen(true);
   };
 
@@ -127,6 +172,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
     setProdDeclaredVal(product.declaredValue);
     setProdCurrency(product.currency);
     setProductError(null);
+    setDutyPreview(null);
     setIsAddModalOpen(true);
   };
 
@@ -206,6 +252,70 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         });
         loadData();
       }
+    }
+  };
+
+  // Recalculate duties for all products on BOE
+  const handleRecalculateBOEDuties = async () => {
+    if (!boe) return;
+    setIsRecalculating(true);
+
+    try {
+      let totalCD = 0;
+      let totalVAT = 0;
+      let totalAIT = 0;
+
+      for (const prod of boe.products) {
+        if (prod.hsCode && prod.hsCode !== "N/A") {
+          const res = await calculateDuty({
+            hsCode: prod.hsCode,
+            quantity: prod.quantity,
+            unitPrice: prod.declaredValue / (prod.quantity || 1),
+            currency: prod.currency,
+          });
+          if (res.success && res.data) {
+            totalCD += res.data.cdAmount;
+            totalVAT += res.data.vatAmount;
+            totalAIT += res.data.aitAmount;
+          }
+        }
+      }
+
+      const totalAT = (totalCD + totalVAT) * 0.05;
+      const totalOther = 500; // Standard processing charge
+      const grandTotal = totalCD + totalVAT + totalAIT + totalAT + totalOther;
+
+      const updateRes = await updateCalculatedAmounts(boe.id, {
+        importDuty: totalCD,
+        vat: totalVAT,
+        ait: totalAIT,
+        at: totalAT,
+        otherCharges: totalOther,
+        grandTotal: grandTotal,
+      });
+
+      if (!updateRes.success) {
+        toast({
+          variant: "destructive",
+          title: "Recalculation Failed",
+          description: updateRes.error || "Failed to update duties.",
+        });
+      } else {
+        toast({
+          title: "Duties Recalculated",
+          description: "BOE Duty calculations updated successfully in database.",
+        });
+        loadData();
+      }
+    } catch (err) {
+      console.error("Error recalculating BOE duties:", err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred during recalculation.",
+      });
+    } finally {
+      setIsRecalculating(false);
     }
   };
 
@@ -409,7 +519,9 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
                             {product.productName}
                           </div>
                         </TableCell>
-                        <TableCell>{product.hsCode}</TableCell>
+                        <TableCell>
+                          <span className="font-mono bg-muted px-2 py-0.5 rounded text-xs">{product.hsCode}</span>
+                        </TableCell>
                         <TableCell className="text-right">
                           {product.quantity.toLocaleString()} {product.unit}
                         </TableCell>
@@ -445,9 +557,17 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         {/* Duties Tab */}
         <TabsContent value="duties" className="mt-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Duty Calculation Breakdown</CardTitle>
-              <CardDescription>Detailed breakdown of applicable taxes and duties.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Duty Calculation Breakdown</CardTitle>
+                <CardDescription>Detailed breakdown of applicable taxes and duties.</CardDescription>
+              </div>
+              {userRole !== "Client" && (
+                <Button size="sm" variant="outline" onClick={handleRecalculateBOEDuties} disabled={isRecalculating}>
+                  <FontAwesomeIcon icon={faCalculator} className="mr-2 h-4 w-4 text-primary" />
+                  {isRecalculating ? "Calculating..." : "Recalculate & Save Duties"}
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-4 max-w-2xl">
@@ -568,14 +688,36 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="prodHsCode">HS Code</Label>
-                <Input
-                  id="prodHsCode"
-                  value={prodHsCode}
-                  onChange={(e) => setProdHsCode(e.target.value)}
-                  placeholder="e.g. 8452.29.00"
-                />
+                <Label htmlFor="prodHsCode">HS Code (Supabase Reference)</Label>
+                <Select value={prodHsCode} onValueChange={(val) => setProdHsCode(val || "")}>
+                  <SelectTrigger id="prodHsCode" className="h-10 font-mono text-sm">
+                    <SelectValue placeholder="Select HS Code..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {hsCodesList.map((code) => (
+                      <SelectItem key={code.code} value={code.code} className="font-mono text-xs">
+                        <span className="font-bold text-primary mr-2">{code.code}</span>
+                        <span className="text-muted-foreground font-sans truncate">{code.name}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
+
+              {/* Duty Calculation Preview inside Modal */}
+              {dutyPreview && (
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-md text-xs space-y-1">
+                  <div className="flex justify-between font-semibold text-primary">
+                    <span>Tax Assessment Preview</span>
+                    <span>{formatCurrency(dutyPreview.grandTotalAmount)}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 pt-1 text-[11px] text-muted-foreground">
+                    <div>CD: {formatCurrency(dutyPreview.cdAmount)}</div>
+                    <div>VAT: {formatCurrency(dutyPreview.vatAmount)}</div>
+                    <div>AIT: {formatCurrency(dutyPreview.aitAmount)}</div>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">

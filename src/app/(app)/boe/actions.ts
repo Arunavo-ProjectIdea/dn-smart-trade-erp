@@ -657,3 +657,201 @@ export async function deleteBOEProduct(id: string, boeId: string): Promise<{ suc
     return { success: false, error: err instanceof Error ? err.message : "Failed to delete BOE product" }
   }
 }
+
+export interface HSCodeItem {
+  id: string
+  code: string
+  name: string
+  description: string | null
+  category: string
+  uom: string
+  cd: number
+  sd: number
+  vat: number
+  ait: number
+  rd: number
+}
+
+export interface DutyCalculationResult {
+  baseValueBDT: number
+  cdAmount: number
+  sdAmount: number
+  vatAmount: number
+  aitAmount: number
+  rdAmount: number
+  totalTaxAmount: number
+  grandTotalAmount: number
+}
+
+let hsCodesCache: HSCodeItem[] | null = null
+let hsCodesCacheTime = 0
+const CACHE_TTL_MS = 60 * 1000
+
+export async function getHSCodes(searchQuery?: string): Promise<{ data: HSCodeItem[] | null; error: string | null }> {
+  try {
+    const now = Date.now()
+    let codes = hsCodesCache
+
+    if (!codes || now - hsCodesCacheTime > CACHE_TTL_MS) {
+      const supabase = await createClient()
+      const { data, error } = await supabase
+        .from("hs_codes")
+        .select("id, code, name, description, category, uom, cd, sd, vat, ait, rd")
+        .order("code", { ascending: true })
+
+      if (error) {
+        console.error("Error fetching HS Codes from Supabase:", error)
+        return { data: null, error: error.message }
+      }
+
+      codes = (data || []).map((row) => ({
+        id: row.id,
+        code: row.code,
+        name: row.name,
+        description: row.description,
+        category: row.category,
+        uom: row.uom || "Pieces",
+        cd: Number(row.cd) || 0,
+        sd: Number(row.sd) || 0,
+        vat: Number(row.vat) || 0,
+        ait: Number(row.ait) || 0,
+        rd: Number(row.rd) || 0,
+      }))
+
+      hsCodesCache = codes
+      hsCodesCacheTime = now
+    }
+
+    if (searchQuery && searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase()
+      const filtered = codes.filter(
+        (c) =>
+          c.code.toLowerCase().includes(q) ||
+          c.name.toLowerCase().includes(q) ||
+          (c.description && c.description.toLowerCase().includes(q)) ||
+          c.category.toLowerCase().includes(q)
+      )
+      return { data: filtered, error: null }
+    }
+
+    return { data: codes, error: null }
+  } catch (err) {
+    console.error("Unexpected error in getHSCodes action:", err)
+    return { data: null, error: err instanceof Error ? err.message : "Failed to load HS Codes" }
+  }
+}
+
+export async function calculateDuty(payload: {
+  hsCode: string
+  quantity: number
+  unitPrice: number
+  currency?: string
+  exchangeRate?: number
+}): Promise<{ success: boolean; data?: DutyCalculationResult; error?: string }> {
+  try {
+    const { hsCode, quantity, unitPrice, currency = "USD", exchangeRate = 120 } = payload
+
+    if (!hsCode || !hsCode.trim()) {
+      return { success: false, error: "HS Code is required for duty calculation." }
+    }
+    if (quantity <= 0) {
+      return { success: false, error: "Quantity must be greater than 0." }
+    }
+    if (unitPrice <= 0) {
+      return { success: false, error: "Unit Price must be greater than 0." }
+    }
+
+    const { data: hsCodesRes, error: hsError } = await getHSCodes(hsCode.trim())
+    if (hsError || !hsCodesRes || hsCodesRes.length === 0) {
+      return { success: false, error: `Valid HS Code '${hsCode}' not found in database.` }
+    }
+
+    const selectedCode = hsCodesRes.find((c) => c.code === hsCode.trim()) || hsCodesRes[0]
+
+    const rate = currency === "USD" ? (exchangeRate > 0 ? exchangeRate : 120) : 1
+    const baseValueBDT = quantity * unitPrice * rate
+
+    const cdAmount = baseValueBDT * (selectedCode.cd / 100)
+    const sdAmount = (baseValueBDT + cdAmount) * (selectedCode.sd / 100)
+    const vatAmount = (baseValueBDT + cdAmount + sdAmount) * (selectedCode.vat / 100)
+    const aitAmount = baseValueBDT * (selectedCode.ait / 100)
+    const rdAmount = baseValueBDT * (selectedCode.rd / 100)
+
+    const totalTaxAmount = cdAmount + sdAmount + vatAmount + aitAmount + rdAmount
+    const grandTotalAmount = baseValueBDT + totalTaxAmount
+
+    return {
+      success: true,
+      data: {
+        baseValueBDT,
+        cdAmount,
+        sdAmount,
+        vatAmount,
+        aitAmount,
+        rdAmount,
+        totalTaxAmount,
+        grandTotalAmount,
+      },
+    }
+  } catch (err) {
+    console.error("Unexpected error in calculateDuty action:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Calculation failed." }
+  }
+}
+
+export async function updateCalculatedAmounts(
+  boeId: string,
+  duties: {
+    importDuty: number
+    vat: number
+    ait: number
+    at: number
+    otherCharges: number
+    grandTotal: number
+  }
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can update calculated BOE duties." }
+    }
+
+    const { error: updateError } = await supabase
+      .from("bills_of_entry")
+      .update({
+        duties_import_duty: duties.importDuty,
+        duties_vat: duties.vat,
+        duties_ait: duties.ait,
+        duties_at: duties.at,
+        duties_other_charges: duties.otherCharges,
+        duties_grand_total: duties.grandTotal,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", boeId)
+
+    if (updateError) {
+      console.error("Error updating calculated amounts in Supabase:", updateError)
+      return { success: false, error: updateError.message }
+    }
+
+    revalidatePath(`/boe/${boeId}`)
+    revalidatePath("/boe")
+
+    return { success: true }
+  } catch (err) {
+    console.error("Unexpected error in updateCalculatedAmounts action:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to update calculated duty amounts." }
+  }
+}

@@ -24,22 +24,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { mockHSCodes } from "@/lib/mock-data/hs-codes"
+import { getHSCodes, HSCodeItem } from "@/app/(app)/boe/actions"
+import { useEffect } from "react"
 
 function DutyCalculatorInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialHsCode = searchParams?.get("hsCode") || ""
 
+  const [hsCodesList, setHsCodesList] = useState<HSCodeItem[]>([])
+  const [isLoadingCodes, setIsLoadingCodes] = useState<boolean>(true)
   const [selectedHsCodeStr, setSelectedHsCodeStr] = useState<string>(initialHsCode)
   const [assessableValue, setAssessableValue] = useState<string>("")
   const [quantity, setQuantity] = useState<string>("1")
   const [currency, setCurrency] = useState<"BDT" | "USD">("USD")
   const [exchangeRate, setExchangeRate] = useState<string>("120.00")
   const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    getHSCodes().then((res) => {
+      if (res.data) setHsCodesList(res.data)
+      setIsLoadingCodes(false)
+    })
+  }, [])
   
   // Calculate whenever inputs change
-  const selectedCode = useMemo(() => mockHSCodes.find(c => c.code === selectedHsCodeStr), [selectedHsCodeStr])
+  const selectedCode = useMemo(() => hsCodesList.find(c => c.code === selectedHsCodeStr), [hsCodesList, selectedHsCodeStr])
 
   // Exact unchanged formula logic
   const results = useMemo(() => {
@@ -170,12 +180,18 @@ GRAND TOTAL: BDT ${results.grandTotalAmount.toFixed(2)}`
                     <SelectValue placeholder="Search or select HS Code..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-72">
-                    {mockHSCodes.map(code => (
-                      <SelectItem key={code.code} value={code.code} className="font-mono text-xs">
-                        <span className="font-bold text-primary mr-2">{code.code}</span>
-                        <span className="text-muted-foreground font-sans truncate">{code.name}</span>
-                      </SelectItem>
-                    ))}
+                    {isLoadingCodes ? (
+                      <div className="p-4 text-center text-xs text-muted-foreground">Loading HS codes from database...</div>
+                    ) : hsCodesList.length === 0 ? (
+                      <div className="p-4 text-center text-xs text-muted-foreground">No HS codes found</div>
+                    ) : (
+                      hsCodesList.map((code) => (
+                        <SelectItem key={code.code} value={code.code} className="font-mono text-xs">
+                          <span className="font-bold text-primary mr-2">{code.code}</span>
+                          <span className="text-muted-foreground font-sans truncate">{code.name}</span>
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
