@@ -42,7 +42,7 @@ export async function getHSCodeAutocomplete(query: string, limit = 5): Promise<A
   const trimmed = query.trim()
   const pattern = `%${trimmed}%`
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data, error } = await (supabase as any)
     .from("hs_codes")
     .select("hscode, tariff_description")
@@ -69,7 +69,7 @@ export async function findHSCodesWithAI(query: string, limit = 5): Promise<AISea
   const { searchTerm, matchedKeyword, matchedCategory } = expandTradeSynonym(trimmed)
 
   // 2. Call Supabase RPC
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let { data: rpcData, error: rpcError } = await (supabase as any).rpc("match_hs_codes_ai", {
     search_term: searchTerm,
     match_limit: limit,
@@ -77,7 +77,7 @@ export async function findHSCodesWithAI(query: string, limit = 5): Promise<AISea
 
   // Fallback to direct ILIKE query if RPC returns empty or fails
   if (rpcError || !rpcData || rpcData.length === 0) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const { data: fallbackData } = await (supabase as any)
       .from("hs_codes")
       .select("id, hscode, tariff_description, category, cd, sd, vat, ait, at, rd, tti")

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faArrowLeft, faDownload, faCheck, faXmark, faCircle, faFileLines, faCalendar, faUser, faBuilding, faBox, faClock, faChevronRight } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faDownload, faCheck, faXmark, faCircle, faFileLines, faCalendar, faUser, faBuilding, faBox, faClock, faChevronRight, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faRotateRight, faExpand, faCompress } from "@fortawesome/free-solid-svg-icons"
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -134,7 +134,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
       }
     } else {
       // Use the updateDocumentStatus action for Approve/Reject
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const res = await updateDocumentStatus(documentItem.id, newStatus as any)
       if (res.success) {
         setStatus(newStatus)
@@ -211,7 +211,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
           Documents
         </Link>
         <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
-        <span className="text-foreground font-medium">{documentItem.id}</span>
+        <span className="text-foreground font-medium" title={documentItem.id}>{documentItem.id.substring(0, 8)}...</span>
       </div>
 
       {/* Top Banner */}
@@ -237,7 +237,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
               )}
             </div>
             <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm flex-wrap">
-              <span className="font-mono" title="Document ID">Doc ID: {documentItem.id}</span>
+              <span className="font-mono" title={`Document ID: ${documentItem.id}`}>Doc ID: {documentItem.id.substring(0, 8)}...</span>
               {documentItem.shipmentId && (
                 <>
                   <span>•</span>
@@ -333,7 +333,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   onClick={handleZoomOut}
                   title="Zoom Out"
                 >
-                  <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />
+                  <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="h-3.5 w-3.5" />
                 </Button>
                 <span className="text-xs font-mono px-2 text-muted-foreground min-w-[42px] text-center">
                   {zoomLevel}%
@@ -345,7 +345,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   onClick={handleZoomIn}
                   title="Zoom In"
                 >
-                  <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />
+                  <FontAwesomeIcon icon={faMagnifyingGlassPlus} className="h-3.5 w-3.5" />
                 </Button>
                 <div className="h-4 w-px bg-border my-auto mx-1" />
                 <Button 
@@ -355,7 +355,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   onClick={handleRotate}
                   title="Rotate 90°"
                 >
-                  <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />
+                  <FontAwesomeIcon icon={faRotateRight} className="h-3.5 w-3.5" />
                 </Button>
                 <Button 
                   variant="ghost" 
@@ -364,7 +364,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   onClick={toggleFullscreen}
                   title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
                 >
-                  {isFullscreen ? <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" /> : <FontAwesomeIcon icon={faCircle} className="h-3.5 w-3.5" />}
+                  {isFullscreen ? <FontAwesomeIcon icon={faCompress} className="h-3.5 w-3.5" /> : <FontAwesomeIcon icon={faExpand} className="h-3.5 w-3.5" />}
                 </Button>
               </div>
             </CardHeader>
@@ -419,7 +419,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                         <p className="text-[10px] text-muted-foreground">Official Trade Document Repository</p>
                       </div>
                     </div>
-                    <span className="text-xs font-mono text-muted-foreground">{documentItem.id}</span>
+                    <span className="text-xs font-mono text-muted-foreground" title={documentItem.id}>{documentItem.id.substring(0, 8)}...</span>
                   </div>
 
                   <div className="space-y-1">

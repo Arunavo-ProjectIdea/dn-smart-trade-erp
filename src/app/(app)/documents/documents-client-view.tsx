@@ -309,13 +309,6 @@ export function DocumentsClientView({ initialDocuments }: DocumentsClientViewPro
           >
             Preview
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => handleDownload(item)}
-          >
-            Download
-          </Button>
           {userRole !== "Client" && item.status === "Archived" ? (
             <>
               <Button variant="ghost" size="sm" onClick={() => handleRestore(item.id)} disabled={isDeleting}>Restore</Button>
@@ -578,13 +571,6 @@ export function DocumentsClientView({ initialDocuments }: DocumentsClientViewPro
                     >
                       View
                     </Link>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload(doc)}
-                    >
-                      Download
-                    </Button>
                     {userRole !== "Client" && doc.status === "Archived" ? (
                       <>
                         <Button

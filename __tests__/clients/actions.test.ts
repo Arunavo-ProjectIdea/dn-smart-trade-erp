@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createClientAction, getClients, getClientById, updateClientAction, deactivateClientAction } from '@/app/(app)/clients/actions'
 import * as supabaseServer from '@/lib/supabase/server'

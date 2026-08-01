@@ -736,7 +736,7 @@ export default function HSCodesPage() {
     getHSCodeStats().then(setStats)
   }, [])
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useEffect(() => {
     fetchData(currentPage)
   }, [fetchData, currentPage])

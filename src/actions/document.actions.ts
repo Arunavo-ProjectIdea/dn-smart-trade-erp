@@ -101,7 +101,7 @@ export async function createDocument(formData: {
       file_type: formData.file_type,
       file_size: formData.file_size,
       expiry_date: formData.expiry_date || null
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any)
     .select()
     .single()
@@ -332,7 +332,7 @@ export async function updateDocument(id: string, formData: {
       ...(formData.type && { type: formData.type }),
       ...(formData.expiry_date !== undefined && { expiry_date: formData.expiry_date || null }),
       last_modified: new Date().toISOString()
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
     } as any)
     .eq("id", id)
 
