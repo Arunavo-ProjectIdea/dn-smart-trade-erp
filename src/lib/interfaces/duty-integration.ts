@@ -1,4 +1,4 @@
-import { HSCode } from "../mock-data/hs-codes"
+import { HSCodeRow } from "@/actions/hs-codes.actions"
 
 export interface CalculationInput {
   hsCodeId: string
@@ -10,7 +10,7 @@ export interface CalculationInput {
 
 export interface DutyCalculationResult {
   input: CalculationInput
-  hsCode: HSCode
+  hsCode: HSCodeRow
   baseValueBDT: number
   customsDutyAmount: number
   supplementaryDutyAmount: number
@@ -37,6 +37,6 @@ export interface BOEIntegrationPayload {
  */
 export interface AIAssistantContextPayload {
   contextType: "DUTY_CALCULATION" | "HS_CODE_LOOKUP"
-  hsCode: HSCode
+  hsCode: HSCodeRow
   calculationResult?: DutyCalculationResult
 }
