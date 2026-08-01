@@ -31,14 +31,14 @@ function DutyCalculatorInner() {
   const searchParams = useSearchParams()
   const initialHsCode = searchParams?.get("hsCode") || ""
 
-  const [liveHSCodes, setLiveHSCodes] = useState<HSCodeRow[]>([])
-  const [codesLoading, setCodesLoading] = useState(true)
   const [selectedHsCodeStr, setSelectedHsCodeStr] = useState<string>(initialHsCode)
   const [assessableValue, setAssessableValue] = useState<string>("")
   const [quantity, setQuantity] = useState<string>("1")
   const [currency, setCurrency] = useState<"BDT" | "USD">("USD")
   const [exchangeRate, setExchangeRate] = useState<string>("120.00")
   const [copied, setCopied] = useState(false)
+  const [liveHSCodes, setLiveHSCodes] = useState<HSCodeRow[]>([])
+  const [codesLoading, setCodesLoading] = useState(true)
 
   useEffect(() => {
     getHSCodes({ page: 1, query: "" }).then(res => {
