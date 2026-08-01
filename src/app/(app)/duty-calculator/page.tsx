@@ -160,7 +160,7 @@ function DutyCalculatorInner() {
       )
       return [...filtered, entry].slice(-MAX_HISTORY)
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [results])
 
   // ── Debounced AI search ────────────────────────────────────────────────────

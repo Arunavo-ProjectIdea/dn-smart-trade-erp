@@ -27,9 +27,10 @@ export interface FilterState {
 
 interface FilterPanelProps {
   onApply?: (filters: FilterState) => void
+  onExport?: (type: "PDF" | "Excel") => void
 }
 
-export function FilterPanel({ onApply }: FilterPanelProps) {
+export function FilterPanel({ onApply, onExport }: FilterPanelProps) {
   const { toast } = useToast()
   
   // Filter states
@@ -42,8 +43,12 @@ export function FilterPanel({ onApply }: FilterPanelProps) {
   
   const [showMore, setShowMore] = useState(false)
 
-  const handleExport = (type: string) => {
-    toast({ title: "Export Started", description: `Successfully generated ${type} report! Download starting...` })
+  const handleExport = (type: "PDF" | "Excel") => {
+    if (onExport) {
+      onExport(type)
+    } else {
+      toast({ title: "Export Started", description: `Successfully generated ${type} report! Download starting...` })
+    }
   }
 
   const handleApply = () => {

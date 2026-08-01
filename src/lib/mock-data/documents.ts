@@ -8,6 +8,7 @@ export interface DocumentActivity {
   action: string
   actor: string
   date: string
+  details?: string
 }
 
 export interface DocumentVersion {
@@ -28,11 +29,13 @@ export interface Document {
   clientId: string
   clientName: string
   shipmentId: string
+  shipmentRef?: string
   uploadedBy: string
   uploadDate: string
   lastModified: string
   fileSize: string
   status: DocumentStatus
+  expiryDate?: string
   description: string
   version: string
   tags: string[]
