@@ -11,13 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatusBadge } from "@/components/erp/status-badge"
 import { useToast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
 import { Database } from "@/types/database.types"
-import { Document, DocumentStatus, DocumentActivity, DocumentVersion, DocumentCategory } from "@/lib/mock-data/documents"
+import { Document, DocumentStatus, DocumentCategory } from "@/lib/mock-data/documents"
 import { archiveDocument, updateDocumentStatus, updateDocument, downloadDocument, replaceDocumentFile } from "@/actions/document.actions"
 import { createClient } from "@/lib/supabase/client"
 
@@ -28,21 +29,23 @@ interface DocumentDetailsClientProps {
 export function DocumentDetailsClient({ document: initialDocument }: DocumentDetailsClientProps) {
   const { toast } = useToast()
   
-  // Note: we're using initialDocument as our source of truth. 
-  // In a real app we'd refresh this from the server after mutation.
+  const [prevDocument, setPrevDocument] = useState<Document>(initialDocument)
   const [documentItem, setDocumentItem] = useState<Document>(initialDocument)
-  const [status, setStatus] = useState<DocumentStatus>(documentItem.status)
-  const [activities, setActivities] = useState<DocumentActivity[]>(documentItem.activities)
-  const [versions, setVersions] = useState<DocumentVersion[]>(documentItem.versions || [])
-  const [isUpdating, setIsUpdating] = useState<string | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [status, setStatus] = useState<DocumentStatus>(initialDocument.status)
   
-  useEffect(() => {
+  // React recommended pattern: Adjusting state when a prop changes during render
+  // This avoids the ESLint set-state-in-effect cascading render warning.
+  if (initialDocument !== prevDocument) {
+    setPrevDocument(initialDocument)
     setDocumentItem(initialDocument)
     setStatus(initialDocument.status)
-    setActivities(initialDocument.activities)
-    setVersions(initialDocument.versions || [])
-  }, [initialDocument])
+  }
+
+  // Derived state (no need for useState)
+  const activities = documentItem.activities || []
+
+  const [isUpdating, setIsUpdating] = useState<string | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   useEffect(() => {
     // Fetch preview URL if document has a file
@@ -62,7 +65,8 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
     name: documentItem.name,
     category: documentItem.category,
     type: documentItem.type,
-    description: documentItem.description
+    description: documentItem.description,
+    expiryDate: documentItem.expiryDate || ""
   })
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -73,7 +77,8 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
       name: editForm.name,
       category: editForm.category as Database["public"]["Enums"]["document_category"],
       type: editForm.type,
-      description: editForm.description
+      description: editForm.description,
+      expiry_date: editForm.expiryDate || undefined
     })
 
     if (res.success) {
@@ -83,6 +88,7 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
         category: editForm.category,
         type: editForm.type,
         description: editForm.description,
+        expiryDate: editForm.expiryDate || undefined,
         lastModified: new Date().toISOString().split('T')[0]
       }))
       
@@ -178,6 +184,25 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
   const handleRotate = () => setRotation(prev => (prev + 90) % 360)
   const toggleFullscreen = () => setIsFullscreen(prev => !prev)
 
+  const getExpiryStatus = () => {
+    if (!documentItem.expiryDate) return null;
+    
+    const expiry = new Date(documentItem.expiryDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for accurate date comparison
+    
+    const diffTime = Math.abs(expiry.getTime() - today.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    if (expiry < today) {
+      return { label: "Expired", color: "bg-red-500/10 text-red-700 border-red-200" };
+    } else if (diffDays <= 30) {
+      return { label: "Expiring Soon", color: "bg-amber-500/10 text-amber-700 border-amber-200" };
+    }
+    return { label: "Valid", color: "bg-emerald-500/10 text-emerald-700 border-emerald-200" };
+  }
+  const expiryStatus = getExpiryStatus();
+
   return (
     <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       {/* Breadcrumb Header */}
@@ -205,9 +230,20 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                 {documentItem.version || "v1.0"}
               </Badge>
               <StatusBadge status={status} />
+              {expiryStatus && (
+                <Badge variant="outline" className={`font-semibold ${expiryStatus.color}`}>
+                  {expiryStatus.label}
+                </Badge>
+              )}
             </div>
-            <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm">
-              <span className="font-mono">{documentItem.id}</span>
+            <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm flex-wrap">
+              <span className="font-mono" title="Document ID">Doc ID: {documentItem.id}</span>
+              {documentItem.shipmentId && (
+                <>
+                  <span>•</span>
+                  <span className="font-mono text-primary" title="Shipment ID">Shipment: {documentItem.shipmentRef || documentItem.shipmentId}</span>
+                </>
+              )}
               <span>•</span>
               <span>Uploaded on {documentItem.uploadDate}</span>
               <span>•</span>
@@ -500,8 +536,17 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                   <span className="text-muted-foreground flex items-center gap-2">
                     <FontAwesomeIcon icon={faBox} className="h-4 w-4 text-primary" /> Shipment ID:
                   </span>
-                  <span className="font-mono font-medium text-primary">{documentItem.shipmentId}</span>
+                  <span className="font-mono font-medium text-primary" title={documentItem.shipmentId}>{documentItem.shipmentRef || documentItem.shipmentId}</span>
                 </div>
+
+                {documentItem.expiryDate && (
+                  <div className="flex items-center justify-between pb-2 border-b">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <FontAwesomeIcon icon={faCalendar} className="h-4 w-4 text-primary" /> Expiry Date:
+                    </span>
+                    <span className="font-mono font-medium text-foreground">{documentItem.expiryDate}</span>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between pb-2 border-b">
                   <span className="text-muted-foreground flex items-center gap-2">
@@ -598,42 +643,71 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                 
                 {/* Version History Tab */}
                 <TabsContent value="versions" className="m-0 space-y-4">
-                  {versions && versions.length > 0 ? (
-                    <div className="space-y-3">
-                      {versions.map((ver, idx) => (
-                        <div key={ver.id || idx} className="p-3 border rounded-xl bg-card flex items-center justify-between gap-3">
-                          <div className="space-y-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono text-xs font-bold text-primary">{ver.versionNumber}</span>
-                              {idx === 0 && (
-                                <Badge variant="secondary" className="text-[10px] py-0 px-1.5 bg-emerald-500/10 text-emerald-600 font-semibold">
-                                  Current
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                              {ver.uploadedAt} • {ver.uploadedBy}
-                            </p>
-                            {ver.changesNote && (
-                              <p className="text-[11px] text-muted-foreground/80 italic">{ver.changesNote}</p>
-                            )}
-                          </div>
-
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8 text-muted-foreground hover:text-primary rounded-lg shrink-0"
-                            onClick={() => handleDownload(ver.versionNumber)}
-                            title={`Download ${ver.versionNumber}`}
-                          >
-                            <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground text-center py-4">No previous versions available.</p>
-                  )}
+                  {(() => {
+                    const fileActivities = activities.filter(a => ["File Replaced", "File Uploaded", "Created"].includes(a.action));
+                    return fileActivities.length > 0 ? (
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Event</TableHead>
+                              <TableHead>Date/Time</TableHead>
+                              <TableHead>User</TableHead>
+                              <TableHead>Old File Name</TableHead>
+                              <TableHead>Old Size</TableHead>
+                              <TableHead>Old Type</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {fileActivities.map((act, idx) => {
+                              let oldName = "-";
+                              let oldSize = "-";
+                              let oldType = "-";
+                              
+                              if (act.details) {
+                                try {
+                                  // Try parsing as JSON first (new format)
+                                  const parsed = JSON.parse(act.details);
+                                  oldName = parsed.old_file_name || "-";
+                                  oldSize = parsed.old_file_size ? `${(parseInt(parsed.old_file_size) / (1024 * 1024)).toFixed(1)} MB` : "-";
+                                  oldType = parsed.old_file_type || "-";
+                                } catch {
+                                  // Fallback to old string format parsing
+                                  const urlMatch = act.details.match(/url=([^,]+)/);
+                                  const sizeMatch = act.details.match(/size=([^,]+)/);
+                                  const typeMatch = act.details.match(/type=([^,]+)/);
+                                  
+                                  oldName = urlMatch && urlMatch[1] !== 'none' ? urlMatch[1].split('-').slice(1).join('-') : "-";
+                                  oldSize = sizeMatch && sizeMatch[1] !== 'none' ? `${(parseInt(sizeMatch[1]) / (1024 * 1024)).toFixed(1)} MB` : "-";
+                                  oldType = typeMatch && typeMatch[1] !== 'none' ? typeMatch[1] : "-";
+                                }
+                              }
+                              
+                              return (
+                                <TableRow key={act.id || idx}>
+                                  <TableCell className="font-medium text-xs">
+                                    {act.action}
+                                    {idx === 0 && (
+                                      <Badge variant="secondary" className="ml-2 text-[10px] py-0 px-1.5 bg-emerald-500/10 text-emerald-600 font-semibold">
+                                        Current
+                                      </Badge>
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{act.date}</TableCell>
+                                  <TableCell className="text-xs">{act.actor}</TableCell>
+                                  <TableCell className="text-xs max-w-[150px] truncate" title={oldName}>{oldName}</TableCell>
+                                  <TableCell className="text-xs whitespace-nowrap">{oldSize}</TableCell>
+                                  <TableCell className="text-xs">{oldType}</TableCell>
+                                </TableRow>
+                              )
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground text-center py-4 border rounded-md">No file version history available.</p>
+                    );
+                  })()}
                 </TabsContent>
 
                 {/* Activity Log Tab */}
@@ -729,6 +803,16 @@ export function DocumentDetailsClient({ document: initialDocument }: DocumentDet
                 id="description" 
                 value={editForm.description} 
                 onChange={e => setEditForm({...editForm, description: e.target.value})} 
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expiryDate">Expiry Date (Optional)</Label>
+              <Input 
+                id="expiryDate" 
+                type="date"
+                value={editForm.expiryDate} 
+                onChange={e => setEditForm({...editForm, expiryDate: e.target.value})} 
               />
             </div>
 

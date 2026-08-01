@@ -12,10 +12,12 @@ type DBDocumentActivity = Database["public"]["Tables"]["document_activities"]["R
 }
 
 export type SupabaseDocumentResponse = DBDocument & {
+  expiry_date?: string | null
   client?: DBClient | null
   uploaded_by?: DBProfile | null
   document_versions?: DBDocumentVersion[] | null
   document_activities?: DBDocumentActivity[] | null
+  shipment?: { container_number: string | null; destination_country: string | null } | null
 }
 
 const formatBytes = (bytes: number | null) => {
@@ -37,11 +39,13 @@ export const mapDocumentToUI = (doc: SupabaseDocumentResponse): Document => {
     clientId: doc.client_id || "",
     clientName: doc.client?.company_name || "Unknown Client",
     shipmentId: doc.shipment_id || "",
+    shipmentRef: doc.shipment ? (doc.shipment.container_number ? `Container: ${doc.shipment.container_number}` : (doc.shipment.destination_country ? `To ${doc.shipment.destination_country}` : `Shipment ${doc.shipment_id?.slice(0, 8)}`)) : undefined,
     uploadedBy: doc.uploaded_by?.full_name || "Unknown User",
     uploadDate: doc.upload_date ? new Date(doc.upload_date).toISOString().split('T')[0] : "",
     lastModified: doc.last_modified ? new Date(doc.last_modified).toISOString().split('T')[0] : "",
     fileSize: formatBytes(doc.file_size),
     status: (doc.status as DocumentStatus) || "Pending Review",
+    expiryDate: doc.expiry_date ? new Date(doc.expiry_date).toISOString().split('T')[0] : undefined,
     description: doc.description || "",
     version: latestVersion ? `v${latestVersion.version_number}.0` : "v1.0",
     tags: doc.tags || [],
@@ -59,6 +63,7 @@ export const mapDocumentToUI = (doc: SupabaseDocumentResponse): Document => {
       action: a.action,
       actor: a.actor?.full_name || "Unknown User",
       date: a.date ? new Date(a.date).toISOString().split('T')[0] : "",
+      details: a.details || undefined,
     })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }
 }

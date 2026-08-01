@@ -13,6 +13,7 @@ export async function getDocuments() {
     .select(`
       *,
       client:clients(company_name),
+      shipment:shipments(container_number, destination_country),
       uploaded_by:profiles(full_name),
       document_versions(*, uploaded_by:profiles(full_name)),
       document_activities(*, actor:profiles(full_name))
@@ -35,6 +36,7 @@ export async function getDocumentById(id: string) {
     .select(`
       *,
       client:clients(company_name),
+      shipment:shipments(container_number, destination_country),
       uploaded_by:profiles(full_name),
       document_versions(*, uploaded_by:profiles(full_name)),
       document_activities(*, actor:profiles(full_name))
@@ -63,6 +65,7 @@ export async function createDocument(formData: {
   current_file_url: string
   file_type: string
   file_size: number
+  expiry_date?: string
 }) {
   const supabase = await createClient()
   
@@ -97,7 +100,9 @@ export async function createDocument(formData: {
       current_file_url: formData.current_file_url,
       file_type: formData.file_type,
       file_size: formData.file_size,
-    })
+      expiry_date: formData.expiry_date || null
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
     .select()
     .single()
 
@@ -302,6 +307,7 @@ export async function updateDocument(id: string, formData: {
   description?: string
   tags?: string[]
   type?: string
+  expiry_date?: string
 }) {
   const supabase = await createClient()
   
@@ -324,8 +330,10 @@ export async function updateDocument(id: string, formData: {
       ...(formData.description !== undefined && { description: formData.description || null }),
       ...(formData.tags !== undefined && { tags: formData.tags || [] }),
       ...(formData.type && { type: formData.type }),
+      ...(formData.expiry_date !== undefined && { expiry_date: formData.expiry_date || null }),
       last_modified: new Date().toISOString()
-    })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)
     .eq("id", id)
 
   if (updateError) {
@@ -438,7 +446,16 @@ export async function replaceDocumentFile(id: string, fileData: {
       action: "File Replaced",
       actor_id: user.id,
       date: new Date().toISOString(),
-      details: `Replaced file. Old metadata: url=${oldDoc?.current_file_url || 'none'}, size=${oldDoc?.file_size || 'none'}, type=${oldDoc?.file_type || 'none'}`
+      details: JSON.stringify({
+        old_file_name: oldDoc?.current_file_url?.split('-').slice(1).join('-') || 'Unknown',
+        old_file_size: String(oldDoc?.file_size || 0),
+        old_file_type: oldDoc?.file_type || 'Unknown',
+        old_file_path: oldDoc?.current_file_url || 'Unknown',
+        new_file_name: fileData.current_file_url?.split('-').slice(1).join('-') || 'Unknown',
+        new_file_size: String(fileData.file_size),
+        new_file_type: fileData.file_type,
+        new_file_path: fileData.current_file_url
+      })
     })
 
   if (activityError) {

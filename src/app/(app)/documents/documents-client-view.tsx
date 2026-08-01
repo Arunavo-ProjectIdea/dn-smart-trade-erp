@@ -138,6 +138,55 @@ export function DocumentsClientView({ initialDocuments }: DocumentsClientViewPro
     })
   }, [data, searchQuery, categoryFilter, typeFilter, statusFilter])
 
+  const handleExport = () => {
+    if (filteredDocuments.length === 0) {
+      toast({ title: "Export Failed", description: "No documents to export.", variant: "destructive" })
+      return
+    }
+
+    const headers = [
+      "Document ID", "Document Name", "Category", "Client", 
+      "Status", "Uploaded By", "Upload Date", "Expiry Date", "File Type", "File Size"
+    ]
+
+    const escapeCSV = (val: string | undefined | null) => {
+      if (!val) return '""'
+      const str = String(val)
+      if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`
+      }
+      return str
+    }
+
+    const rows = filteredDocuments.map(doc => [
+      escapeCSV(doc.id),
+      escapeCSV(doc.name),
+      escapeCSV(doc.category),
+      escapeCSV(doc.clientName),
+      escapeCSV(doc.status),
+      escapeCSV(doc.uploadedBy),
+      escapeCSV(doc.uploadDate),
+      escapeCSV(doc.expiryDate || ""),
+      escapeCSV(doc.type),
+      escapeCSV(doc.fileSize)
+    ].join(','))
+
+    const csvContent = [headers.join(','), ...rows].join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    
+    const link = document.createElement("a")
+    const dateStr = new Date().toISOString().split('T')[0]
+    link.href = url
+    link.setAttribute("download", `documents-export-${dateStr}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toast({ title: "Export Successful", description: `Exported ${filteredDocuments.length} documents.` })
+  }
+
   const hasActiveFilters = searchQuery !== "" || categoryFilter !== "all" || typeFilter !== "all" || statusFilter !== "all"
 
   const clearFilters = () => {
@@ -287,7 +336,7 @@ export function DocumentsClientView({ initialDocuments }: DocumentsClientViewPro
         description="Securely manage, preview, filter, and share all trade and shipment documents."
         action={
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => toast({ title: "Export Started", description: "Exporting documents directory listing..." })}>
+            <Button variant="outline" onClick={handleExport} disabled={filteredDocuments.length === 0}>
               <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Export List
             </Button>
             <Link href="/documents/upload" className={buttonVariants({ variant: "default" })}>
