@@ -589,47 +589,170 @@ export default function HSCodesPage() {
                     <FontAwesomeIcon icon={faSliders} className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>Filters</span>
                     {activeFiltersCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold items-center justify-center">
+                      <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold items-center justify-center shadow-sm">
                         {activeFiltersCount}
                       </span>
                     )}
                   </Button>
                 } />
-                <SheetContent className="w-80 sm:w-96" side="right">
-                  <SheetHeader className="pb-4 border-b border-border/60">
+                <SheetContent className="w-80 sm:w-[420px] p-0 flex flex-col justify-between bg-card" side="right">
+                  <SheetHeader className="p-5 border-b border-border/60 bg-muted/20">
                     <div className="flex items-center justify-between">
-                      <SheetTitle className="font-semibold text-base flex items-center gap-2">
-                        <FontAwesomeIcon icon={faFilter} className="h-4 w-4 text-primary" /> Advanced Filters
-                      </SheetTitle>
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                          <FontAwesomeIcon icon={faFilter} className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <SheetTitle className="font-bold text-base text-foreground">Advanced Tariff Filters</SheetTitle>
+                          <p className="text-xs text-muted-foreground mt-0.5">Filter by duty rates and tax categories</p>
+                        </div>
+                      </div>
                       {activeFiltersCount > 0 && (
-                        <Button variant="ghost" size="sm" onClick={clearFilters} className="h-auto p-1 text-xs text-primary">
-                          Reset All
+                        <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs text-primary hover:bg-primary/10 gap-1 px-2">
+                          <FontAwesomeIcon icon={faRotate} className="h-3 w-3" /> Reset
                         </Button>
                       )}
                     </div>
                   </SheetHeader>
-                  <div className="space-y-6 pt-6">
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">CD % Range</Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <span className="text-[11px] text-muted-foreground">Min</span>
-                          <Input type="number" placeholder="0" value={minDuty} onChange={(e) => setMinDuty(e.target.value)} className="h-9 font-mono" />
-                        </div>
-                        <div className="space-y-1">
-                          <span className="text-[11px] text-muted-foreground">Max</span>
-                          <Input type="number" placeholder="25" value={maxDuty} onChange={(e) => setMaxDuty(e.target.value)} className="h-9 font-mono" />
-                        </div>
+
+                  <div className="p-5 space-y-6 overflow-y-auto flex-1">
+
+                    {/* Quick Presets */}
+                    <div className="space-y-2.5">
+                      <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                        <FontAwesomeIcon icon={faWandSparkles} className="h-3 w-3 text-amber-500" /> Quick Tariff Presets
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => { setMinDuty("0"); setMaxDuty("0"); }}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${minDuty === "0" && maxDuty === "0" ? "bg-primary/15 border-primary text-primary font-bold shadow-xs" : "bg-muted/40 border-border/60 hover:bg-muted text-foreground"}`}
+                        >
+                          Zero Duty (0% CD)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setVatPercent("15"); }}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${vatPercent === "15" ? "bg-primary/15 border-primary text-primary font-bold shadow-xs" : "bg-muted/40 border-border/60 hover:bg-muted text-foreground"}`}
+                        >
+                          Standard VAT (15%)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setMinDuty("15"); setMaxDuty(""); }}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-lg border transition-all ${minDuty === "15" && maxDuty === "" ? "bg-primary/15 border-primary text-primary font-bold shadow-xs" : "bg-muted/40 border-border/60 hover:bg-muted text-foreground"}`}
+                        >
+                          High Duty (&gt;15% CD)
+                        </button>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Exact VAT %</Label>
-                      <Input type="number" placeholder="e.g. 15" value={vatPercent} onChange={(e) => setVatPercent(e.target.value)} className="h-9 font-mono" />
+
+                    {/* Customs Duty (CD %) Section */}
+                    <div className="p-4 rounded-xl bg-muted/30 border border-border/60 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                          <FontAwesomeIcon icon={faPercent} className="h-3 w-3 text-amber-500" /> Customs Duty (CD %) Range
+                        </Label>
+                        {(minDuty || maxDuty) && (
+                          <button type="button" onClick={() => { setMinDuty(""); setMaxDuty(""); }} className="text-[10px] text-muted-foreground hover:text-foreground">Clear</button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-semibold text-muted-foreground">Minimum CD %</span>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              value={minDuty}
+                              onChange={(e) => setMinDuty(e.target.value)}
+                              className="h-10 font-mono text-sm pr-7 bg-background"
+                            />
+                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground pointer-events-none">%</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] font-semibold text-muted-foreground">Maximum CD %</span>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              placeholder="25"
+                              value={maxDuty}
+                              onChange={(e) => setMaxDuty(e.target.value)}
+                              className="h-10 font-mono text-sm pr-7 bg-background"
+                            />
+                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground pointer-events-none">%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quick CD pills */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        <span className="text-[10px] text-muted-foreground font-medium">Quick select:</span>
+                        {["0", "5", "10", "25"].map((cdVal) => (
+                          <button
+                            key={cdVal}
+                            type="button"
+                            onClick={() => { setMinDuty(cdVal); setMaxDuty(cdVal); }}
+                            className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-background border border-border/60 hover:border-primary/50 text-foreground"
+                          >
+                            {cdVal}%
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="pt-4 border-t border-border/60 flex gap-3">
-                      <Button onClick={clearFilters} variant="outline" className="flex-1">Clear</Button>
-                      <Button onClick={() => { setCurrentPage(1); handleSearch() }} className="flex-1">Apply</Button>
+
+                    {/* Value Added Tax (VAT %) Section */}
+                    <div className="p-4 rounded-xl bg-muted/30 border border-border/60 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                          <FontAwesomeIcon icon={faReceipt} className="h-3 w-3 text-blue-500" /> Exact VAT (%)
+                        </Label>
+                        {vatPercent && (
+                          <button type="button" onClick={() => setVatPercent("")} className="text-[10px] text-muted-foreground hover:text-foreground">Clear</button>
+                        )}
+                      </div>
+
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          placeholder="e.g. 15"
+                          value={vatPercent}
+                          onChange={(e) => setVatPercent(e.target.value)}
+                          className="h-10 font-mono text-sm pr-7 bg-background"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground pointer-events-none">%</span>
+                      </div>
+
+                      {/* Quick VAT pills */}
+                      <div className="flex items-center gap-1.5 pt-1">
+                        <span className="text-[10px] text-muted-foreground font-medium">Common rates:</span>
+                        {["0", "5", "15"].map((vVal) => (
+                          <button
+                            key={vVal}
+                            type="button"
+                            onClick={() => setVatPercent(vVal)}
+                            className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-background border border-border/60 hover:border-primary/50 text-foreground"
+                          >
+                            {vVal}%
+                          </button>
+                        ))}
+                      </div>
                     </div>
+
+                  </div>
+
+                  {/* Bottom Action Footer */}
+                  <div className="p-4 border-t border-border/60 bg-muted/20 flex gap-3">
+                    <Button onClick={clearFilters} variant="outline" className="flex-1 h-11 text-xs font-semibold border-border/80">
+                      <FontAwesomeIcon icon={faRotate} className="mr-1.5 h-3.5 w-3.5" /> Clear Filters
+                    </Button>
+                    <SheetTrigger render={
+                      <Button onClick={() => { setCurrentPage(1); handleSearch() }} className="flex-1 h-11 text-xs font-semibold bg-primary hover:bg-primary/90 shadow-md">
+                        <FontAwesomeIcon icon={faCheck} className="mr-1.5 h-3.5 w-3.5" /> Apply Filters
+                      </Button>
+                    } />
                   </div>
                 </SheetContent>
               </Sheet>
@@ -640,9 +763,12 @@ export default function HSCodesPage() {
 
       {/* ── Recent Searches (Collapsible, default collapsed) ── */}
       <div className="rounded-xl border border-border/60 bg-card/70 backdrop-blur-xl shadow-sm overflow-hidden">
-        <button
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => setRecentExpanded((v) => !v)}
-          className="w-full flex items-center justify-between px-4 py-3 hover:bg-accent/40 transition-colors"
+          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setRecentExpanded((v) => !v) }}
+          className="w-full flex items-center justify-between px-4 py-3 hover:bg-accent/40 transition-colors cursor-pointer select-none"
         >
           <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <FontAwesomeIcon icon={faClock} className="h-3.5 w-3.5 text-primary" />
@@ -655,19 +781,22 @@ export default function HSCodesPage() {
           </span>
           <div className="flex items-center gap-2">
             {recentSearches.length > 0 && recentExpanded && (
-              <button
+              <span
+                role="button"
+                tabIndex={0}
                 onClick={(e) => { e.stopPropagation(); setRecentSearches([]) }}
-                className="text-[10px] text-muted-foreground hover:text-foreground transition-colors px-2 py-0.5 rounded-md hover:bg-muted"
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); setRecentSearches([]) } }}
+                className="text-[10px] text-muted-foreground hover:text-foreground transition-colors px-2 py-0.5 rounded-md hover:bg-muted cursor-pointer"
               >
                 Clear all
-              </button>
+              </span>
             )}
             <FontAwesomeIcon
               icon={recentExpanded ? faChevronUp : faChevronDown}
               className="h-3.5 w-3.5 text-muted-foreground"
             />
           </div>
-        </button>
+        </div>
 
         <AnimatePresence initial={false}>
           {recentExpanded && (
