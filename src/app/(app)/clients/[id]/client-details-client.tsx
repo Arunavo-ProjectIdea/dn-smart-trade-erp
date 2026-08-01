@@ -121,7 +121,7 @@ export default function ClientDetailsClient({ client }: { client: Client }) {
         description={`Client ID: ${formatClientId(client.id)} • ${client.clientType}`}
         action={
           <div className="flex items-center gap-3">
-            <StatusBadge status={client.status as any} className="text-sm px-3 py-1 shadow-sm" />
+            <StatusBadge status={client.status as "Active" | "Inactive"} className="text-sm px-3 py-1 shadow-sm" />
             <Link href={`/clients/${client.id}/edit`} className={buttonVariants({ variant: "outline", className: "shadow-sm" })}>
               Edit Client
             </Link>

@@ -37,14 +37,6 @@ export async function createClientAction(clientData: Partial<Client>): Promise<{
   const { data: user } = await supabase.auth.getUser()
   const { data: profile } = user?.user ? await supabase.from('profiles').select('*').eq('id', user.user.id).single() : { data: null }
 
-  console.log("=== PHASE 4.1 DEBUG ===")
-  console.log("Current Session Exists:", sessionData.session ? "Yes" : "No")
-  console.log("Authenticated User ID:", user?.user?.id || "undefined")
-  console.log("Authenticated Email:", user?.user?.email || "undefined")
-  console.log("Profile ID:", profile?.id || "undefined")
-  console.log("Resolved Role:", profile?.role || "undefined")
-  console.log("=======================")
-
   const { data, error } = await supabase.from('clients').insert(insertData).select().single()
 
   if (error) {

@@ -4,6 +4,7 @@ import * as supabaseServer from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 describe('Auth Actions', () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let mockSupabase: any
 
   beforeEach(() => {

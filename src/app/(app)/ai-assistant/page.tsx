@@ -50,7 +50,8 @@ export default function AIAssistantPage() {
   }
 
   useEffect(() => {
-    fetchSessions()
+    const timer = setTimeout(() => fetchSessions(), 0)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleLoadSession = async (sessionId: string) => {
@@ -58,7 +59,7 @@ export default function AIAssistantPage() {
     setIsThinking(true)
     const res = await getChatMessages(sessionId)
     if (res.success && res.data) {
-      setMessages(res.data.map((m: any) => ({ role: m.role as any, content: m.content })))
+      setMessages(res.data.map((m: { role: string, content: string }) => ({ role: m.role as 'user' | 'assistant', content: m.content })))
     } else {
       toast.error(res.error || "Failed to load chat history")
     }
@@ -125,8 +126,8 @@ export default function AIAssistantPage() {
         assistantMessage += chunk;
         setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
       }
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred");
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsThinking(false);
     }

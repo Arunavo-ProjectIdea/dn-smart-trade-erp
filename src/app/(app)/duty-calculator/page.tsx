@@ -138,28 +138,31 @@ function DutyCalculatorInner() {
   // ── Auto-save to history when calculation is ready ─────────────────────────
   useEffect(() => {
     if (!results || !selectedCode || !assessableValue) return
-    setHistory((prev) => {
-      const entry: CalcHistoryEntry = {
-        id: `${Date.now()}`,
-        timestamp: makeTimestamp(),
-        hsCode: selectedCode.hscode,
-        description: selectedCode.tariff_description ?? selectedCode.hscode,
-        assessableValue,
-        quantity,
-        currency,
-        exchangeRate,
-        results: {
-          baseValueBDT: results.baseValueBDT,
-          totalTaxAmount: results.totalTaxAmount,
-          grandTotalAmount: results.grandTotalAmount,
-        },
-      }
-      // Deduplicate by HS code + value combo and cap at MAX_HISTORY
-      const filtered = prev.filter(
-        (e) => !(e.hsCode === entry.hsCode && e.assessableValue === entry.assessableValue && e.quantity === entry.quantity)
-      )
-      return [...filtered, entry].slice(-MAX_HISTORY)
-    })
+    const timer = setTimeout(() => {
+      setHistory((prev) => {
+        const entry: CalcHistoryEntry = {
+          id: `${Date.now()}`,
+          timestamp: makeTimestamp(),
+          hsCode: selectedCode.hscode,
+          description: selectedCode.tariff_description ?? selectedCode.hscode,
+          assessableValue,
+          quantity,
+          currency,
+          exchangeRate,
+          results: {
+            baseValueBDT: results.baseValueBDT,
+            totalTaxAmount: results.totalTaxAmount,
+            grandTotalAmount: results.grandTotalAmount,
+          },
+        }
+        // Deduplicate by HS code + value combo and cap at MAX_HISTORY
+        const filtered = prev.filter(
+          (e) => !(e.hsCode === entry.hsCode && e.assessableValue === entry.assessableValue && e.quantity === entry.quantity)
+        )
+        return [...filtered, entry].slice(-MAX_HISTORY)
+      })
+    }, 0)
+    return () => clearTimeout(timer)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [results])
 

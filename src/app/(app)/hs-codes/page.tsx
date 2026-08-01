@@ -19,9 +19,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select"
-import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -113,7 +110,7 @@ function AIRecommendationCard({
         setActiveSuggestionIdx(-1)
       }, 500)
     } else {
-      setSuggestions([])
+      setTimeout(() => setSuggestions([]), 0)
     }
 
     return () => {
@@ -736,9 +733,11 @@ export default function HSCodesPage() {
     getHSCodeStats().then(setStats)
   }, [])
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    fetchData(currentPage)
+    const timer = setTimeout(() => {
+      fetchData(currentPage)
+    }, 0)
+    return () => clearTimeout(timer)
   }, [fetchData, currentPage])
 
   const handleSearch = () => {
