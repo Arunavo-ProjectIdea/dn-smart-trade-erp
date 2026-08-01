@@ -26,14 +26,14 @@ const PAGE_SIZE = 50
 
 export async function getHSCodes({
   query = "",
-  searchType = "tariff_description",
+  searchType = "all",
   page = 1,
   minCd,
   maxCd,
   vatFilter,
 }: {
   query?: string
-  searchType?: "hscode" | "tariff_description"
+  searchType?: "all" | "hscode" | "tariff_description"
   page?: number
   minCd?: number
   maxCd?: number
@@ -62,9 +62,12 @@ export async function getHSCodes({
     if (searchType === "hscode") {
       countQuery = countQuery.ilike("hscode", ilike)
       dataQuery = dataQuery.ilike("hscode", ilike)
-    } else {
+    } else if (searchType === "tariff_description") {
       countQuery = countQuery.ilike("tariff_description", ilike)
       dataQuery = dataQuery.ilike("tariff_description", ilike)
+    } else {
+      countQuery = countQuery.or(`hscode.ilike.${ilike},tariff_description.ilike.${ilike}`)
+      dataQuery = dataQuery.or(`hscode.ilike.${ilike},tariff_description.ilike.${ilike}`)
     }
   }
 

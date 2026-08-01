@@ -668,7 +668,7 @@ function AIRecommendationCard({
 // ==========================================
 // Main Page Component
 // ==========================================
-type SearchType = "tariff_description" | "hscode"
+type SearchType = "all" | "tariff_description" | "hscode"
 
 interface RecentSearch {
   id: string
@@ -695,10 +695,10 @@ export default function HSCodesPage() {
   const totalPages = Math.ceil(totalCount / PAGE_SIZE)
 
   // Search state
-  const [searchType, setSearchType] = useState<SearchType>("tariff_description")
+  const [searchType, setSearchType] = useState<SearchType>("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [appliedQuery, setAppliedQuery] = useState("")
-  const [appliedType, setAppliedType] = useState<SearchType>("tariff_description")
+  const [appliedType, setAppliedType] = useState<SearchType>("all")
 
   // Filter state
   const [minDuty, setMinDuty] = useState<string>("")
@@ -707,8 +707,8 @@ export default function HSCodesPage() {
 
   // Recent searches (last 10 entries)
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([
-    { id: "1", keyword: "Cotton", type: "tariff_description", time: "10 mins ago" },
-    { id: "2", keyword: "87034011", type: "hscode", time: "2 hours ago" },
+    { id: "1", keyword: "Cotton", type: "all", time: "10 mins ago" },
+    { id: "2", keyword: "87034011", type: "all", time: "2 hours ago" },
   ])
   const [recentExpanded, setRecentExpanded] = useState(false)
 
@@ -770,9 +770,9 @@ export default function HSCodesPage() {
   const handleRecentClick = (recent: RecentSearch) => {
     if (recent.type === "ai") {
       const rawQuery = recent.keyword.replace(/^AI:\s*/, "").replace(/\s*\(\d+\s*matches\)$/, "")
-      setSearchType("tariff_description")
+      setSearchType("all")
       setSearchQuery(rawQuery)
-      setAppliedType("tariff_description")
+      setAppliedType("all")
       setAppliedQuery(rawQuery)
       setCurrentPage(1)
     } else {
@@ -793,16 +793,16 @@ export default function HSCodesPage() {
   const handleResetSearch = () => {
     setSearchQuery("")
     setAppliedQuery("")
-    setSearchType("tariff_description")
-    setAppliedType("tariff_description")
+    setSearchType("all")
+    setAppliedType("all")
     clearFilters()
     setCurrentPage(1)
   }
 
   const handleAIUse = (code: string) => {
-    setSearchType("hscode")
+    setSearchType("all")
     setSearchQuery(code)
-    setAppliedType("hscode")
+    setAppliedType("all")
     setAppliedQuery(code)
     setCurrentPage(1)
 
@@ -812,9 +812,7 @@ export default function HSCodesPage() {
     }, 100)
   }
 
-  const searchPlaceholder = searchType === "hscode"
-    ? "Enter HS Code number (e.g. 87034011)..."
-    : "Search tariff description (e.g. Cotton, Laptop)..."
+  const searchPlaceholder = "Search HS Code or product description (e.g. 87034011, Cotton, Laptop)..."
 
   const activeFiltersCount = (minDuty ? 1 : 0) + (maxDuty ? 1 : 0) + (vatPercent ? 1 : 0)
 
@@ -980,24 +978,8 @@ export default function HSCodesPage() {
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-3 items-end">
 
-            {/* Search Type */}
-            <div className="w-full sm:w-44 space-y-1">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Field</Label>
-              <Select value={searchType} onValueChange={(val) => {
-                if (val) { setSearchType(val as SearchType); setSearchQuery("") }
-              }}>
-                <SelectTrigger className="h-10 text-sm font-medium">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="tariff_description">Description</SelectItem>
-                  <SelectItem value="hscode">HS Code</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Search Input */}
-            <div className="flex-1 space-y-1">
+            {/* Unified Search Input */}
+            <div className="flex-1 space-y-1 w-full">
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Search Query</Label>
               <div className="relative">
                 <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
@@ -1005,7 +987,7 @@ export default function HSCodesPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={searchPlaceholder}
-                  className="pl-9 pr-9 h-10 text-sm"
+                  className="pl-9 pr-9 h-10 text-sm font-medium"
                   onKeyDown={(e) => { if (e.key === "Enter") handleSearch() }}
                 />
                 {searchQuery && (
