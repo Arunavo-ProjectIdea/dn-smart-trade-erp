@@ -1,0 +1,833 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faArrowLeft, faDownload, faCheck, faXmark, faCircle, faFileLines, faCalendar, faUser, faBuilding, faBox, faClock, faChevronRight, faMagnifyingGlassMinus, faMagnifyingGlassPlus, faRotateRight, faExpand, faCompress } from "@fortawesome/free-solid-svg-icons"
+
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { StatusBadge } from "@/components/erp/status-badge"
+import { useToast } from "@/components/ui/use-toast"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
+import { Database } from "@/types/database.types"
+import { Document, DocumentStatus, DocumentCategory } from "@/lib/mock-data/documents"
+import { archiveDocument, updateDocumentStatus, updateDocument, downloadDocument, replaceDocumentFile } from "@/actions/document.actions"
+import { createClient } from "@/lib/supabase/client"
+
+interface DocumentDetailsClientProps {
+  document: Document
+}
+
+export function DocumentDetailsClient({ document: initialDocument }: DocumentDetailsClientProps) {
+  const { toast } = useToast()
+  
+  const [prevDocument, setPrevDocument] = useState<Document>(initialDocument)
+  const [documentItem, setDocumentItem] = useState<Document>(initialDocument)
+  const [status, setStatus] = useState<DocumentStatus>(initialDocument.status)
+  
+  // React recommended pattern: Adjusting state when a prop changes during render
+  // This avoids the ESLint set-state-in-effect cascading render warning.
+  if (initialDocument !== prevDocument) {
+    setPrevDocument(initialDocument)
+    setDocumentItem(initialDocument)
+    setStatus(initialDocument.status)
+  }
+
+  // Derived state (no need for useState)
+  const activities = documentItem.activities || []
+
+  const [isUpdating, setIsUpdating] = useState<string | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Fetch preview URL if document has a file
+    const fetchPreview = async () => {
+      const res = await downloadDocument(documentItem.id)
+      if (res.success && res.data) {
+        setPreviewUrl(res.data.url)
+      }
+    }
+    fetchPreview()
+  }, [documentItem.id])
+
+  // Edit Metadata State
+  const [isEditSheetOpen, setIsEditSheetOpen] = useState(false)
+  const [isSavingMetadata, setIsSavingMetadata] = useState(false)
+  const [editForm, setEditForm] = useState({
+    name: documentItem.name,
+    category: documentItem.category,
+    type: documentItem.type,
+    description: documentItem.description,
+    expiryDate: documentItem.expiryDate || ""
+  })
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingMetadata(true)
+
+    const res = await updateDocument(documentItem.id, {
+      name: editForm.name,
+      category: editForm.category as Database["public"]["Enums"]["document_category"],
+      type: editForm.type,
+      description: editForm.description,
+      expiry_date: editForm.expiryDate || undefined
+    })
+
+    if (res.success) {
+      setDocumentItem(prev => ({
+        ...prev,
+        name: editForm.name,
+        category: editForm.category,
+        type: editForm.type,
+        description: editForm.description,
+        expiryDate: editForm.expiryDate || undefined,
+        lastModified: new Date().toISOString().split('T')[0]
+      }))
+      
+      toast({
+        title: "Metadata Updated",
+        description: "The document metadata has been successfully updated.",
+      })
+      setIsEditSheetOpen(false)
+    } else {
+      toast({
+        title: "Update Failed",
+        description: res.error || "Failed to update metadata.",
+        variant: "destructive"
+      })
+    }
+    setIsSavingMetadata(false)
+  }
+
+  // Preview interactive controls state
+  const [zoomLevel, setZoomLevel] = useState<number>(100)
+  const [rotation, setRotation] = useState<number>(0)
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
+  const [currentPage] = useState<number>(1)
+  const totalPages = 1 // Dummy default
+
+  const handleStatusChange = async (newStatus: DocumentStatus) => {
+    setIsUpdating(newStatus)
+    
+    if (newStatus === "Archived") {
+      const res = await archiveDocument(documentItem.id)
+      if (res.success) {
+        setStatus("Archived")
+        toast({
+          title: `Document Archived`,
+          description: `Document has been moved to archive.`,
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: res.error || "Failed to archive document.",
+          variant: "destructive"
+        })
+      }
+    } else {
+      // Use the updateDocumentStatus action for Approve/Reject
+       
+      const res = await updateDocumentStatus(documentItem.id, newStatus as any)
+      if (res.success) {
+        setStatus(newStatus)
+        toast({
+          title: `Document ${newStatus}`,
+          description: `Status updated to "${newStatus}"`,
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: res.error || `Failed to update document status to ${newStatus}.`,
+          variant: "destructive"
+        })
+      }
+    }
+    
+    setIsUpdating(null)
+  }
+
+  const handleDownload = async (versionNum?: string) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading ${documentItem.name} ${versionNum ? `(${versionNum})` : ''}...`,
+    })
+    
+    const res = await downloadDocument(documentItem.id)
+    if (res.success && res.data) {
+      // Create a temporary anchor element to trigger the download
+      const a = document.createElement("a")
+      a.href = res.data.url
+      a.target = "_blank"
+      a.download = documentItem.name || "document"
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } else {
+      toast({
+        title: "Download Failed",
+        description: res.error || "Could not retrieve document file.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleZoomIn = () => setZoomLevel(prev => Math.min(prev + 25, 200))
+  const handleZoomOut = () => setZoomLevel(prev => Math.max(prev - 25, 50))
+  const handleRotate = () => setRotation(prev => (prev + 90) % 360)
+  const toggleFullscreen = () => setIsFullscreen(prev => !prev)
+
+  const getExpiryStatus = () => {
+    if (!documentItem.expiryDate) return null;
+    
+    const expiry = new Date(documentItem.expiryDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for accurate date comparison
+    
+    const diffTime = Math.abs(expiry.getTime() - today.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    if (expiry < today) {
+      return { label: "Expired", color: "bg-red-500/10 text-red-700 border-red-200" };
+    } else if (diffDays <= 30) {
+      return { label: "Expiring Soon", color: "bg-amber-500/10 text-amber-700 border-amber-200" };
+    }
+    return { label: "Valid", color: "bg-emerald-500/10 text-emerald-700 border-emerald-200" };
+  }
+  const expiryStatus = getExpiryStatus();
+
+  return (
+    <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
+      {/* Breadcrumb Header */}
+      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+        <Link href="/documents" className="hover:text-foreground hover:underline transition-colors">
+          Documents
+        </Link>
+        <FontAwesomeIcon icon={faChevronRight} className="h-4 w-4" />
+        <span className="text-foreground font-medium" title={documentItem.id}>{documentItem.id.substring(0, 8)}...</span>
+      </div>
+
+      {/* Top Banner */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+        <div className="flex items-start gap-4">
+          <Link 
+            href="/documents" 
+            className={buttonVariants({ variant: "outline", size: "icon" })}
+          >
+            <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4" />
+          </Link>
+          <div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-3xl font-bold tracking-tight">{documentItem.name}</h1>
+              <Badge variant="outline" className="font-mono text-xs font-semibold bg-muted/30">
+                {documentItem.version || "v1.0"}
+              </Badge>
+              <StatusBadge status={status} />
+              {expiryStatus && (
+                <Badge variant="outline" className={`font-semibold ${expiryStatus.color}`}>
+                  {expiryStatus.label}
+                </Badge>
+              )}
+            </div>
+            <p className="text-muted-foreground mt-1 flex items-center gap-2 text-sm flex-wrap">
+              <span className="font-mono" title={`Document ID: ${documentItem.id}`}>Doc ID: {documentItem.id.substring(0, 8)}...</span>
+              {documentItem.shipmentId && (
+                <>
+                  <span>•</span>
+                  <span className="font-mono text-primary" title="Shipment ID">Shipment: {documentItem.shipmentRef || documentItem.shipmentId}</span>
+                </>
+              )}
+              <span>•</span>
+              <span>Uploaded on {documentItem.uploadDate}</span>
+              <span>•</span>
+              <span>By {documentItem.uploadedBy}</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <Button variant="outline" onClick={() => setIsEditSheetOpen(true)}>
+            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Edit Metadata
+          </Button>
+          <Button variant="outline" onClick={() => document.getElementById('replace-file-input')?.click()}>
+            <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Replace File
+          </Button>
+          <input 
+            type="file" 
+            id="replace-file-input" 
+            className="hidden" 
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              
+              toast({ title: "Uploading...", description: "Replacing document file." });
+              
+              const supabase = createClient();
+              const { data: { user } } = await supabase.auth.getUser();
+              if (!user) return;
+              
+              const timestamp = Date.now();
+              const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+              // Format: documents/{userId}/{documentId}/{timestamp}-{filename}
+              const filePath = `documents/${user.id}/${documentItem.id}/${timestamp}-${safeName}`;
+              
+              const { error: storageError } = await supabase.storage.from("documents").upload(filePath, file);
+              if (storageError) {
+                toast({ title: "Upload Failed", description: storageError.message, variant: "destructive" });
+                return;
+              }
+              
+              const res = await replaceDocumentFile(documentItem.id, {
+                current_file_url: filePath,
+                file_type: file.type,
+                file_size: file.size
+              });
+              
+              if (res.success) {
+                toast({ title: "Success", description: "File replaced successfully." });
+                // Fetch new preview
+                const dlRes = await downloadDocument(documentItem.id);
+                if (dlRes.success && dlRes.data) setPreviewUrl(dlRes.data.url);
+              } else {
+                toast({ title: "Error", description: res.error, variant: "destructive" });
+              }
+            }}
+          />
+          <Button variant="default" onClick={() => handleDownload()}>
+            <FontAwesomeIcon icon={faDownload} className="mr-2 h-4 w-4" /> Download File
+          </Button>
+        </div>
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Left 2 Columns: Interactive Preview Section */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className={`flex flex-col overflow-hidden transition-all duration-300 rounded-xl shadow-sm border-border/60 ${
+            isFullscreen ? "fixed inset-4 z-50 h-[calc(100vh-2rem)] w-[calc(100vw-2rem)]" : "min-h-[680px]"
+          }`}>
+            {/* Preview Toolbar */}
+            <CardHeader className="p-4 bg-muted/40 border-b flex flex-row items-center justify-between gap-2 space-y-0">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faFileLines} className="h-5 w-5 text-primary" />
+                <CardTitle className="text-base font-semibold">Document Preview</CardTitle>
+                <span className="text-xs text-muted-foreground font-mono hidden sm:inline">
+                  ({documentItem.type})
+                </span>
+              </div>
+
+              {/* View Controls */}
+              <div className="flex items-center gap-1 bg-background border rounded-xl p-1 shadow-xs">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 rounded-lg" 
+                  onClick={handleZoomOut}
+                  title="Zoom Out"
+                >
+                  <FontAwesomeIcon icon={faMagnifyingGlassMinus} className="h-3.5 w-3.5" />
+                </Button>
+                <span className="text-xs font-mono px-2 text-muted-foreground min-w-[42px] text-center">
+                  {zoomLevel}%
+                </span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 rounded-lg" 
+                  onClick={handleZoomIn}
+                  title="Zoom In"
+                >
+                  <FontAwesomeIcon icon={faMagnifyingGlassPlus} className="h-3.5 w-3.5" />
+                </Button>
+                <div className="h-4 w-px bg-border my-auto mx-1" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 rounded-lg" 
+                  onClick={handleRotate}
+                  title="Rotate 90°"
+                >
+                  <FontAwesomeIcon icon={faRotateRight} className="h-3.5 w-3.5" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-7 w-7 rounded-lg" 
+                  onClick={toggleFullscreen}
+                  title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                >
+                  {isFullscreen ? <FontAwesomeIcon icon={faCompress} className="h-3.5 w-3.5" /> : <FontAwesomeIcon icon={faExpand} className="h-3.5 w-3.5" />}
+                </Button>
+              </div>
+            </CardHeader>
+
+            {/* Rendered Preview Canvas Area */}
+            <CardContent className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-900/5 dark:bg-slate-950/40 overflow-auto relative min-h-[500px]">
+              
+              <div 
+                className="bg-card text-card-foreground border rounded-xl shadow-2xl p-8 max-w-xl w-full min-h-[520px] transition-transform duration-300 flex flex-col justify-between relative overflow-hidden"
+                style={{
+                  transform: `scale(${zoomLevel / 100}) rotate(${rotation}deg)`,
+                  transformOrigin: "center center"
+                }}
+              >
+                {previewUrl ? (
+                  <div className="absolute inset-0 z-10 bg-white">
+                    {/* Check if it's an image or generic iframe */}
+                    {previewUrl.toLowerCase().includes(".png") || previewUrl.toLowerCase().includes(".jpg") || previewUrl.toLowerCase().includes(".jpeg") ? (
+                      <Image 
+                        src={previewUrl} 
+                        alt="Document Preview" 
+                        fill
+                        className="object-contain" 
+                        unoptimized 
+                      />
+                    ) : (
+                      <iframe src={previewUrl} className="w-full h-full border-0" title="Document Preview" />
+                    )}
+                  </div>
+                ) : null}
+                
+                {/* Watermark/Stamp overlay */}
+                <div className="absolute right-6 top-6 opacity-15 pointer-events-none select-none">
+                  <div className={`text-4xl font-black uppercase border-4 rounded-xl px-4 py-2 rotate-[-15deg] ${
+                    status === "Approved" ? "border-emerald-600 text-emerald-600" :
+                    status === "Rejected" ? "border-red-600 text-red-600" :
+                    "border-amber-600 text-amber-600"
+                  }`}>
+                    {status}
+                  </div>
+                </div>
+
+                {/* Simulated Document Header */}
+                <div className="space-y-4 border-b pb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                        DN
+                      </div>
+                      <div>
+                        <h2 className="font-bold text-sm tracking-tight">DN SMART TRADE ERP</h2>
+                        <p className="text-[10px] text-muted-foreground">Official Trade Document Repository</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-mono text-muted-foreground" title={documentItem.id}>{documentItem.id.substring(0, 8)}...</span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-foreground">{documentItem.name}</h3>
+                    <p className="text-xs text-muted-foreground">Category: {documentItem.category}</p>
+                  </div>
+                </div>
+
+                {/* Simulated Document Body Preview */}
+                <div className="my-6 space-y-4 text-xs text-muted-foreground">
+                  <div className="grid grid-cols-2 gap-4 p-3 bg-muted/30 rounded-lg">
+                    <div>
+                      <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider block mb-1">Client</span>
+                      <p className="font-medium text-foreground">{documentItem.clientName}</p>
+                      <p className="text-[11px] text-muted-foreground">{documentItem.clientId}</p>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-semibold text-foreground uppercase tracking-wider block mb-1">Shipment Reference</span>
+                      <p className="font-mono font-medium text-foreground">{documentItem.shipmentId}</p>
+                      <p className="text-[11px] text-muted-foreground">Status: {documentItem.status}</p>
+                    </div>
+                  </div>
+
+                  {/* Mock content table */}
+                  <div className="border rounded-lg overflow-hidden">
+                    <div className="bg-muted/50 p-2 font-semibold text-[11px] grid grid-cols-3 border-b">
+                      <span>Field</span>
+                      <span>Specification</span>
+                      <span className="text-right">Value</span>
+                    </div>
+                    <div className="divide-y text-[11px]">
+                      <div className="p-2 grid grid-cols-3">
+                        <span>Document Type</span>
+                        <span>{documentItem.type}</span>
+                        <span className="text-right font-mono">VERIFIED</span>
+                      </div>
+                      <div className="p-2 grid grid-cols-3">
+                        <span>File Size</span>
+                        <span>{documentItem.fileSize}</span>
+                        <span className="text-right font-mono">OK</span>
+                      </div>
+                      <div className="p-2 grid grid-cols-3">
+                        <span>Security Hash</span>
+                        <span className="truncate">sha256-e3b0c442...</span>
+                        <span className="text-right text-emerald-600 font-bold">PASSED</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] leading-relaxed italic text-muted-foreground/80">
+                    &quot;{documentItem.description}&quot;
+                  </p>
+                </div>
+
+                {/* Simulated Document Footer */}
+                <div className="pt-4 border-t flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span>Authorized Signature: <strong className="text-foreground">{documentItem.uploadedBy}</strong></span>
+                  <span>Page {currentPage} of {totalPages}</span>
+                </div>
+              </div>
+            </CardContent>
+
+            {/* Bottom Preview Control bar */}
+            <div className="p-3 bg-muted/20 border-t flex items-center justify-between text-xs">
+              <span className="text-muted-foreground flex items-center gap-1.5">
+                <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-emerald-500" /> Secure Viewer (Read-only Preview)
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="text-muted-foreground font-mono">
+                  Page {currentPage} / {totalPages}
+                </span>
+                <Button size="sm" variant="outline" className="h-8 rounded-lg" onClick={() => handleDownload()}>
+                  <FontAwesomeIcon icon={faDownload} className="mr-1.5 h-3.5 w-3.5" /> Download PDF
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Right Column: Metadata, Workflow & History */}
+        <div className="space-y-6">
+          
+          {/* Metadata Card */}
+          <Card className="rounded-xl shadow-sm border-border/60">
+            <CardHeader className="p-5 border-b">
+              <CardTitle className="text-lg font-bold">Document Information</CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 space-y-4 text-sm">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FontAwesomeIcon icon={faFileLines} className="h-4 w-4 text-primary" /> Document Type:
+                  </span>
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {documentItem.type}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between pb-2 border-b">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary" /> Category:
+                  </span>
+                  <span className="font-medium text-foreground">{documentItem.category}</span>
+                </div>
+
+                <div className="flex items-center justify-between pb-2 border-b">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FontAwesomeIcon icon={faBuilding} className="h-4 w-4 text-primary" /> Client:
+                  </span>
+                  <span className="font-medium text-foreground truncate max-w-[150px]">{documentItem.clientName}</span>
+                </div>
+
+                <div className="flex items-center justify-between pb-2 border-b">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FontAwesomeIcon icon={faBox} className="h-4 w-4 text-primary" /> Shipment ID:
+                  </span>
+                  <span className="font-mono font-medium text-primary" title={documentItem.shipmentId}>{documentItem.shipmentRef || documentItem.shipmentId}</span>
+                </div>
+
+                {documentItem.expiryDate && (
+                  <div className="flex items-center justify-between pb-2 border-b">
+                    <span className="text-muted-foreground flex items-center gap-2">
+                      <FontAwesomeIcon icon={faCalendar} className="h-4 w-4 text-primary" /> Expiry Date:
+                    </span>
+                    <span className="font-mono font-medium text-foreground">{documentItem.expiryDate}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pb-2 border-b">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FontAwesomeIcon icon={faCircle} className="h-4 w-4 text-primary" /> File Size:
+                  </span>
+                  <span className="font-mono font-medium text-foreground">{documentItem.fileSize}</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground flex items-center gap-2">
+                    <FontAwesomeIcon icon={faUser} className="h-4 w-4 text-primary" /> Uploaded By:
+                  </span>
+                  <span className="font-medium text-foreground">{documentItem.uploadedBy}</span>
+                </div>
+              </div>
+
+              {/* Tags */}
+              {documentItem.tags && documentItem.tags.length > 0 && (
+                <div className="pt-3 border-t space-y-2">
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Tags</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {documentItem.tags.map((tag, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs py-0.5 px-2 rounded-md">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              <div className="pt-3 border-t space-y-1">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">Description</span>
+                <p className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-xl border leading-relaxed">
+                  {documentItem.description}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Workflow Action Buttons Card */}
+          <Card className="rounded-xl shadow-sm border-border/60">
+            <CardHeader className="p-5 border-b">
+              <CardTitle className="text-lg font-bold">Workflow Review</CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 flex flex-col gap-3">
+              <Button 
+                variant="default" 
+                disabled={status === "Approved" || isUpdating !== null}
+                onClick={() => handleStatusChange("Approved")}
+                className="w-full justify-start rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-200 shadow-sm"
+              >
+                <FontAwesomeIcon icon={faCheck} className={`mr-2 h-4 w-4 ${isUpdating === "Approved" ? "animate-ping" : ""}`} />
+                {isUpdating === "Approved" ? "Approving..." : "Approve Document"}
+              </Button>
+
+              <Button 
+                variant="destructive" 
+                disabled={status === "Rejected" || isUpdating !== null}
+                onClick={() => handleStatusChange("Rejected")}
+                className="w-full justify-start rounded-xl transition-all duration-200 shadow-sm"
+              >
+                <FontAwesomeIcon icon={faXmark} className={`mr-2 h-4 w-4 ${isUpdating === "Rejected" ? "animate-ping" : ""}`} />
+                {isUpdating === "Rejected" ? "Rejecting..." : "Reject Document"}
+              </Button>
+
+              <Button 
+                variant="secondary" 
+                disabled={status === "Archived" || isUpdating !== null}
+                onClick={() => handleStatusChange("Archived")}
+                className="w-full justify-start rounded-xl transition-all duration-200"
+              >
+                <FontAwesomeIcon icon={faCircle} className={`mr-2 h-4 w-4 ${isUpdating === "Archived" ? "animate-ping" : ""}`} />
+                {isUpdating === "Archived" ? "Archiving..." : "Archive Document"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Tabs: Version History & Activity Audit Trail */}
+          <Card className="rounded-xl shadow-sm border-border/60">
+            <Tabs defaultValue="versions" className="w-full">
+              <CardHeader className="p-5 border-b pb-0">
+                <TabsList className="grid w-full grid-cols-2 rounded-xl">
+                  <TabsTrigger value="versions" className="rounded-lg text-xs font-semibold">
+                    <FontAwesomeIcon icon={faCircle} className="mr-1.5 h-3.5 w-3.5" /> Version History
+                  </TabsTrigger>
+                  <TabsTrigger value="activity" className="rounded-lg text-xs font-semibold">
+                    <FontAwesomeIcon icon={faClock} className="mr-1.5 h-3.5 w-3.5" /> Activity Log
+                  </TabsTrigger>
+                </TabsList>
+              </CardHeader>
+
+              <CardContent className="p-5">
+                
+                {/* Version History Tab */}
+                <TabsContent value="versions" className="m-0 space-y-4">
+                  {(() => {
+                    const fileActivities = activities.filter(a => ["File Replaced", "File Uploaded", "Created"].includes(a.action));
+                    return fileActivities.length > 0 ? (
+                      <div className="rounded-md border">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Event</TableHead>
+                              <TableHead>Date/Time</TableHead>
+                              <TableHead>User</TableHead>
+                              <TableHead>Old File Name</TableHead>
+                              <TableHead>Old Size</TableHead>
+                              <TableHead>Old Type</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {fileActivities.map((act, idx) => {
+                              let oldName = "-";
+                              let oldSize = "-";
+                              let oldType = "-";
+                              
+                              if (act.details) {
+                                try {
+                                  // Try parsing as JSON first (new format)
+                                  const parsed = JSON.parse(act.details);
+                                  oldName = parsed.old_file_name || "-";
+                                  oldSize = parsed.old_file_size ? `${(parseInt(parsed.old_file_size) / (1024 * 1024)).toFixed(1)} MB` : "-";
+                                  oldType = parsed.old_file_type || "-";
+                                } catch {
+                                  // Fallback to old string format parsing
+                                  const urlMatch = act.details.match(/url=([^,]+)/);
+                                  const sizeMatch = act.details.match(/size=([^,]+)/);
+                                  const typeMatch = act.details.match(/type=([^,]+)/);
+                                  
+                                  oldName = urlMatch && urlMatch[1] !== 'none' ? urlMatch[1].split('-').slice(1).join('-') : "-";
+                                  oldSize = sizeMatch && sizeMatch[1] !== 'none' ? `${(parseInt(sizeMatch[1]) / (1024 * 1024)).toFixed(1)} MB` : "-";
+                                  oldType = typeMatch && typeMatch[1] !== 'none' ? typeMatch[1] : "-";
+                                }
+                              }
+                              
+                              return (
+                                <TableRow key={act.id || idx}>
+                                  <TableCell className="font-medium text-xs">
+                                    {act.action}
+                                    {idx === 0 && (
+                                      <Badge variant="secondary" className="ml-2 text-[10px] py-0 px-1.5 bg-emerald-500/10 text-emerald-600 font-semibold">
+                                        Current
+                                      </Badge>
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{act.date}</TableCell>
+                                  <TableCell className="text-xs">{act.actor}</TableCell>
+                                  <TableCell className="text-xs max-w-[150px] truncate" title={oldName}>{oldName}</TableCell>
+                                  <TableCell className="text-xs whitespace-nowrap">{oldSize}</TableCell>
+                                  <TableCell className="text-xs">{oldType}</TableCell>
+                                </TableRow>
+                              )
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground text-center py-4 border rounded-md">No file version history available.</p>
+                    );
+                  })()}
+                </TabsContent>
+
+                {/* Activity Log Tab */}
+                <TabsContent value="activity" className="m-0 space-y-4">
+                  <div className="space-y-5">
+                    {activities.map((act, idx) => (
+                      <div key={act.id || idx} className="relative pl-6">
+                        {/* Timeline connecting line */}
+                        {idx !== activities.length - 1 && (
+                          <div className="absolute left-[9px] top-6 bottom-[-20px] w-px bg-border" />
+                        )}
+                        
+                        {/* Timeline dot */}
+                        <div className="absolute left-0 top-1 h-4 w-4 rounded-full border-2 border-primary bg-background" />
+                        
+                        <div className="flex flex-col gap-1">
+                          <p className="text-xs font-semibold text-foreground">{act.action}</p>
+                          <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <FontAwesomeIcon icon={faUser} className="h-3 w-3" /> {act.actor}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <FontAwesomeIcon icon={faCalendar} className="h-3 w-3" /> {act.date}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </TabsContent>
+
+              </CardContent>
+            </Tabs>
+          </Card>
+
+        </div>
+      </div>
+
+      <Sheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen}>
+        <SheetContent className="sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Edit Document Metadata</SheetTitle>
+            <SheetDescription>
+              Update the metadata details for this document.
+            </SheetDescription>
+          </SheetHeader>
+
+          <form onSubmit={handleEditSubmit} className="space-y-6 py-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Document Name</Label>
+              <Input 
+                id="name" 
+                value={editForm.name} 
+                onChange={e => setEditForm({...editForm, name: e.target.value})} 
+                required 
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={editForm.category} onValueChange={val => setEditForm({...editForm, category: val as DocumentCategory})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Shipment Documents">Shipment Documents</SelectItem>
+                  <SelectItem value="BOE Documents">BOE Documents</SelectItem>
+                  <SelectItem value="Client Documents">Client Documents</SelectItem>
+                  <SelectItem value="Financial Documents">Financial Documents</SelectItem>
+                  <SelectItem value="Compliance Documents">Compliance Documents</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>File Type Label</Label>
+              <Select value={editForm.type} onValueChange={val => setEditForm({...editForm, type: val || ""})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PDF">PDF</SelectItem>
+                  <SelectItem value="XLSX">Excel (XLSX)</SelectItem>
+                  <SelectItem value="DOCX">Word (DOCX)</SelectItem>
+                  <SelectItem value="JPG">Image (JPG/PNG)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Input 
+                id="description" 
+                value={editForm.description} 
+                onChange={e => setEditForm({...editForm, description: e.target.value})} 
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expiryDate">Expiry Date (Optional)</Label>
+              <Input 
+                id="expiryDate" 
+                type="date"
+                value={editForm.expiryDate} 
+                onChange={e => setEditForm({...editForm, expiryDate: e.target.value})} 
+              />
+            </div>
+
+            <SheetFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setIsEditSheetOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSavingMetadata}>
+                {isSavingMetadata ? "Saving..." : "Save Changes"}
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+
+    </div>
+  )
+}

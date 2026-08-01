@@ -1,85 +1,75 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBox, faFileLines, faUsers, faBriefcase, faArrowTrendUp, faArrowTrendDown, faChartLine, faTruck } from "@fortawesome/free-solid-svg-icons";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faBox, faFileLines, faUsers, faBriefcase, faArrowTrendUp, faArrowTrendDown, faChartLine, faTruck, faFile, faCalendarDay, faSearch } from "@fortawesome/free-solid-svg-icons"
 import Link from "next/link"
-
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { getUserProfile } from "@/actions/auth.actions"
-import { mockClients } from "@/lib/mock-data/clients"
-import { mockBOEList } from "@/lib/mock-data/boe"
-import { mockDocumentsList } from "@/lib/mock-data/document"
-import { mockShipmentsList } from "@/lib/mock-data/shipment"
-import { getEmployees } from "@/actions/employees.actions"
+import { getDashboardStats, getRecentActivities, getRecentDocuments, getRecentShipments } from "@/actions/dashboard.actions"
+import { StatusBadge } from "@/components/erp/status-badge"
 
-// CLIENT_USER_ID corresponds to the mock client account (John Smith at Acme Corp)
-const CLIENT_COMPANY_ID = "CL-1003"
-
-export default function DashboardPage() {
-  const [role, setRole] = useState("Admin");
-  const [activeEmpCount, setActiveEmpCount] = useState("—");
-
-  useEffect(() => {
-    getUserProfile().then((res) => {
-      if (res.success && res.data?.role) setRole(res.data.role as string);
-    });
-    getEmployees().then(res => {
-      if (res.success && res.data) {
-        setActiveEmpCount(res.data.filter(e => e.status === "Active").length.toString());
-      }
-    });
-  }, []);
-
-  const activeShipments = mockShipmentsList.filter(
-    s => s.status !== "Completed" && s.status !== "Delivered" && s.status !== "Cancelled"
+function EmptyState({ title, description, icon }: { title: string, description: string, icon: any }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-8 text-center px-4">
+      <div className="size-12 rounded-full bg-muted flex items-center justify-center mb-3">
+        <FontAwesomeIcon icon={icon} className="size-5 text-muted-foreground" />
+      </div>
+      <p className="font-semibold text-foreground text-sm">{title}</p>
+      <p className="text-xs text-muted-foreground mt-1 max-w-[250px]">{description}</p>
+    </div>
   )
+}
 
-  // Role-aware stats
+export default async function DashboardPage() {
+  const profileRes = await getUserProfile()
+  const role = profileRes.data?.role || "Client"
+
+  const [statsRes, activitiesRes, docsRes, shipsRes] = await Promise.all([
+    getDashboardStats(),
+    getRecentActivities(),
+    getRecentDocuments(),
+    getRecentShipments()
+  ])
+
+  const s = statsRes.data || {
+    totalClients: 0,
+    totalShipments: 0,
+    totalDocuments: 0,
+    totalBOE: 0,
+    activeEmployees: 0,
+    pendingDocuments: 0,
+    pendingShipments: 0,
+    activeShipments: 0,
+    last30DaysClients: 0,
+    last30DaysShipments: 0,
+    last30DaysDocuments: 0,
+  }
+
+  const recentActivities = activitiesRes.data || []
+  const recentDocuments = docsRes.data || []
+  const recentShipments = shipsRes.data || []
+
   const adminStats = [
-    { name: "Active Shipments", link: "/shipments", value: activeShipments.length.toString(), icon: faTruck, trend: "+12.5%", positive: true },
-    { name: "Total BOE", link: "/boe", value: mockBOEList.length.toString(), icon: faFileLines, trend: "-2.4%", positive: false },
-    { name: "Total Documents", link: "/documents", value: mockDocumentsList.length.toString(), icon: faFileLines, trend: "+5.2%", positive: true },
-    { name: "Total Clients", link: "/clients", value: mockClients.length.toString(), icon: faUsers, trend: "+18.1%", positive: true },
-    { name: "Active Employees", link: "/employees", value: activeEmpCount, icon: faBriefcase, trend: "0%", positive: true },
-    { name: "Monthly Revenue", link: "/reports", value: "৳1,42,500", icon: faBox, trend: "+24.5%", positive: true },
+    { name: "Active Shipments", link: "/shipments", value: s.activeShipments.toString(), icon: faTruck, trend: `+${s.last30DaysShipments}`, positive: true },
+    { name: "Total BOE", link: "/boe", value: s.totalBOE.toString(), icon: faFileLines, trend: null, positive: false },
+    { name: "Total Documents", link: "/documents", value: s.totalDocuments.toString(), icon: faFileLines, trend: `+${s.last30DaysDocuments}`, positive: true },
+    { name: "Total Clients", link: "/clients", value: s.totalClients.toString(), icon: faUsers, trend: `+${s.last30DaysClients}`, positive: true },
+    { name: "Active Employees", link: "/employees", value: s.activeEmployees.toString(), icon: faBriefcase, trend: null, positive: true },
+    { name: "Pending Shipments", link: "/shipments", value: s.pendingShipments.toString(), icon: faBox, trend: null, positive: true },
   ]
 
   const employeeStats = [
-    { name: "Active Shipments", link: "/shipments", value: activeShipments.length.toString(), icon: faTruck, trend: "+12.5%", positive: true },
-    { name: "Total BOE", link: "/boe", value: mockBOEList.length.toString(), icon: faFileLines, trend: "-2.4%", positive: false },
-    { name: "Total Documents", link: "/documents", value: mockDocumentsList.length.toString(), icon: faFileLines, trend: "+5.2%", positive: true },
-    { name: "Total Clients", link: "/clients", value: mockClients.length.toString(), icon: faUsers, trend: "+18.1%", positive: true },
+    { name: "Active Shipments", link: "/shipments", value: s.activeShipments.toString(), icon: faTruck, trend: `+${s.last30DaysShipments}`, positive: true },
+    { name: "Total BOE", link: "/boe", value: s.totalBOE.toString(), icon: faFileLines, trend: null, positive: false },
+    { name: "Total Documents", link: "/documents", value: s.totalDocuments.toString(), icon: faFileLines, trend: `+${s.last30DaysDocuments}`, positive: true },
+    { name: "Total Clients", link: "/clients", value: s.totalClients.toString(), icon: faUsers, trend: `+${s.last30DaysClients}`, positive: true },
   ]
 
-  // Client sees only their own shipments & documents
-  const clientShipments = mockShipmentsList.filter(s => s.clientId === CLIENT_COMPANY_ID)
-  const clientActiveShipments = clientShipments.filter(
-    s => s.status !== "Completed" && s.status !== "Delivered" && s.status !== "Cancelled"
-  )
   const clientStats = [
-    { name: "My Active Shipments", link: "/shipments", value: clientActiveShipments.length.toString(), icon: faTruck, trend: "+2", positive: true },
-    { name: "My Total Shipments", link: "/shipments", value: clientShipments.length.toString(), icon: faTruck, trend: "", positive: true },
-    { name: "My Documents", link: "/documents", value: mockDocumentsList.filter(d => d.clientName === "Acme Corp" || d.clientId === CLIENT_COMPANY_ID).length.toString(), icon: faFileLines, trend: "+3", positive: true },
+    { name: "My Active Shipments", link: "/shipments", value: s.activeShipments.toString(), icon: faTruck, trend: `+${s.last30DaysShipments}`, positive: true },
+    { name: "My Total Shipments", link: "/shipments", value: s.totalShipments.toString(), icon: faTruck, trend: null, positive: true },
+    { name: "My Documents", link: "/documents", value: s.totalDocuments.toString(), icon: faFileLines, trend: `+${s.last30DaysDocuments}`, positive: true },
   ]
 
   const stats = role === "Admin" ? adminStats : role === "Employee" ? employeeStats : clientStats
-
-  // Role-aware recent activity — clients see only their own events
-  const adminActivity = [
-    { action: "Shipment SHP-8472 cleared customs", time: "10 mins ago", status: "success", link: "/shipments/SHP-8472" },
-    { action: "New client 'Global Logistics Inc.' onboarded", time: "1 hour ago", status: "info", link: "/clients/CL-1001" },
-    { action: "BOE BOE-2026-001 rejected — missing docs", time: "3 hours ago", status: "danger", link: "/boe/boe-1" },
-    { action: "Invoice INV-2041 paid by 'Global Logistics Inc.'", time: "5 hours ago", status: "success", link: "/documents/doc-1" },
-  ]
-
-  const clientActivity = [
-    { action: "Your document 'Packing List' was approved", time: "2 hours ago", status: "success", link: "/documents" },
-    { action: "Shipment SHP-8472 status updated to 'In Transit'", time: "1 day ago", status: "info", link: "/shipments/SHP-8472" },
-  ]
-
-  const recentActivity = role === "Client" ? clientActivity : adminActivity
 
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
@@ -122,12 +112,12 @@ export default function DashboardPage() {
                       }
                       {stat.trend}
                     </span>
-                    <span className="text-muted-foreground ml-3 font-medium">vs last month</span>
+                    <span className="text-muted-foreground ml-3 font-medium">in last 30 days</span>
                   </div>
                 )}
               </CardContent>
             </Card>
-          );
+          )
 
           return stat.link ? (
             <Link href={stat.link} key={i} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[14px]">
@@ -137,104 +127,159 @@ export default function DashboardPage() {
             <div key={i} className="h-full">
               {cardContent}
             </div>
-          );
+          )
         })}
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        {/* Volume Analytics — not shown to Clients */}
-        {role !== "Client" && (
-          <Card className="col-span-1 lg:col-span-4 flex flex-col hover:shadow-md transition-shadow duration-300">
-            <CardHeader>
-              <CardTitle>Volume Analytics</CardTitle>
-              <CardDescription>Import vs Export distribution over the last 6 months.</CardDescription>
+        
+        {/* Left Column */}
+        <div className="col-span-1 lg:col-span-4 flex flex-col gap-6">
+          
+          {/* Recent Shipments */}
+          <Card className="flex flex-col hover:shadow-md transition-shadow duration-300 overflow-hidden">
+            <CardHeader className="bg-muted/30 border-b pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FontAwesomeIcon icon={faTruck} className="size-4 text-primary" />
+                  Recent Shipments
+                </CardTitle>
+                <Link href="/shipments" className="text-xs text-primary font-medium hover:underline">
+                  View All
+                </Link>
+              </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col justify-end">
-              <div className="h-[280px] w-full flex items-end justify-between px-2 pb-2 pt-10 border-b border-border gap-4 mt-auto" role="img" aria-label="Bar chart showing import vs export volume over 6 months">
-                {[40, 60, 45, 80, 65, 90].map((height, i) => (
-                  <div key={i} className="w-full flex gap-1.5 h-full items-end justify-center group cursor-pointer relative">
-                    <div
-                      className="w-1/2 bg-primary rounded-t-md transition-all duration-300 hover:brightness-110"
-                      style={{ height: `${height}%` }}
-                    />
-                    <div
-                      className="w-1/2 bg-secondary rounded-t-md transition-all duration-300 hover:brightness-110"
-                      style={{ height: `${height * 0.7}%` }}
-                    />
-                    {/* Tooltip */}
-                    <div className="absolute -top-10 bg-popover text-popover-foreground text-xs px-3 py-1.5 rounded-md shadow-xl border border-border opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0 whitespace-nowrap z-20" role="tooltip">
-                      Vol: {height}k
+            <CardContent className="p-0">
+              {recentShipments.length === 0 ? (
+                <EmptyState icon={faSearch} title="No shipments found" description="You have no recent shipments. They will appear here when created." />
+              ) : (
+                <div className="divide-y">
+                  {recentShipments.map(ship => (
+                    <div key={ship.id} className="p-4 hover:bg-muted/10 transition-colors flex items-center justify-between">
+                      <div className="flex flex-col gap-1">
+                        <Link href={`/shipments/${ship.id}`} className="font-semibold text-sm hover:text-primary transition-colors">
+                          {ship.shipment_number}
+                        </Link>
+                        {role !== "Client" && (
+                          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <FontAwesomeIcon icon={faUsers} className="size-3" />
+                            {Array.isArray(ship.clients) ? ship.clients[0]?.company_name : (ship.clients as any)?.company_name}
+                          </span>
+                        )}
+                        <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <FontAwesomeIcon icon={faCalendarDay} className="size-3" />
+                          Updated: {new Date(ship.updated_at || "").toLocaleDateString()}
+                        </span>
+                      </div>
+                      <StatusBadge status={ship.status || ""} />
                     </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between mt-4 text-sm font-medium text-muted-foreground px-4" aria-hidden="true">
-                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-              </div>
-              <div className="flex items-center justify-center gap-8 mt-8">
-                <div className="flex items-center gap-2">
-                  <div className="size-3.5 bg-primary rounded-[4px] shadow-sm" aria-hidden="true" />
-                  <span className="text-sm font-semibold text-foreground">Imports</span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="size-3.5 bg-secondary rounded-[4px] shadow-sm" aria-hidden="true" />
-                  <span className="text-sm font-semibold text-foreground">Exports</span>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
-        )}
 
-        {/* Recent Activity */}
-        <Card className={`col-span-1 ${role !== "Client" ? "lg:col-span-3" : "lg:col-span-7"} flex flex-col hover:shadow-md transition-shadow duration-300`}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faChartLine} className="size-5 text-primary" aria-hidden="true" />
-              Recent Activity
-            </CardTitle>
-            <CardDescription>
-              {role === "Client" ? "Your latest shipment and document events." : "Latest system events and operations."}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1">
-            <div className="space-y-8 mt-4">
-              {recentActivity.map((activity, i) => {
-                const content = (
-                  <div className="flex items-start gap-4 group cursor-pointer">
-                    <div className="relative mt-1">
-                      <div className={`size-3.5 rounded-full ${
-                        activity.status === "success" ? "bg-success" :
-                        activity.status === "danger" ? "bg-destructive" :
-                        "bg-primary"
-                      } ring-4 ring-background transition-transform duration-300 group-hover:scale-125 z-10 relative`} aria-hidden="true" />
-                      {i !== recentActivity.length - 1 && (
-                        <div className="absolute top-4 left-1/2 h-12 w-[2px] bg-border/60 -translate-x-1/2" aria-hidden="true" />
-                      )}
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{activity.action}</p>
-                      <p className="text-xs font-medium text-muted-foreground">{activity.time}</p>
-                    </div>
-                  </div>
-                );
+          {/* Activity Feed (Moved to Left Column) */}
+          <Card className="flex flex-col hover:shadow-md transition-shadow duration-300">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faChartLine} className="size-5 text-primary" aria-hidden="true" />
+                Activity Feed
+              </CardTitle>
+              <CardDescription>
+                {role === "Client" ? "Your latest shipment and document events." : "Latest system events and operations."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1">
+              {recentActivities.length === 0 ? (
+                <EmptyState icon={faChartLine} title="No recent activity" description="There has been no recent activity in your account." />
+              ) : (
+                <div className="space-y-8 mt-4">
+                  {recentActivities.map((activity, i) => {
+                    const content = (
+                      <div className="flex items-start gap-4 group cursor-default">
+                        <div className="relative mt-1">
+                          <div className={`size-3.5 rounded-full ${
+                            activity.type === "document" ? "bg-blue-500" :
+                            activity.type === "shipment" ? "bg-amber-500" :
+                            "bg-primary"
+                          } ring-4 ring-background z-10 relative`} aria-hidden="true" />
+                          {i !== recentActivities.length - 1 && (
+                            <div className="absolute top-4 left-1/2 h-full w-[2px] bg-border/60 -translate-x-1/2" aria-hidden="true" />
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-1 pb-4 border-b border-border/40 w-full">
+                          <p className="text-sm font-semibold text-foreground">{activity.title}</p>
+                          <p className="text-xs text-muted-foreground">{activity.description}</p>
+                          <div className="flex items-center justify-between mt-1">
+                             <p className="text-[10px] font-medium text-primary/70">{activity.actor}</p>
+                             <p className="text-[10px] font-medium text-muted-foreground">
+                               {new Date(activity.timestamp).toLocaleString(undefined, {
+                                  month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                               })}
+                             </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                    return <div key={activity.id}>{content}</div>
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-                return activity.link ? (
-                  <Link href={activity.link} key={i} className="block outline-none rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-                    {content}
-                  </Link>
-                ) : (
-                  <div key={i}>{content}</div>
-                );
-              })}
-            </div>
+        </div>
 
-            <div className="mt-8">
-              <Link href="/notifications" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center justify-center w-full py-2 bg-primary/5 rounded-lg hover:bg-primary/10">
-                View All Activity
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Right Column */}
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
+          
+          {/* Recent Documents (Moved to Right Column) */}
+          <Card className="flex flex-col hover:shadow-md transition-shadow duration-300 overflow-hidden">
+            <CardHeader className="bg-muted/30 border-b pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <FontAwesomeIcon icon={faFileLines} className="size-4 text-primary" />
+                  Recent Documents
+                </CardTitle>
+                <Link href="/documents" className="text-xs text-primary font-medium hover:underline">
+                  View All
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {recentDocuments.length === 0 ? (
+                <EmptyState icon={faFile} title="No documents found" description="You have no recent documents. Upload one to get started." />
+              ) : (
+                <div className="divide-y">
+                  {recentDocuments.map(doc => {
+                    const isExpired = doc.expiry_date && new Date(doc.expiry_date) < new Date();
+                    return (
+                      <div key={doc.id} className="p-4 hover:bg-muted/10 transition-colors flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <Link href={`/documents/${doc.id}`} className="font-semibold text-sm hover:text-primary transition-colors flex items-center gap-2">
+                            {doc.name}
+                            {isExpired && <span className="px-1.5 py-0.5 rounded text-[10px] bg-destructive/10 text-destructive font-bold uppercase">Expired</span>}
+                          </Link>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <FontAwesomeIcon icon={faUsers} className="size-3" />
+                            By: {Array.isArray(doc.profiles) ? doc.profiles[0]?.full_name : (doc.profiles as any)?.full_name || "Unknown"}
+                          </span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <FontAwesomeIcon icon={faCalendarDay} className="size-3" />
+                            {new Date(doc.upload_date || "").toLocaleDateString()}
+                          </span>
+                        </div>
+                        <StatusBadge status={doc.status || ""} />
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+        </div>
       </div>
     </div>
   )

@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { createDocument } from "@/actions/document.actions";
+import { useToast } from "@/components/ui/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faFile, faXmark, faCircleCheck, faSpinner, faFileLines, faFileExcel, faBuilding, faBox, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { DocumentType } from "@/lib/types/document";
+import { formatClientId } from "@/lib/utils";
+
+interface DocumentUploadFormProps {
+  clients?: { id: string, company_name: string }[];
+  shipments?: { id: string, destination_country?: string | null, container_number?: string | null, departure_date?: string | null }[];
+  billsOfEntry?: { id: string, boe_number: string }[];
+}
 
 interface FileWithProgress extends File {
   progress?: number;
@@ -23,8 +33,9 @@ const DOCUMENT_TYPES: DocumentType[] = [
   'BOE Documents', 'Customs Documents', 'Other'
 ];
 
-export function DocumentUploadForm() {
+export function DocumentUploadForm({ clients = [], shipments = [], billsOfEntry = [] }: DocumentUploadFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -87,52 +98,114 @@ export function DocumentUploadForm() {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (files.length === 0) return;
     
+    // UI Validation for doc_association_check
+    if (!metadata.clientId && !metadata.shipmentId && !metadata.boeId) {
+      toast({
+        title: "Missing Association",
+        description: "You must select at least a Client, a Shipment, or a Bill of Entry to upload a document.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsUploading(true);
+    let hasError = false;
+    
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // Mock upload progress
-    const simulateUpload = (index: number) => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.random() * 25;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          setFiles(prev => {
-            const newFiles = [...prev];
-            if (newFiles[index]) {
-              newFiles[index].progress = 100;
-              newFiles[index].status = 'completed';
-            }
-            return newFiles;
-          });
-          
-          // Check if all are complete
-          setTimeout(() => {
-            setFiles(currentFiles => {
-              if (currentFiles.every(f => f.status === 'completed')) {
-                setIsUploading(false);
-                router.push('/documents');
-              }
-              return currentFiles;
-            });
-          }, 500);
-        } else {
-          setFiles(prev => {
-            const newFiles = [...prev];
-            if (newFiles[index]) {
-              newFiles[index].progress = progress;
-              newFiles[index].status = 'uploading';
-            }
-            return newFiles;
-          });
+    // For each file, generate UUID, upload to Storage, and then insert DB row
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setFiles(prev => {
+        const newFiles = [...prev];
+        if (newFiles[i]) {
+          newFiles[i].status = 'uploading';
+          // Using exactly 50 logic was part of mock; we remove the progress entirely 
+          // or just keep it 0 in UI, but the UI expects a status string. We will just set it to 100 once done.
         }
-      }, 180);
-    };
+        return newFiles;
+      });
 
-    files.forEach((_, idx) => simulateUpload(idx));
+      let filePath = "";
+      const documentId = crypto.randomUUID(); // Pre-generate Document UUID
+
+      if (user) {
+        const timestamp = Date.now();
+        const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+        filePath = `documents/${user.id}/${documentId}/${timestamp}-${safeName}`;
+        
+        const { error: storageError } = await supabase.storage
+          .from("documents")
+          .upload(filePath, file);
+          
+        if (storageError) {
+          console.error("Storage upload error:", storageError);
+          setFiles(prev => {
+            const newFiles = [...prev];
+            if (newFiles[i]) newFiles[i].status = 'error';
+            return newFiles;
+          });
+          hasError = true;
+          toast({
+            title: "Upload Failed",
+            description: storageError.message,
+            variant: "destructive"
+          });
+          continue; // Skip DB insert if storage upload fails
+        }
+      }
+
+      const tagsArray = metadata.tags ? metadata.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+      const res = await createDocument({
+        id: documentId,
+        name: file.name,
+        category: "Shipment Documents", // Assuming default category if not provided
+        client_id: metadata.clientId || undefined,
+        shipment_id: metadata.shipmentId || undefined,
+        boe_id: metadata.boeId || undefined,
+        description: metadata.description || undefined,
+        tags: tagsArray,
+        type: metadata.type,
+        current_file_url: filePath,
+        file_type: file.type,
+        file_size: file.size
+      });
+
+      setFiles(prev => {
+        const newFiles = [...prev];
+        if (newFiles[i]) {
+          if (res.success) {
+            newFiles[i].status = 'completed';
+          } else {
+            newFiles[i].status = 'error';
+            hasError = true;
+          }
+        }
+        return newFiles;
+      });
+
+      if (!res.success) {
+        toast({
+          title: "Upload Failed",
+          description: res.error || "An error occurred during upload.",
+          variant: "destructive"
+        });
+      }
+    }
+
+    setIsUploading(false);
+    
+    // Only navigate if all succeeded
+    if (!hasError) {
+      setTimeout(() => {
+        router.push('/documents');
+      }, 1000);
+    }
   };
 
   const formatBytes = (bytes: number, decimals = 2) => {
@@ -287,13 +360,18 @@ export function DocumentUploadForm() {
                     </div>
                     
                     {file.status === 'uploading' && (
-                      <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
-                        <div 
-                          className="bg-primary h-1.5 rounded-full transition-all duration-200" 
-                          style={{ width: `${file.progress}%` }}
-                        />
-                      </div>
-                    )}
+                    <div className="text-xs text-muted-foreground flex items-center gap-2">
+                      Uploading...
+                    </div>
+                  )}
+                  {file.status === 'completed' && (
+                    <div className="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
+                      <FontAwesomeIcon icon={faCircleCheck} className="h-3 w-3" /> Complete
+                    </div>
+                  )}
+                  {file.status === 'error' && (
+                    <div className="text-xs text-red-600 dark:text-red-400 font-medium">Failed to upload</div>
+                  )}
                   </div>
                 ))}
               </div>
@@ -362,13 +440,21 @@ export function DocumentUploadForm() {
               disabled={isUploading}
             >
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Select associated client" />
+                <SelectValue placeholder="Select associated client">
+                  {metadata.clientId && clients.find(c => c.id === metadata.clientId) 
+                    ? (clients.find(c => c.id === metadata.clientId)?.company_name 
+                        ? `${clients.find(c => c.id === metadata.clientId)?.company_name} (${formatClientId(metadata.clientId)})` 
+                        : `Client ${formatClientId(metadata.clientId)}`) 
+                    : undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="client-1">Acme Corp</SelectItem>
-                <SelectItem value="client-2">TechNova</SelectItem>
-                <SelectItem value="client-3">Global Trade Co</SelectItem>
-                <SelectItem value="client-4">Apex Maritime Logistics</SelectItem>
+                {clients.length === 0 && <SelectItem value="none" disabled>No clients found</SelectItem>}
+                {clients.map(c => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.company_name ? `${c.company_name} (${formatClientId(c.id)})` : `Client ${formatClientId(c.id)}`}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -383,12 +469,24 @@ export function DocumentUploadForm() {
               disabled={isUploading}
             >
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Select shipment ID" />
+                <SelectValue placeholder="Select shipment ID">
+                  {metadata.shipmentId && shipments.find(s => s.id === metadata.shipmentId)
+                    ? (
+                        shipments.find(s => s.id === metadata.shipmentId)?.container_number 
+                          ? `Container: ${shipments.find(s => s.id === metadata.shipmentId)?.container_number}` 
+                          : (shipments.find(s => s.id === metadata.shipmentId)?.destination_country 
+                              ? `To ${shipments.find(s => s.id === metadata.shipmentId)?.destination_country}` 
+                              : `Shipment ${metadata.shipmentId.slice(0, 8)}`)
+                      )
+                    : undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="SHP-1001">#TRK-98230 (SHP-1001)</SelectItem>
-                <SelectItem value="SHP-1002">#TRK-98231 (SHP-1002)</SelectItem>
-                <SelectItem value="SHP-1003">#TRK-98232 (SHP-1003)</SelectItem>
+                {shipments.length === 0 && <SelectItem value="none" disabled>No shipments found</SelectItem>}
+                {shipments.map(s => {
+                  const label = s.container_number ? `Container: ${s.container_number}` : (s.destination_country ? `To ${s.destination_country}` : `Shipment ${s.id.slice(0, 8)}`);
+                  return <SelectItem key={s.id} value={s.id}>{label}</SelectItem>
+                })}
               </SelectContent>
             </Select>
           </div>
@@ -403,12 +501,17 @@ export function DocumentUploadForm() {
               disabled={isUploading}
             >
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Select BOE" />
+                <SelectValue placeholder="Select BOE">
+                  {metadata.boeId && billsOfEntry.find(b => b.id === metadata.boeId)
+                    ? (billsOfEntry.find(b => b.id === metadata.boeId)?.boe_number ? `BOE: ${billsOfEntry.find(b => b.id === metadata.boeId)?.boe_number}` : `BOE ID: ${metadata.boeId.slice(0,8)}`)
+                    : undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="BOE-2026-001">BOE-2026-001</SelectItem>
-                <SelectItem value="BOE-2026-002">BOE-2026-002</SelectItem>
-                <SelectItem value="BOE-2026-003">BOE-2026-003</SelectItem>
+                {billsOfEntry.length === 0 && <SelectItem value="none" disabled>No bills of entry found</SelectItem>}
+                {billsOfEntry.map(b => (
+                  <SelectItem key={b.id} value={b.id}>{b.boe_number ? `BOE: ${b.boe_number}` : `BOE ID: ${b.id.slice(0,8)}`}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

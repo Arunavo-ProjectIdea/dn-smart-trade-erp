@@ -44,12 +44,12 @@ export async function getHSCodes({
   const from = (page - 1) * PAGE_SIZE
   const to = from + PAGE_SIZE - 1
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let countQuery = (supabase as any)
     .from("hs_codes")
     .select("*", { count: "exact", head: true })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let dataQuery = (supabase as any)
     .from("hs_codes")
     .select("id, hscode, tariff_description, category, cd, sd, vat, ait, at, rd, tti")
@@ -101,7 +101,7 @@ export async function getHSCodes({
 export async function getHSCodeByHscode(hscode: string): Promise<HSCodeRow | null> {
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data, error } = await (supabase as any)
     .from("hs_codes")
     .select("id, hscode, tariff_description, category, cd, sd, vat, ait, at, rd, tti")
@@ -119,7 +119,7 @@ export async function getRelatedHSCodes(hscode: string, limit = 4): Promise<HSCo
   // Get first 4 digits to find related codes in same HS chapter
   const chapter = hscode.substring(0, 4)
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const { data, error } = await (supabase as any)
     .from("hs_codes")
     .select("id, hscode, tariff_description, category, cd, sd, vat, ait, at, rd, tti")
@@ -147,7 +147,7 @@ export async function getHSCodeStats(): Promise<{
 
   const avg =
     avgData && avgData.length > 0
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       ? avgData.reduce((acc: number, r: any) => acc + (r.cd ?? 0), 0) / avgData.length
       : 0
 

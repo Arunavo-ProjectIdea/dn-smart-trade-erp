@@ -92,6 +92,8 @@ export default function HSCodeDetailsPage() {
   const tti = hsCodeData.tti ?? 0
   const totalTaxRate = cd + sd + vat + ait + rd + at
 
+
+
   return (
     <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
 
