@@ -358,7 +358,9 @@ export async function updateBOE(id: string, formData: unknown): Promise<{ succes
 
 export async function deleteBOE(_id: string): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log("BOE deletion request received for ID:", _id)
+    if (!_id) {
+      return { success: false, error: "Invalid BOE ID" }
+    }
     const supabase = await createClient()
 
     const { data: userData, error: authError } = await supabase.auth.getUser()
