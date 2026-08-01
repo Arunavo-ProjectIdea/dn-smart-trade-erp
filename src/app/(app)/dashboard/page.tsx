@@ -17,6 +17,7 @@ import { getEmployees } from "@/actions/employees.actions"
 // CLIENT_USER_ID corresponds to the mock client account (John Smith at Acme Corp)
 const CLIENT_COMPANY_ID = "CL-1003"
 
+
 export default function DashboardPage() {
   const [role, setRole] = useState("Admin");
   const [activeEmpCount, setActiveEmpCount] = useState("—");

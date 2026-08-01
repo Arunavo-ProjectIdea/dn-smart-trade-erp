@@ -1,12 +1,14 @@
-"use client"
 
 import Link from "next/link"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { buttonVariants } from "@/components/ui/button"
 import { DocumentUploadForm } from "@/components/erp/document-upload-form"
+import { getUploadOptions } from "@/actions/document.actions"
 
-export default function DocumentUploadPage() {
+export default async function DocumentUploadPage() {
+  const options = await getUploadOptions()
+
   return (
     <div className="flex flex-col gap-8 pb-10 animate-in fade-in duration-500">
       {/* Breadcrumb Navigation */}
@@ -40,7 +42,11 @@ export default function DocumentUploadPage() {
       </div>
 
       {/* Main Upload Form Component */}
-      <DocumentUploadForm />
+      <DocumentUploadForm 
+        clients={options.clients} 
+        shipments={options.shipments} 
+        billsOfEntry={options.billsOfEntry} 
+      />
     </div>
   )
 }

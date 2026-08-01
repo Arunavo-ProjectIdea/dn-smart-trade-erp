@@ -886,7 +886,18 @@ export default function HSCodesPage() {
       ),
     },
     {
-      header: "Actions",
+      header: "Est. Total Tax",
+      cell: (item) => {
+        const total = (item.cd || 0) + (item.vat || 0) + (item.rd || 0) + (item.ait || 0) + (item.sd || 0)
+        return (
+          <span className="font-mono text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            {total}%
+          </span>
+        )
+      }
+    },
+    {
+      header: "Manage",
       cell: (item) => (
         <div className="flex items-center gap-1.5 whitespace-nowrap">
           <Link
