@@ -4,8 +4,13 @@ import { PageHeader } from "@/components/erp/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { getAvailableShipments } from "../actions";
 
-export default function CreateBOEPage() {
+export const dynamic = "force-dynamic";
+
+export default async function CreateBOEPage() {
+  const { data: shipments } = await getAvailableShipments();
+
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full pb-10 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -20,7 +25,7 @@ export default function CreateBOEPage() {
         </div>
       </div>
       
-      <BOEForm />
+      <BOEForm availableShipments={shipments || []} />
     </div>
   );
 }

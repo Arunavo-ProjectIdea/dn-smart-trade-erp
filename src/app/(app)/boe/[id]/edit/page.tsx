@@ -1,19 +1,23 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getMockBOEById } from "@/lib/mock-data/boe";
+import { getBOEById, getAvailableShipments } from "../../actions";
 import { BOEForm } from "@/components/erp/boe-form";
 import { PageHeader } from "@/components/erp/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
+export const dynamic = "force-dynamic";
+
 export default async function EditBOEPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const boe = getMockBOEById(resolvedParams.id);
+  const { data: boe } = await getBOEById(resolvedParams.id);
 
   if (!boe) {
     notFound();
   }
+
+  const { data: shipments } = await getAvailableShipments(boe.shipment.shipmentId);
 
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto w-full pb-10 animate-in fade-in duration-500">
@@ -30,7 +34,7 @@ export default async function EditBOEPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
       
-      <BOEForm initialData={boe} />
+      <BOEForm initialData={boe} availableShipments={shipments || []} />
     </div>
   );
 }
