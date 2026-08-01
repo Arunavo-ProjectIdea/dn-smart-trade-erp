@@ -3,7 +3,7 @@
 import { use, useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { BillOfEntry, BOEProduct } from "@/lib/types/boe";
+import { BillOfEntry, BOEProduct, BOETimelineEvent, BOEStatus } from "@/lib/types/boe";
 import {
   getBOEById,
   deleteBOE,
@@ -13,6 +13,8 @@ import {
   getHSCodes,
   calculateDuty,
   updateCalculatedAmounts,
+  getBOETimeline,
+  updateBOEStatus,
   HSCodeItem,
   DutyCalculationResult,
 } from "@/app/(app)/boe/actions";
@@ -21,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -38,6 +41,7 @@ import {
   faPlus,
   faTimes,
   faCalculator,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DataTable } from "@/components/erp/data-table";
@@ -45,6 +49,8 @@ import { mockDocumentsList } from "@/lib/mock-data/document";
 import { useToast } from "@/components/ui/use-toast";
 import { PageHeader } from "@/components/erp/page-header";
 import { StatusBadge, type StatusType } from "@/components/erp/status-badge";
+
+const STATUS_OPTIONS: BOEStatus[] = ["Draft", "Submitted", "Under Review", "Approved", "Rejected", "Completed"];
 
 export default function BOEDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { toast } = useToast();
@@ -58,6 +64,9 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
 
   // HS Codes reference list
   const [hsCodesList, setHsCodesList] = useState<HSCodeItem[]>([]);
+
+  // Timeline events state
+  const [timelineList, setTimelineList] = useState<BOETimelineEvent[]>([]);
 
   // Product CRUD states
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -76,6 +85,13 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
   const [dutyPreview, setDutyPreview] = useState<DutyCalculationResult | null>(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
 
+  // Status transition modal state
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [selectedNextStatus, setSelectedNextStatus] = useState<string>("");
+  const [statusNote, setStatusNote] = useState("");
+  const [isStatusSubmitting, setIsStatusSubmitting] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setErrorMessage(null);
@@ -85,6 +101,10 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
       setBoe(null);
     } else {
       setBoe(res.data);
+      const timelineRes = await getBOETimeline(res.data.id);
+      if (timelineRes.data) {
+        setTimelineList(timelineRes.data);
+      }
     }
     setIsLoading(false);
   }, [resolvedParams.id]);
@@ -96,12 +116,16 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
     getHSCodes().then((res) => {
       if (res.data) setHsCodesList(res.data);
     });
+
     getBOEById(resolvedParams.id).then((res) => {
       if (res.error || !res.data) {
         setErrorMessage(res.error || "Bill of Entry not found.");
         setBoe(null);
       } else {
         setBoe(res.data);
+        getBOETimeline(res.data.id).then((tRes) => {
+          if (tRes.data) setTimelineList(tRes.data);
+        });
       }
       setIsLoading(false);
     });
@@ -146,6 +170,52 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         });
         router.push("/boe");
       }
+    }
+  };
+
+  // Status transition handler
+  const openStatusModal = () => {
+    if (!boe) return;
+    setSelectedNextStatus("");
+    setStatusNote("");
+    setStatusError(null);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleUpdateStatus = async () => {
+    if (!boe) return;
+    if (!selectedNextStatus) {
+      setStatusError("Please select the next target status.");
+      return;
+    }
+    if (!statusNote.trim()) {
+      setStatusError("Please enter a note/description for this status update.");
+      return;
+    }
+
+    setIsStatusSubmitting(true);
+    setStatusError(null);
+
+    try {
+      const res = await updateBOEStatus(boe.id, selectedNextStatus, statusNote.trim());
+      if (!res.success) {
+        setStatusError(res.error || "Failed to update BOE status.");
+        setIsStatusSubmitting(false);
+        return;
+      }
+
+      toast({
+        title: "Status Updated",
+        description: `BOE status updated to ${selectedNextStatus}.`,
+      });
+
+      setIsStatusModalOpen(false);
+      loadData();
+    } catch (err) {
+      console.error("Error updating status:", err);
+      setStatusError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setIsStatusSubmitting(false);
     }
   };
 
@@ -282,7 +352,7 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
       }
 
       const totalAT = (totalCD + totalVAT) * 0.05;
-      const totalOther = 500; // Standard processing charge
+      const totalOther = 500;
       const grandTotal = totalCD + totalVAT + totalAIT + totalAT + totalOther;
 
       const updateRes = await updateCalculatedAmounts(boe.id, {
@@ -382,9 +452,14 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
 
         <div className="flex flex-wrap items-center gap-2">
           {userRole !== "Client" && (
-            <Link href={`/boe/${boe.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-              <FontAwesomeIcon icon={faPen} className="mr-2 h-4 w-4" /> Edit
-            </Link>
+            <>
+              <Button variant="default" size="sm" onClick={openStatusModal}>
+                <FontAwesomeIcon icon={faRotate} className="mr-2 h-4 w-4" /> Update Status
+              </Button>
+              <Link href={`/boe/${boe.id}/edit`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <FontAwesomeIcon icon={faPen} className="mr-2 h-4 w-4" /> Edit
+              </Link>
+            </>
           )}
           <Button variant="outline" size="sm" onClick={() => toast({ title: "Duplicate", description: "This feature is coming soon." })}>
             <FontAwesomeIcon icon={faCircle} className="mr-2 h-4 w-4" /> Duplicate
@@ -603,31 +678,44 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
         {/* Timeline Tab */}
         <TabsContent value="timeline" className="mt-6">
           <Card>
-            <CardHeader>
-              <CardTitle>Approval History & Timeline</CardTitle>
-              <CardDescription>Track the lifecycle of this document.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Approval History & Audit Timeline</CardTitle>
+                <CardDescription>Track the lifecycle events and status transitions of this Bill of Entry.</CardDescription>
+              </div>
+              {userRole !== "Client" && (
+                <Button size="sm" variant="outline" onClick={openStatusModal}>
+                  <FontAwesomeIcon icon={faPlus} className="mr-2 h-4 w-4" /> Add Event
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
-              {boe.timeline.length > 0 ? (
-                <div className="relative border-l border-muted ml-3 space-y-8 pb-4">
-                  {boe.timeline.map((event) => (
+              {timelineList.length > 0 ? (
+                <div className="relative border-l-2 border-primary/30 ml-4 space-y-8 pb-4 pt-2">
+                  {timelineList.map((event) => (
                     <div key={event.id} className="relative pl-8">
-                      <div className="absolute -left-3.5 top-1 h-7 w-7 rounded-full bg-background border-2 border-primary flex items-center justify-center">
+                      <div className="absolute -left-[17px] top-0.5 h-8 w-8 rounded-full bg-background border-2 border-primary flex items-center justify-center shadow-sm">
                         <FontAwesomeIcon icon={faCircleCheck} className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-3">
-                          <span className="font-semibold">{event.status}</span>
-                          <span className="text-xs text-muted-foreground">{new Date(event.date).toLocaleString()}</span>
+                      <div className="flex flex-col gap-1.5 bg-muted/30 p-4 rounded-lg border border-border/60">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <StatusBadge status={event.status as StatusType} />
+                            <span className="text-xs font-mono text-muted-foreground">
+                              {new Date(event.date).toLocaleString()}
+                            </span>
+                          </div>
+                          <span className="text-xs font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded">
+                            By {event.author}
+                          </span>
                         </div>
-                        <p className="text-sm">{event.note}</p>
-                        <p className="text-xs text-muted-foreground mt-1">by {event.author}</p>
+                        <p className="text-sm font-medium text-foreground mt-1">{event.note}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="p-8 text-center text-muted-foreground">No history events recorded yet.</div>
+                <div className="p-12 text-center text-muted-foreground">No timeline audit events recorded yet.</div>
               )}
             </CardContent>
           </Card>
@@ -658,6 +746,71 @@ export default function BOEDetailsPage({ params }: { params: Promise<{ id: strin
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Status Update Modal */}
+      {isStatusModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md bg-background rounded-lg border shadow-lg p-6 space-y-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center border-b pb-3">
+              <h3 className="text-lg font-bold">Update BOE Lifecycle Status</h3>
+              <Button variant="ghost" size="icon" onClick={() => setIsStatusModalOpen(false)}>
+                <FontAwesomeIcon icon={faTimes} className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {statusError && (
+              <div className="p-3 bg-destructive/15 border border-destructive/30 text-destructive rounded-md text-sm">
+                {statusError}
+              </div>
+            )}
+
+            <div className="space-y-4 text-sm">
+              <div className="space-y-1">
+                <Label>Current Status</Label>
+                <div className="p-2.5 bg-muted rounded-md font-semibold text-foreground flex items-center gap-2">
+                  <StatusBadge status={boe.status as StatusType} />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="nextStatus">Target Status *</Label>
+                <Select value={selectedNextStatus} onValueChange={(val) => setSelectedNextStatus(val || "")}>
+                  <SelectTrigger id="nextStatus" className="h-10">
+                    <SelectValue placeholder="Select next status..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTIONS.filter((s) => s !== boe.status).map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label htmlFor="statusNote">Transition Note / Reason *</Label>
+                <Textarea
+                  id="statusNote"
+                  rows={3}
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                  placeholder="Provide audit notes or reasons for this status update..."
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setIsStatusModalOpen(false)} disabled={isStatusSubmitting}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateStatus} disabled={isStatusSubmitting}>
+                {isStatusSubmitting ? "Updating..." : "Update Status"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add / Edit Product Modal */}
       {isAddModalOpen && (

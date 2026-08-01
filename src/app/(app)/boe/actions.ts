@@ -1,7 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { BillOfEntry, BOEProduct } from "@/lib/types/boe"
+import { BillOfEntry, BOEProduct, BOETimelineEvent, BOEStatus } from "@/lib/types/boe"
 import { mapBOE, RawBOEFromSupabase } from "./mappers"
 import { createBOESchema, updateBOESchema, createBOEProductSchema, updateBOEProductSchema } from "./schema"
 import { revalidatePath } from "next/cache"
@@ -853,5 +853,212 @@ export async function updateCalculatedAmounts(
   } catch (err) {
     console.error("Unexpected error in updateCalculatedAmounts action:", err)
     return { success: false, error: err instanceof Error ? err.message : "Failed to update calculated duty amounts." }
+  }
+}
+
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  Draft: ["Submitted"],
+  Submitted: ["Under Review"],
+  "Under Review": ["Approved", "Rejected"],
+  Approved: ["Completed"],
+  Rejected: ["Draft", "Submitted"],
+  Completed: [],
+}
+
+export async function getBOETimeline(boeId: string): Promise<{ data: BOETimelineEvent[] | null; error: string | null }> {
+  try {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from("boe_timeline")
+      .select(`
+        id,
+        boe_id,
+        status,
+        note,
+        date,
+        author_id,
+        author:profiles!author_id (
+          full_name,
+          email,
+          role
+        )
+      `)
+      .eq("boe_id", boeId)
+      .order("date", { ascending: true })
+
+    if (error) {
+      console.error("Error fetching BOE timeline from Supabase:", error)
+      return { data: null, error: error.message }
+    }
+
+    const mapped: BOETimelineEvent[] = (data || []).map((t: {
+      id: string
+      date: string | null
+      status: string
+      note: string | null
+      author?: { full_name: string | null; email: string | null } | null
+    }) => ({
+      id: t.id,
+      date: t.date || new Date().toISOString(),
+      status: t.status as BOEStatus,
+      note: t.note || "Status updated",
+      author: t.author?.full_name || t.author?.email || "System",
+    }))
+
+    return { data: mapped, error: null }
+  } catch (err) {
+    console.error("Unexpected error in getBOETimeline action:", err)
+    return { data: null, error: err instanceof Error ? err.message : "Failed to load timeline" }
+  }
+}
+
+export async function addTimelineEntry(payload: {
+  boeId: string
+  status: string
+  note: string
+}): Promise<{ success: boolean; data?: BOETimelineEvent; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    // 1. Auth check
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, full_name, email")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can record timeline entries." }
+    }
+
+    if (!payload.note || !payload.note.trim()) {
+      return { success: false, error: "A note/description is required for timeline entries." }
+    }
+
+    // 2. Insert timeline row
+    const { data: newRow, error: insertError } = await supabase
+      .from("boe_timeline")
+      .insert({
+        boe_id: payload.boeId,
+        status: payload.status,
+        note: payload.note.trim(),
+        author_id: userData.user.id,
+        date: new Date().toISOString(),
+      })
+      .select("id, status, note, date")
+      .single()
+
+    if (insertError) {
+      console.error("Error inserting timeline entry:", insertError)
+      return { success: false, error: insertError.message }
+    }
+
+    revalidatePath(`/boe/${payload.boeId}`)
+    revalidatePath("/boe")
+
+    const mapped: BOETimelineEvent = {
+      id: newRow.id,
+      date: newRow.date || new Date().toISOString(),
+      status: newRow.status as BOEStatus,
+      note: newRow.note || "",
+      author: profile.full_name || profile.email || "User",
+    }
+
+    return { success: true, data: mapped }
+  } catch (err) {
+    console.error("Unexpected error in addTimelineEntry action:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to add timeline entry" }
+  }
+}
+
+export async function updateBOEStatus(
+  boeId: string,
+  newStatus: string,
+  note: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+
+    // 1. Auth check
+    const { data: userData, error: authError } = await supabase.auth.getUser()
+    if (authError || !userData.user) {
+      return { success: false, error: "Authentication required" }
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userData.user.id)
+      .single()
+
+    if (!profile || (profile.role !== "Admin" && profile.role !== "Employee")) {
+      return { success: false, error: "Unauthorized: Only Admins and Employees can update BOE status." }
+    }
+
+    if (!note || !note.trim()) {
+      return { success: false, error: "A note/reason is required for status changes." }
+    }
+
+    // 2. Fetch current status
+    const { data: currentBOE, error: findError } = await supabase
+      .from("bills_of_entry")
+      .select("status")
+      .eq("id", boeId)
+      .single()
+
+    if (findError || !currentBOE) {
+      return { success: false, error: "Bill of Entry record not found." }
+    }
+
+    const currentStatus = currentBOE.status || "Draft"
+    if (currentStatus === newStatus) {
+      return { success: false, error: `BOE is already in '${newStatus}' status.` }
+    }
+
+    // 3. Validate transition matrix
+    const allowed = ALLOWED_TRANSITIONS[currentStatus] || []
+    if (!allowed.includes(newStatus) && profile.role !== "Admin") {
+      return {
+        success: false,
+        error: `Invalid status transition from '${currentStatus}' to '${newStatus}'. Allowed next steps: ${
+          allowed.length > 0 ? allowed.join(", ") : "None (Terminal State)"
+        }.`,
+      }
+    }
+
+    // 4. Update status in database
+    const { error: updateError } = await supabase
+      .from("bills_of_entry")
+      .update({
+        status: newStatus as Database["public"]["Enums"]["boe_status"],
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", boeId)
+
+    if (updateError) {
+      console.error("Error updating BOE status in Supabase:", updateError)
+      return { success: false, error: updateError.message }
+    }
+
+    // 5. Add audit entry to boe_timeline
+    await addTimelineEntry({
+      boeId,
+      status: newStatus,
+      note: note.trim(),
+    })
+
+    revalidatePath(`/boe/${boeId}`)
+    revalidatePath("/boe")
+
+    return { success: true }
+  } catch (err) {
+    console.error("Unexpected error in updateBOEStatus action:", err)
+    return { success: false, error: err instanceof Error ? err.message : "Failed to update status." }
   }
 }
