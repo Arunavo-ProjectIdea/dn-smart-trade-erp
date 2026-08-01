@@ -69,7 +69,7 @@ export async function findHSCodesWithAI(query: string, limit = 5): Promise<AISea
   const { searchTerm, matchedKeyword, matchedCategory } = expandTradeSynonym(trimmed)
 
   // 2. Call Supabase RPC
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, prefer-const
   let { data: rpcData, error: rpcError } = await (supabase as any).rpc("match_hs_codes_ai", {
     search_term: searchTerm,
     match_limit: limit,

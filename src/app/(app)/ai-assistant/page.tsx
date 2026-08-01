@@ -3,11 +3,13 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faSearch, faArrowRight, faChevronLeft, faMessage } from "@fortawesome/free-solid-svg-icons";
+import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faSearch, faArrowRight, faChevronLeft, faMessage, faPen } from "@fortawesome/free-solid-svg-icons";
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getUserProfile } from "@/actions/auth.actions"
+import { getChatSessions, getChatMessages } from "@/actions/chat.actions"
+import { toast } from "sonner"
 
 type Message = {
   role: "user" | "assistant"
@@ -36,6 +38,100 @@ export default function AIAssistantPage() {
   const [query, setQuery] = useState("")
   const [isThinking, setIsThinking] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
+  
+  const [sessions, setSessions] = useState<{id: string, title: string, created_at: string}[]>([])
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+
+  const fetchSessions = async () => {
+    const res = await getChatSessions()
+    if (res.success && res.data) {
+      setSessions(res.data)
+    }
+  }
+
+  useEffect(() => {
+    fetchSessions()
+  }, [])
+
+  const handleLoadSession = async (sessionId: string) => {
+    setActiveSessionId(sessionId)
+    setIsThinking(true)
+    const res = await getChatMessages(sessionId)
+    if (res.success && res.data) {
+      setMessages(res.data.map((m: any) => ({ role: m.role as any, content: m.content })))
+    } else {
+      toast.error(res.error || "Failed to load chat history")
+    }
+    setIsThinking(false)
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false)
+    }
+  }
+
+  const handleNewChat = () => {
+    setActiveSessionId(null)
+    setMessages([])
+    setQuery("")
+  }
+
+  const handleEditMessage = (index: number, content: string) => {
+    setQuery(content)
+    // Optional: we can remove the current message and all messages after it 
+    // so the user can 'rewrite history'.
+    setMessages(prev => prev.slice(0, index))
+  }
+
+  const handleSend = async (e?: React.FormEvent, text?: string) => {
+    if (e) e.preventDefault();
+    const finalQuery = text || query;
+    if (!finalQuery.trim() || isThinking) return;
+    
+    setIsThinking(true);
+    if (!text) setQuery("");
+
+    const newMessages = [...messages, { role: "user" as const, content: finalQuery }];
+    setMessages(newMessages);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, sessionId: activeSessionId })
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to fetch AI response");
+      }
+
+      const newSessionId = response.headers.get('x-session-id');
+      if (newSessionId && newSessionId !== activeSessionId) {
+        setActiveSessionId(newSessionId);
+        fetchSessions();
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      if (!reader) throw new Error("No response body");
+
+      let assistantMessage = "";
+      setMessages([...newMessages, { role: "assistant", content: "" }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        assistantMessage += chunk;
+        setMessages([...newMessages, { role: "assistant", content: assistantMessage }]);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred");
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -52,28 +148,6 @@ export default function AIAssistantPage() {
     { title: "Missing documents", desc: "Find issues for Apex Trading", icon: <FontAwesomeIcon icon={faFileLines} className="w-4 h-4 text-amber-500" aria-hidden="true" /> }
   ]
 
-  const handleSend = (e?: React.FormEvent, text?: string) => {
-    if (e) e.preventDefault()
-    const finalQuery = text || query
-    if (!finalQuery.trim()) return
-
-    const newMessages: Message[] = [...messages, { role: "user", content: finalQuery }]
-    setMessages(newMessages)
-    if (!text) setQuery("")
-    setIsThinking(true)
-
-    // Simulate AI response
-    setTimeout(() => {
-      setIsThinking(false)
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: "Based on my analysis of your historical data and current customs regulations, I can confirm that electric vehicles typically fall under HS Code **8703.80.00**.\n\nThis covers 'Motor cars and other motor vehicles principally designed for the transport of persons... powered solely by an electric motor'.\n\nI have cross-referenced this with the latest customs tariff book.",
-        sources: ["Customs Tariff Book 2026", "Historical BOE-491"]
-      }
-      setMessages([...newMessages, assistantMessage])
-    }, 1500)
-  }
-
   return (
     <div className="flex h-[calc(100vh-6rem)] animate-in fade-in duration-500 overflow-hidden bg-background">
       {/* Sidebar: History */}
@@ -85,24 +159,25 @@ export default function AIAssistantPage() {
       >
         <div className="p-4 border-b border-border/50 flex items-center justify-between min-w-[256px]">
           <h3 className="font-semibold text-sm">Chat History</h3>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="New chat">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" onClick={handleNewChat} aria-label="New chat">
             <FontAwesomeIcon icon={faPlus} className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
         <ScrollArea className="flex-1 p-2 min-w-[256px]">
           <div className="space-y-1">
-            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground mt-2 mb-1">Today</div>
-            {["HS Code Classification", "Shipment Delay Prediction"].map((chat, i) => (
-              <button key={i} className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted/80 transition-colors text-foreground line-clamp-1">
-                {chat}
-              </button>
-            ))}
-            <div className="px-3 py-2 text-xs font-semibold text-muted-foreground mt-4 mb-1">Previous 7 Days</div>
-            {["Weekly Report Summary", "Apex Trading Docs", "Customs Duties Q3"].map((chat, i) => (
-              <button key={i + 2} className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-muted/80 transition-colors text-muted-foreground hover:text-foreground line-clamp-1">
-                {chat}
-              </button>
-            ))}
+            {sessions.length === 0 ? (
+              <div className="px-3 py-4 text-xs text-muted-foreground text-center">No previous chats</div>
+            ) : (
+              sessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => handleLoadSession(session.id)}
+                  className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors line-clamp-1 ${activeSessionId === session.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/80 text-muted-foreground hover:text-foreground'}`}
+                >
+                  {session.title}
+                </button>
+              ))
+            )}
           </div>
         </ScrollArea>
       </motion.div>
@@ -169,11 +244,20 @@ export default function AIAssistantPage() {
                     )}
 
                     <div className={`flex flex-col gap-2 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                      <div className={`px-4 py-3 text-[15px] leading-relaxed ${
+                      <div className={`group relative px-4 py-3 text-[15px] leading-relaxed ${
                         msg.role === 'user'
                           ? 'bg-muted text-foreground rounded-2xl rounded-tr-sm'
                           : 'text-foreground'
                       }`}>
+                        {msg.role === 'user' && (
+                          <button
+                            onClick={() => handleEditMessage(i, msg.content)}
+                            className="absolute -left-10 top-1/2 -translate-y-1/2 p-2 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition-opacity"
+                            aria-label="Edit message"
+                          >
+                            <FontAwesomeIcon icon={faPen} className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         {msg.content.split('\n').map((line: string, j: number) => (
                           <span key={j}>
                             {line.includes('**') ? (
@@ -185,18 +269,6 @@ export default function AIAssistantPage() {
                           </span>
                         ))}
                       </div>
-
-                      {msg.sources && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Sources:</span>
-                          {msg.sources.map((source: string, idx: number) => (
-                            <div key={idx} className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted text-xs text-muted-foreground">
-                              <FontAwesomeIcon icon={faFileLines} className="h-3 w-3" aria-hidden="true" />
-                              {source}
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
 
                     {msg.role === 'user' && (
@@ -210,7 +282,7 @@ export default function AIAssistantPage() {
                   </motion.div>
                 ))}
 
-                {isThinking && (
+                {isThinking && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -234,7 +306,7 @@ export default function AIAssistantPage() {
 
         <div className="p-4 bg-background">
           <div className="max-w-3xl mx-auto w-full relative">
-            <form onSubmit={(e) => handleSend(e)} className="relative flex flex-col w-full rounded-2xl border border-border bg-muted/30 focus-within:bg-background focus-within:ring-1 focus-within:ring-border focus-within:border-border transition-all duration-200">
+            <form onSubmit={handleSend} className="relative flex flex-col w-full rounded-2xl border border-border bg-muted/30 focus-within:bg-background focus-within:ring-1 focus-within:ring-border focus-within:border-border transition-all duration-200">
               <textarea
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -243,8 +315,9 @@ export default function AIAssistantPage() {
                 aria-label="Message input"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSend()
+                    e.preventDefault();
+                    const form = e.currentTarget.closest('form');
+                    if (form) form.requestSubmit();
                   }
                 }}
               />

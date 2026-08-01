@@ -20,6 +20,7 @@ import {
   faChevronRight,
   faCircle,
   faBell,
+  faCircleQuestion,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
 
@@ -185,16 +186,16 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
                 isCollapsed && "justify-center hover:translate-x-0"
               )}
             >
-              <FontAwesomeIcon icon={faFileLines}
+              <FontAwesomeIcon icon={faCircleQuestion}
                 className="h-5 w-5 shrink-0 text-muted-foreground group-hover/link:text-sidebar-accent-foreground"
                 aria-hidden="true"
               />
-              {!isCollapsed && <span className="truncate whitespace-nowrap">Documentation</span>}
+              {!isCollapsed && <span className="truncate whitespace-nowrap">Help Center</span>}
 
               {isCollapsed && (
                 <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 pointer-events-none z-50 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200" role="tooltip">
                   <div className="bg-popover text-popover-foreground border text-xs font-medium rounded-md px-2.5 py-1.5 shadow-sm whitespace-nowrap">
-                    Help & Support
+                    Help Center
                   </div>
                 </div>
               )}

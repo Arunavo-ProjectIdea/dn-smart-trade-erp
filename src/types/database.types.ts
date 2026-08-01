@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -466,11 +466,63 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json
+          description: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          is_read: boolean
+          priority: Database["public"]["Enums"]["notification_priority"]
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          description: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          priority?: Database["public"]["Enums"]["notification_priority"]
+          title: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          description?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          is_read?: boolean
+          priority?: Database["public"]["Enums"]["notification_priority"]
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          avatar_url: string | null
           client_id: string | null
           created_at: string | null
           department: string | null
+          designation: string | null
           email: string
           full_name: string
           id: string
@@ -496,9 +548,11 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          avatar_url?: string | null
           client_id?: string | null
           created_at?: string | null
           department?: string | null
+          designation?: string | null
           email?: string
           full_name?: string
           id?: string
@@ -723,6 +777,50 @@ export type Database = {
           },
         ]
       }
+      support_requests: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          priority: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -732,6 +830,19 @@ export type Database = {
       get_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      create_notification: {
+        Args: {
+          p_user_id: string
+          p_type: Database["public"]["Enums"]["notification_type"]
+          p_priority: Database["public"]["Enums"]["notification_priority"]
+          p_title: string
+          p_description: string
+          p_entity_id?: string | null
+          p_entity_type?: string | null
+          p_data?: Json
+        }
+        Returns: string
       }
     }
     Enums: {
@@ -756,6 +867,8 @@ export type Database = {
         | "Rejected"
         | "Archived"
         | "Expired"
+      notification_priority: "low" | "medium" | "high" | "urgent"
+      notification_type: "shipment" | "boe" | "document" | "system"
       shipment_status:
         | "Pending"
         | "Booked"
@@ -923,6 +1036,8 @@ export const Constants = {
         "Archived",
         "Expired",
       ],
+      notification_priority: ["low", "medium", "high", "urgent"],
+      notification_type: ["shipment", "boe", "document", "system"],
       shipment_status: [
         "Pending",
         "Booked",
