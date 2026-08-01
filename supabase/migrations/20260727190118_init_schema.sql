@@ -48,8 +48,8 @@ CREATE INDEX idx_profiles_client_id ON public.profiles(client_id);
 
 CREATE TABLE public.hs_codes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code TEXT UNIQUE NOT NULL,
-    name TEXT NOT NULL,
+    hscode TEXT NOT NULL,
+    tariff_description TEXT NOT NULL,
     category TEXT NOT NULL,
     description TEXT,
     uom TEXT NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE public.hs_codes (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-CREATE INDEX idx_hscodes_code ON public.hs_codes(code);
+CREATE INDEX idx_hscodes_hscode ON public.hs_codes(hscode);
 
 CREATE TABLE public.shipments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -103,7 +103,7 @@ CREATE TABLE public.shipment_products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     shipment_id UUID NOT NULL REFERENCES public.shipments(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
-    hs_code TEXT REFERENCES public.hs_codes(code) ON DELETE SET NULL,
+    hs_code TEXT REFERENCES public.hs_codes(hscode) ON DELETE SET NULL,
     quantity NUMERIC NOT NULL,
     weight NUMERIC
 );
@@ -141,7 +141,7 @@ CREATE TABLE public.boe_products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     boe_id UUID NOT NULL REFERENCES public.bills_of_entry(id) ON DELETE CASCADE,
     product_name TEXT NOT NULL,
-    hs_code TEXT REFERENCES public.hs_codes(code) ON DELETE SET NULL,
+    hs_code TEXT REFERENCES public.hs_codes(hscode) ON DELETE SET NULL,
     quantity NUMERIC NOT NULL,
     unit TEXT NOT NULL,
     declared_value NUMERIC NOT NULL,
