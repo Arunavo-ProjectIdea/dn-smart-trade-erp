@@ -834,7 +834,7 @@ export default function HSCodesPage() {
       accessorKey: "tariff_description",
       sortable: false,
       cell: (item) => (
-        <div className="max-w-xs sm:max-w-md w-full break-words text-sm font-medium text-foreground leading-snug">
+        <div className="whitespace-normal break-words max-w-xs sm:max-w-md text-sm font-medium text-foreground leading-snug">
           {item.tariff_description ?? "—"}
         </div>
       ),
