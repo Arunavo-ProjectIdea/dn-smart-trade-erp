@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getUserProfile } from "@/actions/auth.actions"
-import { getChatSessions, getChatMessages } from "@/actions/chat.actions"
+import { getChatSessions, getChatMessages, renameChatSession, deleteChatSession } from "@/actions/chat.actions"
 import { toast } from "sonner"
 
 type Message = {
@@ -81,6 +81,44 @@ export default function AIAssistantPage() {
     setMessages([])
     setQuery("")
   }
+
+  const handleRename = async (sessionId: string, currentTitle: string) => {
+    const newTitle = window.prompt("Enter new name for this chat:", currentTitle);
+    if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
+      const originalSessions = [...sessions];
+      setSessions(sessions.map(s => s.id === sessionId ? { ...s, title: newTitle.trim() } : s));
+      const res = await renameChatSession(sessionId, newTitle.trim());
+      if (!res.success) {
+        toast.error(res.error || "Failed to rename chat");
+        setSessions(originalSessions);
+      } else {
+        toast.success("Chat renamed successfully");
+      }
+    }
+  }
+
+  const handleDelete = async (sessionId: string) => {
+    if (window.confirm("Are you sure you want to delete this chat?")) {
+      const originalSessions = [...sessions];
+      setSessions(sessions.filter(s => s.id !== sessionId));
+      if (activeSessionId === sessionId) {
+        handleNewChat();
+      }
+      const res = await deleteChatSession(sessionId);
+      if (!res.success) {
+        toast.error(res.error || "Failed to delete chat");
+        setSessions(originalSessions);
+      } else {
+        toast.success("Chat deleted successfully");
+      }
+    }
+  }
+
+  const handleShare = (sessionId: string) => {
+    navigator.clipboard.writeText(window.location.origin + "/ai-assistant?session=" + sessionId);
+    toast.success("Chat link copied to clipboard");
+  }
+
 
   const handleEditMessage = (index: number, content: string) => {
     setQuery(content)
@@ -194,23 +232,23 @@ export default function AIAssistantPage() {
                         <FontAwesomeIcon icon={faEllipsis} className="h-3.5 w-3.5" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-40 border-border/50 shadow-md">
-                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleShare(session.id); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
                           <FontAwesomeIcon icon={faShareFromSquare} className="w-3.5 h-3.5" />
                           <span>Share</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRename(session.id, session.title); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
                           <FontAwesomeIcon icon={faPen} className="w-3.5 h-3.5" />
                           <span>Rename</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info("Pin feature coming soon!"); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
                           <FontAwesomeIcon icon={faThumbtack} className="w-3.5 h-3.5" />
                           <span>Pin chat</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info("Archive feature coming soon!"); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
                           <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
                           <span>Archive</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDelete(session.id); }} className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                           <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
                           <span>Delete</span>
                         </DropdownMenuItem>
