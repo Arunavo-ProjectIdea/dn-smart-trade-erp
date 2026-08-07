@@ -3,7 +3,14 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faSearch, faArrowRight, faChevronLeft, faMessage, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faSearch, faArrowRight, faChevronLeft, faMessage, faPen, faEllipsis, faShareFromSquare, faThumbtack, faBoxArchive, faTrash } from "@fortawesome/free-solid-svg-icons";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -170,13 +177,47 @@ export default function AIAssistantPage() {
               <div className="px-3 py-4 text-xs text-muted-foreground text-center">No previous chats</div>
             ) : (
               sessions.map((session) => (
-                <button
+                <div
                   key={session.id}
-                  onClick={() => handleLoadSession(session.id)}
-                  className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors line-clamp-1 ${activeSessionId === session.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/80 text-muted-foreground hover:text-foreground'}`}
+                  className={`group relative flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors ${activeSessionId === session.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/80 text-muted-foreground hover:text-foreground'}`}
                 >
-                  {session.title}
-                </button>
+                  <button
+                    onClick={() => handleLoadSession(session.id)}
+                    className="flex-1 text-left truncate pr-8"
+                  >
+                    {session.title}
+                  </button>
+
+                  <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center ${activeSessionId === session.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'} transition-opacity`}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="h-6 w-6 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer">
+                        <FontAwesomeIcon icon={faEllipsis} className="h-3.5 w-3.5" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40 border-border/50 shadow-md">
+                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                          <FontAwesomeIcon icon={faShareFromSquare} className="w-3.5 h-3.5" />
+                          <span>Share</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                          <FontAwesomeIcon icon={faPen} className="w-3.5 h-3.5" />
+                          <span>Rename</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                          <FontAwesomeIcon icon={faThumbtack} className="w-3.5 h-3.5" />
+                          <span>Pin chat</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                          <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
+                          <span>Archive</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+                          <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
               ))
             )}
           </div>
