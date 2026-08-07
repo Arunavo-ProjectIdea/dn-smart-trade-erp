@@ -199,7 +199,7 @@ export async function createNotification(params: {
   return { success: true, data: data.id }
 }
 
-export async function notifyUsersByRoles(roles: string[], params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+export async function notifyUsersByRoles(roles: Database['public']['Enums']['user_role'][], params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
   const supabase = await createClient()
   const { data: users, error } = await supabase.from('profiles').select('id, role').in('role', roles)
   if (error || !users) return { success: false, error: error?.message }
@@ -221,11 +221,11 @@ export async function notifyUsersByClient(clientId: string, params: Omit<Paramet
 }
 
 
-export async function notifyRolesAndClient(roles: string[], clientId: string | null | undefined, params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+export async function notifyRolesAndClient(roles: Database['public']['Enums']['user_role'][], clientId: string | null, params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
   const promises: Promise<any>[] = []
   if (roles.length > 0) promises.push(notifyUsersByRoles(roles, params))
   if (clientId) promises.push(notifyUsersByClient(clientId, params))
   await Promise.all(promises)
   return { success: true }
-}
 
+}

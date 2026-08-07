@@ -50,7 +50,7 @@ export async function createClientAction(clientData: Partial<Client>): Promise<{
     type: 'system',
     priority: 'low',
     title: 'New Client Added',
-    message: `Client ${data.name} has been added.`,
+    message: `Client ${data.company_name} has been added.`,
     entityId: data.id,
     entityType: 'client',
   })
