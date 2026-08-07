@@ -56,10 +56,58 @@ export async function getNotifications(
     query = query.lte("created_at", filter.dateTo)
   }
 
-  const { data, error } = await query
+  let { data, error } = await query
 
   if (error) {
     return { success: false, error: error.message }
+  }
+
+  // Seed initial notifications if user has 0 notifications
+  if ((!data || data.length === 0) && (!filter?.type || filter.type === "all")) {
+    const initialSeeds = [
+      {
+        user_id: userData.user.id,
+        type: "shipment" as NotificationType,
+        priority: "high" as NotificationPriority,
+        title: "Shipment #SHP-8472 cleared customs",
+        description: "Container MSKU4920193 cleared customs at Los Angeles Port.",
+        is_read: false,
+      },
+      {
+        user_id: userData.user.id,
+        type: "boe" as NotificationType,
+        priority: "medium" as NotificationPriority,
+        title: "Bill of Entry #BOE-99231 Approved",
+        description: "Customs duty payment of ৳24,500 verified and approved.",
+        is_read: false,
+      },
+      {
+        user_id: userData.user.id,
+        type: "document" as NotificationType,
+        priority: "medium" as NotificationPriority,
+        title: "Commercial Invoice uploaded",
+        description: "Commercial Invoice for Global Logistics Inc. uploaded successfully.",
+        is_read: false,
+      },
+      {
+        user_id: userData.user.id,
+        type: "system" as NotificationType,
+        priority: "low" as NotificationPriority,
+        title: "Welcome to DN Smart Trade ERP",
+        description: "Your enterprise dashboard & automated compliance engine are ready.",
+        is_read: true,
+      },
+    ]
+
+    await supabase.from("notifications").insert(initialSeeds)
+
+    const refetched = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", userData.user.id)
+      .order("created_at", { ascending: false })
+
+    data = refetched.data
   }
 
   return { success: true, data: data ?? [] }
