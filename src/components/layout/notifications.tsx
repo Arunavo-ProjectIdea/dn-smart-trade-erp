@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils"
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from "@/actions/notifications.actions"
 import { mapNotificationToUI, NotificationUI } from "@/lib/mappers/notification.mapper"
+import { createClient } from "@/lib/supabase/client"
 
 const TYPE_META: Record<string, { icon: any; iconColor: string; iconBg: string }> = {
   shipment: { icon: faTruck, iconColor: "text-blue-500", iconBg: "bg-blue-500/10" },
@@ -56,6 +57,33 @@ export function Notifications() {
 
   useEffect(() => {
     fetchNotifications()
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel('public:notifications')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications' },
+        () => {
+          fetchNotifications()
+        }
+      )
+      .subscribe()
+
+    // Fallback polling every 10 seconds
+    const interval = setInterval(() => {
+      fetchNotifications()
+    }, 10000)
+
+    // Refresh on window focus
+    const handleFocus = () => fetchNotifications()
+    window.addEventListener("focus", handleFocus)
+
+    return () => {
+      supabase.removeChannel(channel)
+      clearInterval(interval)
+      window.removeEventListener("focus", handleFocus)
+    }
   }, [pathname, fetchNotifications])
 
   const handleOpenChange = (open: boolean) => {
