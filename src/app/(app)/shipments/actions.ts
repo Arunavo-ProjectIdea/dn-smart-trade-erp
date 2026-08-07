@@ -5,6 +5,7 @@ import { Shipment } from "@/lib/types/shipment"
 import { mapShipment, RawShipmentFromSupabase } from "./mappers"
 import { revalidatePath } from "next/cache"
 import { Database } from "@/types/database.types"
+import { notifyRolesAndClient } from "@/actions/notifications.actions"
 
 type DbShipmentStatus = Database["public"]["Enums"]["shipment_status"]
 type DbTransportType = Database["public"]["Enums"]["transport_type"]
@@ -355,6 +356,19 @@ export async function createTimelineEntryAction(payload: {
         .from("shipments")
         .update({ status: payload.status as DbShipmentStatus, updated_at: new Date().toISOString() })
         .eq("id", payload.shipmentId)
+
+      // Get client_id for the shipment
+      const { data: shipmentData } = await supabase.from('shipments').select('client_id, shipment_number').eq('id', payload.shipmentId).single()
+      if (shipmentData) {
+        await notifyRolesAndClient(['Admin', 'Employee'], shipmentData.client_id, {
+          type: 'shipment',
+          priority: 'medium',
+          title: 'Shipment Status Updated',
+          message: `Shipment ${shipmentData.shipment_number || payload.shipmentId} is now ${payload.status}.`,
+          entityId: payload.shipmentId,
+          entityType: 'shipment'
+        })
+      }
     }
 
     revalidatePath("/shipments")

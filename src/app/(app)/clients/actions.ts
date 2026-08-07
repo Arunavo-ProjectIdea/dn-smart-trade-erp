@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { Client } from "@/lib/mock-data/clients"
 import { mapClient, mapClientToInsert, mapClientToUpdate } from "./mappers"
 import { revalidatePath } from "next/cache"
+import { notifyUsersByRoles } from "@/actions/notifications.actions"
 
 export async function getClients(): Promise<{ data: Client[] | null; error: unknown }> {
   const supabase = await createClient()
@@ -43,6 +44,16 @@ export async function createClientAction(clientData: Partial<Client>): Promise<{
     console.error('Error creating client:', error)
     return { data: null, error: `[Session: ${sessionData.session ? 'Active' : 'None'}, User: ${sessionData.session?.user?.id}] ${error.message}` }
   }
+
+  // Notify Admins and Employees
+  await notifyUsersByRoles(['Admin', 'Employee'], {
+    type: 'system',
+    priority: 'low',
+    title: 'New Client Added',
+    message: `Client ${data.name} has been added.`,
+    entityId: data.id,
+    entityType: 'client',
+  })
 
   revalidatePath('/clients')
   return { data: mapClient(data), error: null }
