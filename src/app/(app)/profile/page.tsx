@@ -176,6 +176,9 @@ export default function ProfilePage() {
       setAvatarSrc(res.data)
       setCurrentUser((prev) => prev ? { ...prev, avatar_url: res.data } : prev)
       setPendingFile(null)
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("avatar-updated", { detail: res.data }))
+      }
       toast.success("Avatar updated successfully!")
     } else {
       toast.error(res.error ?? "Failed to upload avatar")
