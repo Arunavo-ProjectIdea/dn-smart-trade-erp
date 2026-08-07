@@ -240,14 +240,7 @@ export default function AIAssistantPage() {
                           <FontAwesomeIcon icon={faPen} className="w-3.5 h-3.5" />
                           <span>Rename</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info("Pin feature coming soon!"); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
-                          <FontAwesomeIcon icon={faThumbtack} className="w-3.5 h-3.5" />
-                          <span>Pin chat</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toast.info("Archive feature coming soon!"); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
-                          <FontAwesomeIcon icon={faBoxArchive} className="w-3.5 h-3.5" />
-                          <span>Archive</span>
-                        </DropdownMenuItem>
+
                         <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDelete(session.id); }} className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
                           <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
                           <span>Delete</span>
