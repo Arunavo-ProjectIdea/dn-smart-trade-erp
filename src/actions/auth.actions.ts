@@ -25,6 +25,7 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
 
   let loginEmail = emailOrUsername
   if (!loginEmail.includes("@")) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.rpc as any)("get_email_by_username", { p_username: loginEmail })
     if (error || !data) {
       return { success: false, error: "Invalid login credentials" }
