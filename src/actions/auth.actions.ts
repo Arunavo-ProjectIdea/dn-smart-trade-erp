@@ -147,6 +147,7 @@ export async function updateUserProfile(updates: Partial<Profile>): Promise<Acti
     return { success: false, error: error.message }
   }
 
+  revalidatePath("/", "layout")
   return { success: true }
 }
 
@@ -163,8 +164,8 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResponse<s
     return { success: false, error: "No file provided" }
   }
 
-  if (file.size > 2 * 1024 * 1024) {
-    return { success: false, error: "File exceeds 2MB limit" }
+  if (file.size > 1 * 1024 * 1024) {
+    return { success: false, error: "File exceeds 1MB limit" }
   }
 
   const ext = file.name.split(".").pop()
@@ -193,6 +194,7 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResponse<s
     return { success: false, error: updateError.message }
   }
 
+  revalidatePath("/", "layout")
   revalidatePath("/profile")
   return { success: true, data: avatarUrl }
 }
