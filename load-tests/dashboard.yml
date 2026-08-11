@@ -1,0 +1,14 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Sustained Dashboard Load"
+
+scenarios:
+  - name: "Dashboard Overview Flow"
+    flow:
+      - get:
+          url: "/api/dashboard/overview"
+      - get:
+          url: "/api/dashboard/stats"

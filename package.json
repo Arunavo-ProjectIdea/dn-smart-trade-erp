@@ -15,7 +15,11 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:load:auth": "artillery run load-tests/auth.yml",
-    "test:load:clients": "artillery run load-tests/clients.yml"
+    "test:load:clients": "artillery run load-tests/clients.yml",
+    "test:load:dashboard": "artillery run load-tests/dashboard.yml",
+    "test:load:boe": "artillery run load-tests/boe.yml",
+    "test:load:shipments": "artillery run load-tests/shipments.yml",
+    "test:load:all": "npm run test:load:auth && npm run test:load:clients && npm run test:load:dashboard && npm run test:load:boe && npm run test:load:shipments"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.19",
@@ -52,6 +56,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.0",
@@ -66,6 +71,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "jsdom": "^29.1.1",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"

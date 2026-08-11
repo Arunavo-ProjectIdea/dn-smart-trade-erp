@@ -75,9 +75,9 @@ describe('createClientAction', () => {
     setupMockProfile('Client')
     setupMockInsert(null, { message: 'new row violates row-level security policy' })
 
-    const result = await createClientAction({ companyName: 'New Client' } as any)
-    
-    expect(result.error).toContain('new row violates row-level security policy')
+    const result = await createClientAction({ companyName: 'New Client', email: 'test@example.com' } as any)
+
+    expect(result.error).toContain('Failed to create client. Please try again.')
     expect(result.data).toBeNull()
     expect(revalidatePath).not.toHaveBeenCalled()
   })
@@ -86,9 +86,9 @@ describe('createClientAction', () => {
     setupMockProfile('Admin')
     setupMockInsert(null, { message: 'duplicate key value violates unique constraint' })
 
-    const result = await createClientAction({ tradeLicenseNumber: 'DUP-123' } as any)
-    
-    expect(result.error).toContain('duplicate key value violates unique constraint')
+    const result = await createClientAction({ tradeLicenseNumber: 'DUP123' } as any)
+
+    expect(result.error).toContain('Failed to create client. Please try again.')
     expect(result.data).toBeNull()
   })
 

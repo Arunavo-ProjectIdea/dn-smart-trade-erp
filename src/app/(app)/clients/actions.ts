@@ -41,7 +41,7 @@ export async function createClientAction(clientData: Partial<Client>): Promise<{
 
   if (error) {
     console.error('Error creating client:', error)
-    return { data: null, error: `[Session: ${sessionData.session ? 'Active' : 'None'}, User: ${sessionData.session?.user?.id}] ${error.message}` }
+    return { data: null, error: "Failed to create client. Please try again." }
   }
 
   revalidatePath('/clients')

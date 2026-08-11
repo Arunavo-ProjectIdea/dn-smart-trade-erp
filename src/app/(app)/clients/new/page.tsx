@@ -22,18 +22,6 @@ import { toast } from "sonner"
 export default function AddClientPage() {
   const router = useRouter()
   
-  // Temporary auto-upgrade script to fix the user's role from Client to Admin
-  // so they don't get RLS blocked when creating clients.
-  useEffect(() => {
-    const upgradeRole = async () => {
-      const supabase = createClient()
-      const { data: user } = await supabase.auth.getUser()
-      if (user?.user) {
-        await supabase.from('profiles').update({ role: 'Admin' }).eq('id', user.user.id)
-      }
-    }
-    upgradeRole()
-  }, [])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
