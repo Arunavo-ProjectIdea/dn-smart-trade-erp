@@ -180,7 +180,7 @@ describe("auth.actions", () => {
       
       const result = await uploadAvatar(formData)
       expect(result.success).toBe(false)
-      expect(result.error).toBe("File exceeds 2MB limit")
+      expect(result.error).toBe("File exceeds 1MB limit")
     })
 
     it("uploads successfully", async () => {
