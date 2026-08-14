@@ -92,7 +92,7 @@ export default function AddEmployeePage() {
   }
 
   // Pre-generated mock password
-  const [tempPassword] = useState(() => "TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase());
+  const [tempPassword, setTempPassword] = useState(() => "TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase());
 
   return (
     <div className="flex flex-col gap-8 pb-10">
@@ -240,8 +240,8 @@ export default function AddEmployeePage() {
             <div className="flex space-x-2">
               <Input 
                 id="password" 
-                value={tempPassword} 
-                readOnly 
+                value={tempPassword}
+                onChange={(e) => setTempPassword(e.target.value)}
                 className="bg-muted font-mono"
               />
               <Button 

@@ -23,6 +23,7 @@ import {
   faCircleQuestion,
 } from "@fortawesome/free-solid-svg-icons";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core"
+import { BrandLogo } from "@/components/brand-logo"
 
 import { cn } from "@/lib/utils"
 
@@ -95,15 +96,7 @@ export function Sidebar({ className, role = "Admin", onClose, isCollapsed = fals
     <div className={cn("flex h-full flex-col gap-y-5 bg-sidebar pb-4 transition-all duration-300", isCollapsed ? "px-1" : "px-6", className)} {...props}>
       <div className={cn("flex h-16 shrink-0 items-center transition-all duration-300", isCollapsed ? "justify-center" : "justify-between")}>
         <div className={cn("flex items-center gap-3 transition-all duration-300 w-full rounded-md hover:bg-sidebar-accent/50 p-2 cursor-pointer", isCollapsed ? "justify-center" : "")}>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary shadow-md">
-            <FontAwesomeIcon icon={faCircle} className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
-          </div>
-          {!isCollapsed && (
-            <div className="flex flex-col flex-1 overflow-hidden">
-              <span className="truncate whitespace-nowrap font-semibold text-sm leading-tight">DN Smart Trade</span>
-              <span className="truncate whitespace-nowrap text-xs text-muted-foreground">Enterprise Workspace</span>
-            </div>
-          )}
+          <BrandLogo width={32} height={32} withText={!isCollapsed} textClassName="text-sm font-semibold leading-tight truncate whitespace-nowrap" />
         </div>
 
         {onToggleCollapse && !isCollapsed && (

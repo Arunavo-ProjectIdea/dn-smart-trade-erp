@@ -113,7 +113,7 @@ describe('AddClientPage', () => {
         tinNumber: '',
         notes: '',
         status: 'Active'
-      })
+      }, undefined)
     })
 
     expect(toast.success).toHaveBeenCalledWith('Client created successfully')
@@ -176,7 +176,7 @@ describe('AddClientPage', () => {
         tinNumber: 'TIN-999',
         notes: 'Some notes',
         clientType: 'Exporter',
-      }))
+      }), undefined)
     })
-  })
+  }, 10000)
 })

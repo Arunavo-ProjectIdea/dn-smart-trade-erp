@@ -5,7 +5,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCircle, faArrowRight } from "@fortawesome/free-solid-svg-icons"
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons"
 import { Eye, EyeOff } from "lucide-react"
 import { motion } from "framer-motion"
 
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { BrandLogo } from "@/components/brand-logo"
 import { signIn } from "@/actions/auth.actions"
 
 const containerVariants = {
@@ -74,14 +75,12 @@ export default function LoginPage() {
           initial="hidden"
           animate="show"
         >
-          <motion.div variants={itemVariants} className="flex flex-col">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary mb-6 shadow-lg shadow-primary/20">
-              <FontAwesomeIcon icon={faCircle} className="h-6 w-6 text-primary-foreground" />
-            </div>
-            <h2 className="text-3xl font-bold tracking-tight text-foreground">
-              Welcome Back
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <motion.div variants={itemVariants} className="flex flex-col items-center space-y-2 text-center relative z-10 mb-8">
+            <BrandLogo width={48} height={48} />
+            <h1 className="text-2xl font-bold tracking-tight">
+              DN Smart Trade
+            </h1>
+            <p className="text-sm text-muted-foreground">
               Sign in to DN Smart Trade Enterprise ERP
             </p>
           </motion.div>

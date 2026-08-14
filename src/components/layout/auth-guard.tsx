@@ -8,6 +8,7 @@ import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 interface AuthGuardProps {
   children: React.ReactNode
   role: string
+  forcePasswordChange?: boolean
 }
 
 // Pages only Admin can access
@@ -24,13 +25,19 @@ const INTERNAL_ONLY_PAGES = [
   "/duty-calculator",
 ]
 
-export function AuthGuard({ children, role }: AuthGuardProps) {
+export function AuthGuard({ children, role, forcePasswordChange = false }: AuthGuardProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [isAuthorized, setIsAuthorized] = useState(false)
   const authorizedRef = useRef(false)
 
   useEffect(() => {
+    // Force password change on first login
+    if (forcePasswordChange && !pathname.startsWith("/change-password")) {
+      router.push("/change-password")
+      return
+    }
+
     // Role-based access control
     if (role === "Client") {
       // Clients cannot access Admin-only pages
@@ -59,7 +66,7 @@ export function AuthGuard({ children, role }: AuthGuardProps) {
       authorizedRef.current = true
       setIsAuthorized(true)
     }
-  }, [pathname, router, role])
+  }, [pathname, router, role, forcePasswordChange])
 
   if (!isAuthorized) {
     return (

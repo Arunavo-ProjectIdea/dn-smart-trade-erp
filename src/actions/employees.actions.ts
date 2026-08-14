@@ -13,6 +13,7 @@ export async function getEmployees(): Promise<{ success: boolean; data?: Employe
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
+      .in('role', ['Admin', 'Employee'])
       .order('full_name', { ascending: true })
 
     if (error) throw error
@@ -159,6 +160,7 @@ export async function createEmployee(data: any): Promise<{ success: boolean; err
         phone: data.phone || null,
         role: (data.role as any) || 'Employee',
         status: (data.status as any) || 'Active',
+        force_password_change: true,
       } as any)
       .eq('id', newUserId)
 

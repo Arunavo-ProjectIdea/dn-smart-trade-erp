@@ -22,6 +22,11 @@ export async function createSupportRequest(data: SupportRequestFormValues) {
       throw new Error("Unauthorized")
     }
 
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
+    if (profile?.role !== 'Client') {
+      throw new Error("Only clients can submit support requests")
+    }
+
     const validatedData = supportRequestSchema.parse(data)
 
     const { error } = await supabase
@@ -56,6 +61,11 @@ export async function getUserSupportRequests() {
     if (userError || !userData.user) {
       // In server components, returning empty array on unauthorized is safer
       return { success: false, data: [] }
+    }
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', userData.user.id).single()
+    if (profile?.role !== 'Client') {
+      return { success: true, data: [] }
     }
 
     const { data, error } = await supabase

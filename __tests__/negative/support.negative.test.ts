@@ -15,12 +15,33 @@ describe("Support Actions Negative Tests", () => {
   let mockSupabase: any
 
   beforeEach(() => {
+    const chainMock: any = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      single: vi.fn(),
+      insert: vi.fn(),
+    }
+    
+    const thenableChain = {
+      ...chainMock,
+      then: vi.fn((resolve) => resolve({ data: null, error: null }))
+    }
+    
+    for (const key of Object.keys(chainMock)) {
+      chainMock[key].mockReturnValue(thenableChain)
+    }
+    
+    // Explicitly resolve single for the profile check
+    chainMock.single.mockResolvedValue({ data: { role: 'Client' }, error: null })
+    // Explicitly resolve insert for the success path
+    chainMock.insert.mockResolvedValue({ error: null })
+
     mockSupabase = {
       auth: {
         getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-123" } }, error: null }),
       },
-      from: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockResolvedValue({ data: null, error: null }),
+      from: vi.fn().mockReturnValue(thenableChain),
+      ...chainMock
     }
 
     vi.mocked(createClient).mockResolvedValue(mockSupabase as never)

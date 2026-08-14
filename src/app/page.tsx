@@ -27,6 +27,7 @@ import {
   Award,
   Headphones,
 } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 
 const services = [
   { icon: Scale, title: "Customs Clearing & Forwarding", desc: "Expert navigation of customs regulations ensuring swift clearance." },
@@ -92,11 +93,8 @@ export default function LandingPage() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link className="flex items-center gap-2 group" href="/">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/30 transition-transform group-hover:scale-105">
-              <span className="font-bold text-primary-foreground text-sm">DN</span>
-            </div>
-            <span className="font-bold text-lg tracking-tight">D.N Trade International</span>
+          <Link href="/">
+            <BrandLogo withText={true} />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
@@ -339,7 +337,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* ── CTA ── */}
+        {/* ── CTA / CONTACT ── */}
         <section id="contact" className="py-24">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div className="rounded-[3rem] bg-gradient-to-br from-primary/10 via-background to-muted border p-12 md:p-20 relative overflow-hidden">
@@ -350,15 +348,35 @@ export default function LandingPage() {
                 Ready to Work With a Trusted Trade Partner?
               </h2>
               <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
-                Discover how our four decades of experience can streamline your trade operations today.
+                Discover how our four decades of experience can streamline your trade operations today. Reach out to our team.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="rounded-full px-10 h-14 text-base shadow-xl shadow-primary/20 gap-2">
-                  <Mail className="h-4 w-4" /> Contact Us
-                </Button>
+              
+              <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-10">
+                <div className="flex items-center gap-4 bg-background px-6 py-4 rounded-2xl shadow-sm border">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <Phone className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm text-muted-foreground font-medium">Call Us</p>
+                    <p className="text-lg font-bold">+880 1234-567890</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-4 bg-background px-6 py-4 rounded-2xl shadow-sm border">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                    <Mail className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm text-muted-foreground font-medium">Email Us</p>
+                    <p className="text-lg font-bold">contact@dntrade.com</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-center">
                 <Link href="/login">
-                  <Button size="lg" variant="outline" className="rounded-full px-10 h-14 text-base bg-background">
-                    Login
+                  <Button size="lg" className="rounded-full px-10 h-14 text-base shadow-lg shadow-primary/20">
+                    Go to Client Portal
                   </Button>
                 </Link>
               </div>
@@ -374,10 +392,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="col-span-1 md:col-span-2">
               <Link className="flex items-center gap-2 mb-6" href="/">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                  <span className="font-bold text-primary-foreground text-xs">DN</span>
-                </div>
-                <span className="font-bold text-lg">D.N Trade International</span>
+                <BrandLogo width={32} height={32} withText={true} />
               </Link>
               <p className="text-muted-foreground text-sm max-w-sm mb-6 leading-relaxed">
                 A trusted partner in trade, logistics, and business success for over 40 years.
