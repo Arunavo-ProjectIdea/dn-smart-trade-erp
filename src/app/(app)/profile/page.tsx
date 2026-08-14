@@ -503,29 +503,27 @@ export default function ProfilePage() {
                 <CardDescription>Choose what updates you want to receive.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pb-6">
-                <div className="flex items-start space-x-3">
+                <label htmlFor="email-notif" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="email-notif" defaultChecked />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="email-notif">Email Notifications</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Email Notifications</span>
                     <p className="text-sm text-muted-foreground">Receive daily summaries and critical alerts.</p>
                   </div>
-                </div>
-                <Separator />
-                <div className="flex items-start space-x-3">
+                </label>
+                <label htmlFor="sms-notif" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="sms-notif" />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="sms-notif">SMS Alerts</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">SMS Alerts</span>
                     <p className="text-sm text-muted-foreground">Get text messages for important events.</p>
                   </div>
-                </div>
-                <Separator />
-                <div className="flex items-start space-x-3">
+                </label>
+                <label htmlFor="marketing" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="marketing" />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="marketing">Marketing Emails</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Marketing Emails</span>
                     <p className="text-sm text-muted-foreground">Receive promotional offers and product updates.</p>
                   </div>
-                </div>
+                </label>
               </CardContent>
               <CardFooter>
                 <Button type="submit" disabled={isSavingPreferences}>

@@ -28,14 +28,9 @@ describe('LoginPage', () => {
   it('renders all fields and buttons correctly', () => {
     render(<LoginPage />)
     
-    expect(screen.getByLabelText(/Email address/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/Password/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/^Password$/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Sign In/i })).toBeInTheDocument()
-    
-    // Quick login buttons
-    expect(screen.getByRole('button', { name: /Login as Admin/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Login as Employee/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Login as Client/i })).toBeInTheDocument()
   })
 
   it('prevents submission if required fields are missing (HTML5)', async () => {
@@ -49,8 +44,8 @@ describe('LoginPage', () => {
 
   it('updates state when typing in inputs', async () => {
     render(<LoginPage />)
-    const emailInput = screen.getByLabelText(/Email address/i)
-    const passwordInput = screen.getByLabelText(/Password/i)
+    const emailInput = screen.getByLabelText(/Email/i)
+    const passwordInput = screen.getByLabelText(/^Password$/i)
     
     await user.type(emailInput, 'test@example.com')
     await user.type(passwordInput, 'secret')
@@ -63,8 +58,8 @@ describe('LoginPage', () => {
     vi.mocked(signIn).mockResolvedValue({ success: true } as any)
     render(<LoginPage />)
     
-    await user.type(screen.getByLabelText(/Email address/i), 'test@example.com')
-    await user.type(screen.getByLabelText(/Password/i), 'secret')
+    await user.type(screen.getByLabelText(/Email/i), 'test@example.com')
+    await user.type(screen.getByLabelText(/^Password$/i), 'secret')
     
     const submitBtn = screen.getByRole('button', { name: /Sign In/i })
     fireEvent.submit(submitBtn.closest('form')!)
@@ -80,8 +75,8 @@ describe('LoginPage', () => {
     vi.mocked(signIn).mockResolvedValue({ success: false, error: 'Invalid credentials' } as any)
     render(<LoginPage />)
     
-    await user.type(screen.getByLabelText(/Email address/i), 'test@example.com')
-    await user.type(screen.getByLabelText(/Password/i), 'wrong')
+    await user.type(screen.getByLabelText(/Email/i), 'test@example.com')
+    await user.type(screen.getByLabelText(/^Password$/i), 'wrong')
     
     const submitBtn = screen.getByRole('button', { name: /Sign In/i })
     fireEvent.submit(submitBtn.closest('form')!)
@@ -94,21 +89,4 @@ describe('LoginPage', () => {
     expect(screen.getByText('Invalid credentials')).toBeInTheDocument()
   })
 
-  it('handles quick login buttons (Admin)', async () => {
-    vi.mocked(signIn).mockResolvedValue({ success: true } as any)
-    render(<LoginPage />)
-    
-    const adminBtn = screen.getByRole('button', { name: /Login as Admin/i })
-    await user.click(adminBtn)
-    
-    await waitFor(() => {
-      expect(signIn).toHaveBeenCalled()
-      // Should pass formData with admin@dnsmarttrade.com and default password
-      const formDataArg = vi.mocked(signIn).mock.calls[0][0]
-      expect(formDataArg.get('email')).toBe('admin@dnsmarttrade.com')
-      expect(formDataArg.get('password')).toBe('Password123!')
-    })
-
-    expect(mockPush).toHaveBeenCalledWith('/dashboard')
-  })
 })

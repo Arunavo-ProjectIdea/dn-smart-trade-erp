@@ -524,6 +524,7 @@ export type Database = {
           department: string | null
           designation: string | null
           email: string
+          force_password_change: boolean | null
           full_name: string
           id: string
           last_login: string | null
@@ -538,6 +539,7 @@ export type Database = {
           created_at?: string | null
           department?: string | null
           email: string
+          force_password_change?: boolean | null
           full_name: string
           id: string
           last_login?: string | null
@@ -554,6 +556,7 @@ export type Database = {
           department?: string | null
           designation?: string | null
           email?: string
+          force_password_change?: boolean | null
           full_name?: string
           id?: string
           last_login?: string | null

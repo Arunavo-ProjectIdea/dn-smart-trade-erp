@@ -13,6 +13,7 @@ export async function getEmployees(): Promise<{ success: boolean; data?: Employe
     const { data: profiles, error } = await supabase
       .from('profiles')
       .select('*')
+      .in('role', ['Admin', 'Employee'])
       .order('full_name', { ascending: true })
 
     if (error) throw error
@@ -45,6 +46,14 @@ export async function getEmployeeById(id: string): Promise<{ success: boolean; d
 export async function updateEmployeeStatus(id: string, status: string): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = await createClient()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) throw new Error("Unauthorized")
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'Admin') {
+      throw new Error("Forbidden: Only Admins can update employee status")
+    }
+
     const { error } = await supabase
       .from('profiles')
       .update({ status: status as any })
@@ -63,17 +72,31 @@ export async function updateEmployeeStatus(id: string, status: string): Promise<
 export async function updateEmployee(id: string, data: Partial<Employee>): Promise<{ success: boolean; error?: string }> {
   try {
     const supabase = await createClient()
-    
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) throw new Error("Unauthorized")
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    const isAdmin = profile?.role === 'Admin'
+
+    // Only Admins can update other employees
+    if (id !== user.id && !isAdmin) {
+      throw new Error("Forbidden: You can only update your own profile")
+    }
+
     // We do NOT update email here, as it requires auth updates.
     // We only update profile metadata.
-    const updates = {
+    const updates: any = {
       full_name: data.fullName,
       phone: data.phone,
       department: data.department,
       designation: data.designation,
-      role: data.role as any,
-      status: data.status as any,
       username: data.username,
+    }
+
+    // Only Admins can change role and status
+    if (isAdmin) {
+      if (data.role) updates.role = data.role
+      if (data.status) updates.status = data.status
     }
 
     // Remove undefined fields
@@ -81,7 +104,7 @@ export async function updateEmployee(id: string, data: Partial<Employee>): Promi
 
     const { error } = await supabase
       .from('profiles')
-      .update(updates as any)
+      .update(updates)
       .eq('id', id)
 
     if (error) throw error
@@ -96,6 +119,15 @@ export async function updateEmployee(id: string, data: Partial<Employee>): Promi
 
 export async function createEmployee(data: any): Promise<{ success: boolean; error?: string }> {
   try {
+    const supabase = await createClient()
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) throw new Error("Unauthorized")
+
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'Admin') {
+      throw new Error("Forbidden: Only Admins can create employees")
+    }
+
     // MUST use admin client to create user without logging out the current admin session
     const adminAuthClient = createAdminClient()
     
@@ -119,7 +151,6 @@ export async function createEmployee(data: any): Promise<{ success: boolean; err
     await new Promise(resolve => setTimeout(resolve, 500))
 
     // 2. Update the profile with remaining details
-    const supabase = await createClient()
     
     const { error: profileError } = await supabase
       .from('profiles')
@@ -129,6 +160,7 @@ export async function createEmployee(data: any): Promise<{ success: boolean; err
         phone: data.phone || null,
         role: (data.role as any) || 'Employee',
         status: (data.status as any) || 'Active',
+        force_password_change: true,
       } as any)
       .eq('id', newUserId)
 

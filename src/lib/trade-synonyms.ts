@@ -99,10 +99,13 @@ export function expandTradeSynonym(query: string): {
   const normalized = query.trim().toLowerCase()
 
   for (const [categoryName, synonyms] of Object.entries(TRADE_SYNONYM_CATEGORIES)) {
-    for (const [key, expansion] of Object.entries(synonyms)) {
+    // Sort keys by length descending to match more specific terms first
+    const sortedKeys = Object.keys(synonyms).sort((a, b) => b.length - a.length)
+    
+    for (const key of sortedKeys) {
       if (normalized.includes(key)) {
         return {
-          searchTerm: expansion,
+          searchTerm: synonyms[key],
           matchedKeyword: key,
           matchedCategory: categoryName,
         }

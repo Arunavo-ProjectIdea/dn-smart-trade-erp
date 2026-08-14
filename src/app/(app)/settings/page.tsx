@@ -147,21 +147,21 @@ export default function SettingsPage() {
                 <CardDescription>Manage global security policies for all users in the organization.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pb-6">
-                <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <label htmlFor="req-2fa" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="req-2fa" defaultChecked />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="req-2fa">Enforce Two-Factor Authentication (2FA)</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Enforce Two-Factor Authentication (2FA)</span>
                     <p className="text-sm text-muted-foreground">Require all users in the organization to use 2FA.</p>
                   </div>
-                </div>
+                </label>
                 
-                <div className="flex items-start space-x-3 p-4 border rounded-lg">
+                <label htmlFor="req-pw" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="req-pw" defaultChecked />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="req-pw">Strict Password Policy</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Strict Password Policy</span>
                     <p className="text-sm text-muted-foreground">Require uppercase, lowercase, numbers, and symbols.</p>
                   </div>
-                </div>
+                </label>
 
                 <div className="space-y-2 pt-2">
                   <Label htmlFor="timeout">Idle Session Timeout</Label>
@@ -195,29 +195,27 @@ export default function SettingsPage() {
                 <CardDescription>Manage how and when you receive system alerts.</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 pb-6">
-                <div className="flex items-start space-x-3">
+                <label htmlFor="email-daily" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="email-daily" defaultChecked />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="email-daily">Daily Digests</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Daily Digests</span>
                     <p className="text-sm text-muted-foreground">Receive a daily summary of system activity via email.</p>
                   </div>
-                </div>
-                <Separator />
-                <div className="flex items-start space-x-3">
+                </label>
+                <label htmlFor="sms-critical" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="sms-critical" defaultChecked />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="sms-critical">Critical SMS Alerts</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Critical SMS Alerts</span>
                     <p className="text-sm text-muted-foreground">Get text messages immediately for critical shipment delays or errors.</p>
                   </div>
-                </div>
-                <Separator />
-                <div className="flex items-start space-x-3">
+                </label>
+                <label htmlFor="webhook" className="flex items-start space-x-3 p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
                   <Checkbox id="webhook" />
                   <div className="space-y-1 leading-none">
-                    <Label htmlFor="webhook">Webhook Notifications</Label>
+                    <span className="text-sm font-medium leading-none text-foreground">Webhook Notifications</span>
                     <p className="text-sm text-muted-foreground">Forward alerts to configured external webhooks (e.g. Slack/Discord).</p>
                   </div>
-                </div>
+                </label>
               </CardContent>
               <CardFooter>
                 <Button type="submit" disabled={isSavingAlerts}>

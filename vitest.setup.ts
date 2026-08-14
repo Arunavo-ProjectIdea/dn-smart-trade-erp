@@ -1,4 +1,3 @@
- 
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
@@ -8,7 +7,10 @@ vi.mock('next/navigation', () => ({
     push: vi.fn(),
     replace: vi.fn(),
     prefetch: vi.fn(),
+    refresh: vi.fn(),
   }),
+  useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '',
 }))
 
 // Mock next/cache
@@ -46,3 +48,9 @@ if (typeof window !== 'undefined' && !window.PointerEvent) {
   }
   (window as any).PointerEvent = PointerEvent as any;
 }
+
+vi.mock('next/headers', () => ({ cookies: vi.fn(() => ({ get: vi.fn(), getAll: vi.fn(), set: vi.fn() })) }))
+vi.mock('@/components/ui/use-toast', () => ({ useToast: () => ({ toast: vi.fn() }), toast: vi.fn() }))
+
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'http://localhost:54321'
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'dummy-key'

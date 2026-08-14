@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { revalidatePath } from "next/cache"
 import type { User } from "@supabase/supabase-js"
 import { Database } from "@/types/database.types"
@@ -25,12 +26,17 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
 
   let loginEmail = emailOrUsername
   if (!loginEmail.includes("@")) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.rpc as any)("get_email_by_username", { p_username: loginEmail })
+    const adminSupabase = createAdminClient()
+    const { data, error } = await adminSupabase
+      .from("profiles")
+      .select("email")
+      .eq("username", loginEmail)
+      .single()
+      
     if (error || !data) {
       return { success: false, error: "Invalid login credentials" }
     }
-    loginEmail = data
+    loginEmail = data.email
   }
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -90,6 +96,28 @@ export async function updateUserPassword(password: string): Promise<ActionRespon
 
   if (error) {
     return { success: false, error: error.message }
+  }
+
+  return { success: true, data }
+}
+
+export async function updateUserPasswordAndClearForceChange(password: string): Promise<ActionResponse> {
+  if (!password) {
+    return { success: false, error: "Password is required" }
+  }
+
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.updateUser({
+    password,
+  })
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+  
+  if (data?.user) {
+    await supabase.from('profiles').update({ force_password_change: false }).eq('id', data.user.id)
   }
 
   return { success: true, data }

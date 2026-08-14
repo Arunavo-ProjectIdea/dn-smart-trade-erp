@@ -1,0 +1,14 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 20
+      arrivalRate: 10
+      name: "Shipments Queries Load"
+
+scenarios:
+  - name: "Query Shipments"
+    flow:
+      - get:
+          url: "/api/shipments"
+      - get:
+          url: "/api/shipments?status=active"

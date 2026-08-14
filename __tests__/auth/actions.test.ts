@@ -35,7 +35,7 @@ describe('Auth Actions', () => {
       const result = await signIn(formData)
       
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Email and password are required')
+      expect(result.error).toBe('Email or Username and password are required')
       expect(mockSupabase.auth.signInWithPassword).not.toHaveBeenCalled()
     })
 
