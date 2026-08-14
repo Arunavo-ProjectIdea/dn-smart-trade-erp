@@ -34,6 +34,7 @@ const itemVariants = {
 
 export default function LoginPage() {
   const router = useRouter()
+  const [remember, setRemember] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -138,7 +139,12 @@ export default function LoginPage() {
               </div>
               <div className="flex items-center justify-between pt-1">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="remember" className="data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                  <Checkbox
+                    id="remember"
+                    name="remember"
+                    checked={remember}
+                    onCheckedChange={(val) => setRemember(Boolean(val))}
+                  />
                   <Label
                     htmlFor="remember"
                     className="text-sm font-medium leading-none cursor-pointer"

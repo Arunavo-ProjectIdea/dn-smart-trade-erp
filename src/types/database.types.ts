@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -776,50 +776,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      support_requests: {
-        Row: {
-          category: string
-          created_at: string
-          description: string
-          id: string
-          priority: string
-          status: string
-          subject: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          description: string
-          id?: string
-          priority: string
-          status?: string
-          subject: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          description?: string
-          id?: string
-          priority?: string
-          status?: string
-          subject?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "support_requests_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

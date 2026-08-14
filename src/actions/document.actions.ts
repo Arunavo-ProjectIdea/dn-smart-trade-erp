@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import { Database } from "@/types/database.types"
 import { SupabaseDocumentResponse } from "@/lib/mappers/document.mapper"
+import { notifyRolesAndClient } from "@/actions/notifications.actions"
 
 export async function getDocuments() {
   const supabase = await createClient()
@@ -136,6 +137,15 @@ export async function createDocument(formData: {
     // Non-fatal, we still created the document
   }
 
+  await notifyRolesAndClient(['Admin', 'Employee'], document.client_id, {
+    type: 'document',
+    priority: 'medium',
+    title: 'New Document Uploaded',
+    message: `Document "${document.name}" was uploaded.`,
+    entityId: document.id,
+    entityType: 'document'
+  })
+
   revalidatePath("/documents")
   return { success: true, data: document }
 }
@@ -176,6 +186,20 @@ export async function archiveDocument(id: string) {
 
   if (activityError) {
     console.error("Error logging archive activity:", activityError)
+  }
+
+  // Need client_id for notification
+  const { data: docData } = await supabase.from('documents').select('client_id, name').eq('id', id).single()
+  
+  if (docData) {
+    await notifyRolesAndClient(['Admin', 'Employee'], docData.client_id, {
+      type: 'document',
+      priority: 'low',
+      title: 'Document Archived',
+      message: `Document "${docData.name}" has been archived.`,
+      entityId: id,
+      entityType: 'document'
+    })
   }
 
   revalidatePath("/documents")
@@ -356,6 +380,19 @@ export async function updateDocument(id: string, formData: {
     console.error("Error logging metadata update activity:", activityError)
   }
 
+  // Notify for Document Updated
+  const { data: docData } = await supabase.from('documents').select('client_id, name').eq('id', id).single()
+  if (docData) {
+    await notifyRolesAndClient(['Admin', 'Employee'], docData.client_id, {
+      type: 'document',
+      priority: 'low',
+      title: 'Document Metadata Updated',
+      message: `Document "${docData.name}" has been updated.`,
+      entityId: id,
+      entityType: 'document'
+    })
+  }
+
   revalidatePath(`/documents/${id}`)
   revalidatePath("/documents")
   return { success: true }
@@ -460,6 +497,20 @@ export async function replaceDocumentFile(id: string, fileData: {
 
   if (activityError) {
     console.error("Error logging file replace activity:", activityError)
+  }
+
+  // Need client_id for notification
+  const { data: docData } = await supabase.from('documents').select('client_id, name').eq('id', id).single()
+
+  if (docData) {
+    await notifyRolesAndClient(['Admin', 'Employee'], docData.client_id, {
+      type: 'document',
+      priority: 'medium',
+      title: 'Document Updated',
+      message: `Document "${docData.name}" has been updated.`,
+      entityId: id,
+      entityType: 'document'
+    })
   }
 
   revalidatePath(`/documents/${id}`)

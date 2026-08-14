@@ -5,6 +5,7 @@ import { Client } from "@/lib/mock-data/clients"
 import { mapClient, mapClientToInsert, mapClientToUpdate } from "./mappers"
 import { revalidatePath } from "next/cache"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { notifyUsersByRoles } from "@/actions/notifications.actions"
 
 export async function getClients(): Promise<{ data: Client[] | null; error: unknown }> {
   const supabase = await createClient()
@@ -74,6 +75,16 @@ export async function createClientAction(clientData: Partial<Client>, tempPasswo
       console.error('Error creating auth user for client:', authError)
     }
   }
+
+  // Notify Admins and Employees
+  await notifyUsersByRoles(['Admin', 'Employee'], {
+    type: 'system',
+    priority: 'low',
+    title: 'New Client Added',
+    message: `Client ${data.company_name} has been added.`,
+    entityId: data.id,
+    entityType: 'client',
+  })
 
   revalidatePath('/clients')
   return { data: mapClient(data), error: null, tempPassword }

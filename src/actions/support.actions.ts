@@ -29,8 +29,7 @@ export async function createSupportRequest(data: SupportRequestFormValues) {
 
     const validatedData = supportRequestSchema.parse(data)
 
-    const { error } = await supabase
-      .from("support_requests")
+    const { error } = await (supabase.from as any)("support_requests")
       .insert({
         user_id: userData.user.id,
         subject: validatedData.subject,
@@ -68,8 +67,7 @@ export async function getUserSupportRequests() {
       return { success: true, data: [] }
     }
 
-    const { data, error } = await supabase
-      .from("support_requests")
+    const { data, error } = await (supabase.from as any)("support_requests")
       .select("*")
       .order("created_at", { ascending: false })
 

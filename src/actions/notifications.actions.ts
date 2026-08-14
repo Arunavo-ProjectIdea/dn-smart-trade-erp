@@ -169,7 +169,7 @@ export async function createNotification(params: {
   type: NotificationType
   priority: NotificationPriority
   title: string
-  description: string
+  message: string
   entityId?: string
   entityType?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -184,7 +184,7 @@ export async function createNotification(params: {
       type: params.type,
       priority: params.priority,
       title: params.title,
-      description: params.description,
+      description: params.message,
       entity_id: params.entityId ?? null,
       entity_type: params.entityType ?? null,
       data: params.data ?? {},
@@ -197,4 +197,35 @@ export async function createNotification(params: {
   }
 
   return { success: true, data: data.id }
+}
+
+export async function notifyUsersByRoles(roles: Database['public']['Enums']['user_role'][], params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+  const supabase = await createClient()
+  const { data: users, error } = await supabase.from('profiles').select('id, role').in('role', roles)
+  if (error || !users) return { success: false, error: error?.message }
+
+  const promises = users.map(user => createNotification({ ...params, userId: user.id }))
+  await Promise.all(promises)
+  return { success: true }
+}
+
+
+export async function notifyUsersByClient(clientId: string, params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+  const supabase = await createClient()
+  const { data: users, error } = await supabase.from('profiles').select('id').eq('client_id', clientId)
+  if (error || !users) return { success: false, error: error?.message }
+
+  const promises = users.map(user => createNotification({ ...params, userId: user.id }))
+  await Promise.all(promises)
+  return { success: true }
+}
+
+
+export async function notifyRolesAndClient(roles: Database['public']['Enums']['user_role'][], clientId: string | null, params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+  const promises: Promise<any>[] = []
+  if (roles.length > 0) promises.push(notifyUsersByRoles(roles, params))
+  if (clientId) promises.push(notifyUsersByClient(clientId, params))
+  await Promise.all(promises)
+  return { success: true }
+
 }

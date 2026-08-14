@@ -3,12 +3,19 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faSearch, faArrowRight, faChevronLeft, faMessage, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faRobot, faHashtag, faPlus, faPaperclip, faMicrophone, faFileLines, faSearch, faArrowRight, faChevronLeft, faMessage, faPen, faEllipsis, faShareFromSquare, faThumbtack, faBoxArchive, faTrash } from "@fortawesome/free-solid-svg-icons";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { getUserProfile } from "@/actions/auth.actions"
-import { getChatSessions, getChatMessages } from "@/actions/chat.actions"
+import { getChatSessions, getChatMessages, renameChatSession, deleteChatSession } from "@/actions/chat.actions"
 import { toast } from "sonner"
 
 type Message = {
@@ -74,6 +81,44 @@ export default function AIAssistantPage() {
     setMessages([])
     setQuery("")
   }
+
+  const handleRename = async (sessionId: string, currentTitle: string) => {
+    const newTitle = window.prompt("Enter new name for this chat:", currentTitle);
+    if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
+      const originalSessions = [...sessions];
+      setSessions(sessions.map(s => s.id === sessionId ? { ...s, title: newTitle.trim() } : s));
+      const res = await renameChatSession(sessionId, newTitle.trim());
+      if (!res.success) {
+        toast.error(res.error || "Failed to rename chat");
+        setSessions(originalSessions);
+      } else {
+        toast.success("Chat renamed successfully");
+      }
+    }
+  }
+
+  const handleDelete = async (sessionId: string) => {
+    if (window.confirm("Are you sure you want to delete this chat?")) {
+      const originalSessions = [...sessions];
+      setSessions(sessions.filter(s => s.id !== sessionId));
+      if (activeSessionId === sessionId) {
+        handleNewChat();
+      }
+      const res = await deleteChatSession(sessionId);
+      if (!res.success) {
+        toast.error(res.error || "Failed to delete chat");
+        setSessions(originalSessions);
+      } else {
+        toast.success("Chat deleted successfully");
+      }
+    }
+  }
+
+  const handleShare = (sessionId: string) => {
+    navigator.clipboard.writeText(window.location.origin + "/ai-assistant?session=" + sessionId);
+    toast.success("Chat link copied to clipboard");
+  }
+
 
   const handleEditMessage = (index: number, content: string) => {
     setQuery(content)
@@ -170,13 +215,40 @@ export default function AIAssistantPage() {
               <div className="px-3 py-4 text-xs text-muted-foreground text-center">No previous chats</div>
             ) : (
               sessions.map((session) => (
-                <button
+                <div
                   key={session.id}
-                  onClick={() => handleLoadSession(session.id)}
-                  className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors line-clamp-1 ${activeSessionId === session.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/80 text-muted-foreground hover:text-foreground'}`}
+                  className={`group relative flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors ${activeSessionId === session.id ? 'bg-primary/10 text-primary font-medium' : 'hover:bg-muted/80 text-muted-foreground hover:text-foreground'}`}
                 >
-                  {session.title}
-                </button>
+                  <button
+                    onClick={() => handleLoadSession(session.id)}
+                    className="flex-1 text-left truncate pr-8"
+                  >
+                    {session.title}
+                  </button>
+
+                  <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center ${activeSessionId === session.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100'} transition-opacity`}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="h-6 w-6 inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer">
+                        <FontAwesomeIcon icon={faEllipsis} className="h-3.5 w-3.5" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-40 border-border/50 shadow-md">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleShare(session.id); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                          <FontAwesomeIcon icon={faShareFromSquare} className="w-3.5 h-3.5" />
+                          <span>Share</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRename(session.id, session.title); }} className="gap-2 cursor-pointer text-muted-foreground focus:text-foreground">
+                          <FontAwesomeIcon icon={faPen} className="w-3.5 h-3.5" />
+                          <span>Rename</span>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleDelete(session.id); }} className="gap-2 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive">
+                          <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
               ))
             )}
           </div>

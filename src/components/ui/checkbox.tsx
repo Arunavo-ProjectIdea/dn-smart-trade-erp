@@ -1,7 +1,7 @@
 "use client"
 
 import { Checkbox as CheckboxPrimitive } from "@base-ui/react/checkbox"
-
+import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";

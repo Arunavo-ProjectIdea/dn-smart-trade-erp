@@ -23,7 +23,7 @@ interface UserNavProps {
 
 export function UserNav({ role }: UserNavProps) {
   const router = useRouter()
-  const [user, setUser] = useState<{name: string, email: string, role: string} | null>(null)
+  const [user, setUser] = useState<{name: string, email: string, role: string, avatarUrl?: string} | null>(null)
 
   useEffect(() => {
     getUserProfile().then((res) => {
@@ -32,9 +32,22 @@ export function UserNav({ role }: UserNavProps) {
           name: res.data.full_name || res.data.user?.user_metadata?.full_name || res.data.email?.split('@')[0] || "User",
           email: res.data.email || "",
           role: res.data.role || "Employee",
+          avatarUrl: (res.data.avatar_url as string) || (res.data.user?.user_metadata?.avatar_url as string) || "",
         })
       }
     })
+
+    const handleAvatarUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent<string>
+      if (customEvent.detail) {
+        setUser((prev) => prev ? { ...prev, avatarUrl: customEvent.detail } : prev)
+      }
+    }
+
+    window.addEventListener("avatar-updated", handleAvatarUpdate)
+    return () => {
+      window.removeEventListener("avatar-updated", handleAvatarUpdate)
+    }
   }, [])
 
   const handleLogout = async () => {
@@ -53,7 +66,7 @@ export function UserNav({ role }: UserNavProps) {
     <DropdownMenu>
       <DropdownMenuTrigger className="flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <Avatar className="h-8 w-8 ring-2 ring-background shadow-sm hover:ring-primary/30 transition-all duration-200">
-          <AvatarImage src="/avatars/01.png" alt={user?.name || "User"} />
+          <AvatarImage src={user?.avatarUrl || ""} alt={user?.name || "User"} />
           <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -61,7 +74,7 @@ export function UserNav({ role }: UserNavProps) {
         <DropdownMenuLabel className="font-normal p-3">
           <div className="flex items-center gap-3">
             <Avatar className="h-9 w-9">
-              <AvatarImage src="/avatars/01.png" alt={user?.name || "User"} />
+              <AvatarImage src={user?.avatarUrl || ""} alt={user?.name || "User"} />
               <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">

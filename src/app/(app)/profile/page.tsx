@@ -153,8 +153,10 @@ export default function ProfilePage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("File exceeds 2MB limit")
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error("File exceeds 1MB limit. Please choose an image smaller than 1MB.")
+      setPendingFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ""
       return
     }
     setPendingFile(file)
@@ -167,18 +169,30 @@ export default function ProfilePage() {
       toast.info("Select a new image first")
       return
     }
+    if (pendingFile.size > 1 * 1024 * 1024) {
+      toast.error("File exceeds 1MB limit. Please choose an image smaller than 1MB.")
+      return
+    }
     setIsUpdatingAvatar(true)
-    const fd = new FormData()
-    fd.append("avatar", pendingFile)
-    const res = await uploadAvatar(fd)
-    setIsUpdatingAvatar(false)
-    if (res.success && res.data) {
-      setAvatarSrc(res.data)
-      setCurrentUser((prev) => prev ? { ...prev, avatar_url: res.data } : prev)
-      setPendingFile(null)
-      toast.success("Avatar updated successfully!")
-    } else {
-      toast.error(res.error ?? "Failed to upload avatar")
+    try {
+      const fd = new FormData()
+      fd.append("avatar", pendingFile)
+      const res = await uploadAvatar(fd)
+      setIsUpdatingAvatar(false)
+      if (res.success && res.data) {
+        setAvatarSrc(res.data)
+        setCurrentUser((prev) => prev ? { ...prev, avatar_url: res.data } : prev)
+        setPendingFile(null)
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("avatar-updated", { detail: res.data }))
+        }
+        toast.success("Avatar updated successfully!")
+      } else {
+        toast.error(res.error ?? "Failed to upload avatar")
+      }
+    } catch {
+      setIsUpdatingAvatar(false)
+      toast.error("Upload failed: File exceeds maximum allowed size (1MB).")
     }
   }
 
@@ -317,7 +331,7 @@ export default function ProfilePage() {
                     {isUpdatingAvatar ? "Uploading…" : "Save Avatar"}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">JPG, GIF, PNG or WebP. Max 2MB.</p>
+                <p className="text-xs text-muted-foreground">JPG, GIF, PNG or WebP. Max 1MB.</p>
                 {pendingFile && (
                   <p className="text-xs text-primary">New image selected — click Save Avatar to upload.</p>
                 )}
