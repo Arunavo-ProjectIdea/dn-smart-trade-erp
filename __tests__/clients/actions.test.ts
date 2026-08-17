@@ -31,7 +31,8 @@ describe('createClientAction', () => {
   const setupMockProfile = (role: string) => {
     const mockSingle = vi.fn().mockResolvedValue({ data: { id: 'profile-123', role } })
     const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
-    const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
+    const mockIn = vi.fn().mockResolvedValue({ data: [], error: null })
+    const mockSelect = vi.fn().mockReturnValue({ eq: mockEq, in: mockIn })
     
     // Default implementation for `from` to handle both 'profiles' and 'clients'
     mockSupabase.from.mockImplementation((table: string) => {
@@ -103,7 +104,7 @@ describe('createClientAction', () => {
     mockSupabase.from.mockImplementation((table: string) => {
       if (table === 'clients') return { insert: mockInsert }
       if (table === 'profiles') {
-        return { select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { role: 'Admin' } }) }) }) }
+        return { select: vi.fn().mockReturnValue({ in: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { role: 'Admin' } }) }) }) }
       }
       return {}
     })

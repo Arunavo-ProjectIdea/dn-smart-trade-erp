@@ -38,6 +38,7 @@ describe("document.actions", () => {
       insert: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
+      in: vi.fn(),
     }
     
     // Create a wrapper that is thenable but doesn't expose 'then' on mockSupabase itself
@@ -112,7 +113,7 @@ describe("document.actions", () => {
 
   describe("archiveDocument", () => {
     it("archives document successfully", async () => {
-      mockSupabase.eq.mockResolvedValue({ error: null })
+      mockSupabase.eq.mockReturnValue({ single: vi.fn().mockResolvedValue({ error: null, data: { client_id: 'client-1' } }), update: mockSupabase.update, delete: mockSupabase.delete, select: mockSupabase.select, then: vi.fn((resolve) => resolve({ error: null })) })
       
       const result = await archiveDocument("doc-1")
       
@@ -125,7 +126,7 @@ describe("document.actions", () => {
 
   describe("restoreDocument", () => {
     it("restores document successfully", async () => {
-      mockSupabase.eq.mockResolvedValue({ error: null })
+      mockSupabase.eq.mockReturnValue({ single: vi.fn().mockResolvedValue({ error: null, data: { client_id: 'client-1' } }), update: mockSupabase.update, delete: mockSupabase.delete, select: mockSupabase.select, then: vi.fn((resolve) => resolve({ error: null })) })
       
       const result = await restoreDocument("doc-1")
       
@@ -138,7 +139,7 @@ describe("document.actions", () => {
 
   describe("permanentlyDeleteDocument", () => {
     it("deletes document successfully", async () => {
-      mockSupabase.eq.mockResolvedValue({ error: null })
+      mockSupabase.eq.mockReturnValue({ single: vi.fn().mockResolvedValue({ error: null, data: { client_id: 'client-1' } }), update: mockSupabase.update, delete: mockSupabase.delete, select: mockSupabase.select, then: vi.fn((resolve) => resolve({ error: null })) })
       
       const result = await permanentlyDeleteDocument("doc-1")
       
@@ -149,7 +150,7 @@ describe("document.actions", () => {
 
   describe("updateDocumentStatus", () => {
     it("updates status successfully", async () => {
-      mockSupabase.eq.mockResolvedValue({ error: null })
+      mockSupabase.eq.mockReturnValue({ single: vi.fn().mockResolvedValue({ error: null, data: { client_id: 'client-1' } }), update: mockSupabase.update, delete: mockSupabase.delete, select: mockSupabase.select, then: vi.fn((resolve) => resolve({ error: null })) })
       
       const result = await updateDocumentStatus("doc-1", "Approved")
       
@@ -178,7 +179,7 @@ describe("document.actions", () => {
 
   describe("updateDocument", () => {
     it("updates document successfully", async () => {
-      mockSupabase.eq.mockResolvedValue({ error: null })
+      mockSupabase.eq.mockReturnValue({ single: vi.fn().mockResolvedValue({ error: null, data: { client_id: 'client-1' } }), update: mockSupabase.update, delete: mockSupabase.delete, select: mockSupabase.select, then: vi.fn((resolve) => resolve({ error: null })) })
       
       const result = await updateDocument("doc-1", { name: "Updated Doc" })
       

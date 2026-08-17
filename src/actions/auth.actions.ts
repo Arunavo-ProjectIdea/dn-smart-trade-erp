@@ -39,13 +39,22 @@ export async function signIn(formData: FormData): Promise<ActionResponse> {
     loginEmail = data.email
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: loginEmail,
-    password,
-  })
+  let data: any = null
+  let authError: any = null
 
-  if (error) {
-    return { success: false, error: error.message }
+  try {
+    const res = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password,
+    })
+    data = res.data
+    authError = res.error
+  } catch (e: any) {
+    return { success: false, error: "Authentication service unavailable. Please try again." }
+  }
+
+  if (authError) {
+    return { success: false, error: "Invalid login credentials" }
   }
 
   revalidatePath("/", "layout")
@@ -172,7 +181,7 @@ export async function updateUserProfile(updates: Partial<Profile>): Promise<Acti
     .eq("id", userData.user.id)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "You are not authorized to perform this action." }
   }
 
   revalidatePath("/", "layout")
@@ -204,7 +213,7 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResponse<s
     .upload(path, file, { upsert: true, contentType: file.type })
 
   if (uploadError) {
-    return { success: false, error: uploadError.message }
+    return { success: false, error: "Avatar upload failed." }
   }
 
   const { data: publicUrlData } = supabase.storage
@@ -219,7 +228,7 @@ export async function uploadAvatar(formData: FormData): Promise<ActionResponse<s
     .eq("id", userData.user.id)
 
   if (updateError) {
-    return { success: false, error: updateError.message }
+    return { success: false, error: "Failed to update profile picture." }
   }
 
   revalidatePath("/", "layout")

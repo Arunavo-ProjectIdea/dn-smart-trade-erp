@@ -10,6 +10,20 @@ global.ResizeObserver = class ResizeObserver {
   disconnect() {}
 }
 
+vi.mock("@/actions/notifications.actions", () => ({
+  getNotifications: vi.fn().mockResolvedValue({
+    success: true,
+    data: [
+      { id: "1", type: "system", title: "Test 1", message: "Msg 1", is_read: false, created_at: new Date().toISOString() },
+      { id: "2", type: "system", title: "Test 2", message: "Msg 2", is_read: false, created_at: new Date().toISOString() }
+    ]
+  }),
+  markNotificationRead: vi.fn().mockResolvedValue({ success: true }),
+  markAllNotificationsRead: vi.fn().mockResolvedValue({ success: true }),
+}))
+
+
+
 class MockPointerEvent extends Event {
   button: number;
   ctrlKey: boolean;

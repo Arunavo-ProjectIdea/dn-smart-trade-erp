@@ -131,7 +131,7 @@ export async function getShipmentAnalytics(): Promise<ActionResponse<ShipmentAna
   }
 
   const { data, error } = await query
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to generate shipments report." }
 
   const byStatus: Record<string, number> = {}
   const byTransportType: Record<string, number> = {}
@@ -159,7 +159,7 @@ export async function getDocumentAnalytics(): Promise<ActionResponse<DocumentAna
   }
 
   const { data, error } = await query
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to generate financial report." }
 
   const byStatus: Record<string, number> = {}
   const byCategory: Record<string, number> = {}
@@ -185,7 +185,7 @@ export async function getClientAnalytics(): Promise<ActionResponse<ClientAnalyti
 
   const supabase = await createClient()
   const { data, error } = await supabase.from("clients").select("status, client_type")
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to generate operations report." }
 
   const byStatus: Record<string, number> = {}
   const byType: Record<string, number> = {}

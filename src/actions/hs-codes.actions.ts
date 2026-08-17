@@ -88,7 +88,7 @@ export async function getHSCodes({
   const [{ count }, { data, error }] = await Promise.all([countQuery, dataQuery])
 
   if (error) {
-    return { data: [], totalCount: 0, error: error.message }
+    return { data: [], totalCount: 0, error: "Failed to retrieve HS codes." }
   }
 
   return {

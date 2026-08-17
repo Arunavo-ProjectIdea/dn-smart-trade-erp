@@ -16,7 +16,7 @@ export async function getChatSessions() {
     .order("updated_at", { ascending: false })
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to process chat operation." }
   }
 
   return { success: true, data }
@@ -36,7 +36,7 @@ export async function getChatMessages(sessionId: string) {
     .order("created_at", { ascending: true })
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to load chat history." }
   }
 
   return { success: true, data }
@@ -53,7 +53,7 @@ export async function renameChatSession(sessionId: string, newTitle: string) {
     .eq("id", sessionId)
     .eq("user_id", user.id)
 
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to update chat." }
   return { success: true }
 }
 
@@ -68,7 +68,7 @@ export async function deleteChatSession(sessionId: string) {
     .eq("id", sessionId)
     .eq("user_id", user.id)
 
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to delete chat." }
   return { success: true }
 }
 

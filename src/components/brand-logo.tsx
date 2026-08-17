@@ -20,6 +20,7 @@ export function BrandLogo({ className = "", width = 36, height = 36, withText = 
           src="/logo.jpg" 
           alt="DN Smart Trade ERP Logo" 
           fill 
+          sizes="(max-width: 768px) 100vw, 33vw"
           className="object-contain" 
           priority
         />

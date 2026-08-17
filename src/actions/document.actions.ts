@@ -23,7 +23,7 @@ export async function getDocuments() {
 
   if (error) {
     console.error("Error fetching documents:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to retrieve documents." }
   }
 
   return { success: true, data: data as SupabaseDocumentResponse[] }
@@ -47,7 +47,7 @@ export async function getDocumentById(id: string) {
 
   if (error) {
     console.error("Error fetching document:", error)
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to retrieve document." }
   }
 
   return { success: true, data: data as SupabaseDocumentResponse }
@@ -109,7 +109,7 @@ export async function createDocument(formData: {
 
   if (insertError) {
     console.error("Error creating document:", insertError)
-    return { success: false, error: insertError.message }
+    return { success: false, error: "Failed to upload document. You may not have permission." }
   }
 
   // 2. Insert Activity Logging
@@ -170,7 +170,7 @@ export async function archiveDocument(id: string) {
 
   if (updateError) {
     console.error("Error archiving document:", updateError)
-    return { success: false, error: updateError.message }
+    return { success: false, error: "Failed to update document metadata. You may not have permission." }
   }
 
   // 2. Insert Activity Logging
@@ -224,7 +224,7 @@ export async function restoreDocument(id: string) {
 
   if (updateError) {
     console.error("Error restoring document:", updateError)
-    return { success: false, error: updateError.message }
+    return { success: false, error: "Failed to upload new document version." }
   }
 
   // Insert Activity Logging
@@ -257,7 +257,7 @@ export async function permanentlyDeleteDocument(id: string) {
 
   if (deleteError) {
     console.error("Error permanently deleting document:", deleteError)
-    return { success: false, error: deleteError.message }
+    return { success: false, error: "Failed to delete document. You may not have permission." }
   }
 
   revalidatePath("/documents")
@@ -283,7 +283,7 @@ export async function updateDocumentStatus(id: string, newStatus: Database["publ
 
   if (updateError) {
     console.error("Error updating document status:", updateError)
-    return { success: false, error: updateError.message }
+    return { success: false, error: "Failed to archive document." }
   }
 
   // Insert Activity Logging
@@ -362,7 +362,7 @@ export async function updateDocument(id: string, formData: {
 
   if (updateError) {
     console.error("Error updating document:", updateError)
-    return { success: false, error: updateError.message }
+    return { success: false, error: "Failed to update document status." }
   }
 
   // Insert Activity Logging
@@ -429,7 +429,7 @@ export async function downloadDocument(id: string) {
 
   if (signedUrlError) {
     console.error("Error creating signed URL:", signedUrlError)
-    return { success: false, error: signedUrlError.message }
+    return { success: false, error: "Failed to generate download URL." }
   }
 
   return { success: true, data: { url: signedUrl.signedUrl } }
@@ -472,7 +472,7 @@ export async function replaceDocumentFile(id: string, fileData: {
 
   if (updateError) {
     console.error("Error replacing document file:", updateError)
-    return { success: false, error: updateError.message }
+    return { success: false, error: "Failed to restore document." }
   }
 
   // 3. Insert Activity Logging with old metadata preserved in details
