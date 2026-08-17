@@ -59,7 +59,7 @@ export async function getNotifications(
   const { data, error } = await query
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to fetch notifications." }
   }
 
   return { success: true, data: data ?? [] }
@@ -80,7 +80,7 @@ export async function getUnreadCount(): Promise<ActionResult<number>> {
     .eq("is_read", false)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to fetch unread notification count." }
   }
 
   return { success: true, data: count ?? 0 }
@@ -105,7 +105,7 @@ export async function markNotificationRead(id: string): Promise<ActionResult> {
     .eq("user_id", userData.user.id)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to mark notification as read." }
   }
 
   revalidatePath("/notifications")
@@ -127,7 +127,7 @@ export async function markAllNotificationsRead(): Promise<ActionResult> {
     .eq("is_read", false)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to mark all notifications as read." }
   }
 
   revalidatePath("/notifications")
@@ -153,7 +153,7 @@ export async function deleteNotification(id: string): Promise<ActionResult> {
     .eq("user_id", userData.user.id)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to delete notification." }
   }
 
   revalidatePath("/notifications")
@@ -193,7 +193,7 @@ export async function createNotification(params: {
     .single()
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to create notification." }
   }
 
   return { success: true, data: data.id }
@@ -202,7 +202,7 @@ export async function createNotification(params: {
 export async function notifyUsersByRoles(roles: Database['public']['Enums']['user_role'][], params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
   const supabase = await createClient()
   const { data: users, error } = await supabase.from('profiles').select('id, role').in('role', roles)
-  if (error || !users) return { success: false, error: error?.message }
+  if (error || !users) return { success: false, error: "Failed to process notification operation." }
 
   const promises = users.map(user => createNotification({ ...params, userId: user.id }))
   await Promise.all(promises)

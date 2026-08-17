@@ -50,7 +50,7 @@ describe("Chat Actions", () => {
       
       const result = await getChatSessions()
       expect(result.success).toBe(false)
-      expect(result.error).toBe("DB Error")
+      expect(result.error).toBe("Failed to process chat operation.")
     })
   })
 
@@ -79,7 +79,7 @@ describe("Chat Actions", () => {
       
       const result = await getChatMessages("sess-1")
       expect(result.success).toBe(false)
-      expect(result.error).toBe("DB Error")
+      expect(result.error).toBe("Failed to load chat history.")
     })
   })
 })

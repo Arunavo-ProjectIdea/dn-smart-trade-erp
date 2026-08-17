@@ -240,7 +240,7 @@ export async function getRecentDocuments(): Promise<ActionResponse<any[]>> {
   }
 
   const { data, error } = await query
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to fetch activities." }
   return { success: true, data }
 }
 
@@ -261,6 +261,6 @@ export async function getRecentShipments(): Promise<ActionResponse<any[]>> {
   }
 
   const { data, error } = await query
-  if (error) return { success: false, error: error.message }
+  if (error) return { success: false, error: "Failed to fetch upcoming tasks." }
   return { success: true, data }
 }

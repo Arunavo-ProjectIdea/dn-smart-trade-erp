@@ -73,7 +73,7 @@ describe("Auth Actions Negative Tests", () => {
 
     const result = await uploadAvatar(formData)
     expect(result.success).toBe(false)
-    expect(result.error).toContain("File exceeds 2MB limit")
+    expect(result.error).toContain("File exceeds 1MB limit")
   })
 
   it("uploadAvatar should fail if no file is provided", async () => {

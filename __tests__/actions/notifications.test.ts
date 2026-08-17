@@ -81,7 +81,7 @@ describe("Notifications Actions", () => {
       
       const result = await getNotifications()
       expect(result.success).toBe(false)
-      expect(result.error).toBe("DB Error")
+      expect(result.error).toBe("Failed to fetch notifications.")
     })
   })
 
@@ -96,7 +96,7 @@ describe("Notifications Actions", () => {
       queryBuilder.then = vi.fn((resolve) => resolve({ count: null, error: { message: "Count error" } }))
       const result = await getUnreadCount()
       expect(result.success).toBe(false)
-      expect(result.error).toBe("Count error")
+      expect(result.error).toBe("Failed to fetch unread notification count.")
     })
   })
 
@@ -111,7 +111,7 @@ describe("Notifications Actions", () => {
       queryBuilder.then = vi.fn((resolve) => resolve({ error: { message: "Update failed" } }))
       const result = await markNotificationRead("notif-1")
       expect(result.success).toBe(false)
-      expect(result.error).toBe("Update failed")
+      expect(result.error).toBe("Failed to mark notification as read.")
     })
   })
 
@@ -159,7 +159,7 @@ describe("Notifications Actions", () => {
         description: "D"
       })
       expect(result.success).toBe(false)
-      expect(result.error).toBe("Insert failed")
+      expect(result.error).toBe("Failed to create notification.")
     })
   })
 })

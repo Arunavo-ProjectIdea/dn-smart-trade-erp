@@ -65,7 +65,7 @@ describe("Document Actions Negative Tests", () => {
 
     const result = await createDocument(formData)
     expect(result.success).toBe(false)
-    expect(result.error).toBe("DB Error")
+    expect(result.error).toBe("Failed to upload document. You may not have permission.")
   })
 
   it("archiveDocument should fail if user is unauthorized", async () => {
@@ -81,7 +81,7 @@ describe("Document Actions Negative Tests", () => {
     
     const result = await permanentlyDeleteDocument("doc-123")
     expect(result.success).toBe(false)
-    expect(result.error).toBe("Foreign Key Violation")
+    expect(result.error).toBe("Failed to delete document. You may not have permission.")
   })
 
   it("updateDocumentStatus should fail if user is unauthorized", async () => {
