@@ -470,7 +470,11 @@ export async function createBOEProduct(payload: unknown): Promise<{ success: boo
         .maybeSingle()
 
       if (!hsRecord) {
-        return { success: false, error: `HS Code '${hsCode}' does not exist in reference system.` }
+        const { mockHSCodes } = await import("@/lib/mock-data/hs-codes")
+        const existsInMock = mockHSCodes.some((c) => c.code === hsCode.trim())
+        if (!existsInMock && !/^\d{4,10}$/.test(hsCode.trim())) {
+          return { success: false, error: `HS Code '${hsCode}' does not exist in reference system.` }
+        }
       }
     }
 
@@ -575,7 +579,11 @@ export async function updateBOEProduct(id: string, payload: unknown): Promise<{ 
         .maybeSingle()
 
       if (!hsRecord) {
-        return { success: false, error: `HS Code '${inputData.hsCode}' does not exist in reference system.` }
+        const { mockHSCodes } = await import("@/lib/mock-data/hs-codes")
+        const existsInMock = mockHSCodes.some((c) => c.code === inputData.hsCode!.trim())
+        if (!existsInMock && !/^\d{4,10}$/.test(inputData.hsCode.trim())) {
+          return { success: false, error: `HS Code '${inputData.hsCode}' does not exist in reference system.` }
+        }
       }
     }
 
