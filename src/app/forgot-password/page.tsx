@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircle, faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { useToast } from "@/components/ui/use-toast"
 import { motion } from "framer-motion"
+import { resetPassword } from "@/actions/auth.actions"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -31,19 +32,39 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleResetPassword = (e: React.FormEvent) => {
+  const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Mock logic
-    setTimeout(() => {
-      setIsSubmitting(false)
+    try {
+      const formData = new FormData()
+      formData.append("email", email)
+      
+      // Call the imported resetPassword action
+      const res = await resetPassword(formData)
+      
+      if (res.success) {
+        toast({ 
+          title: "Reset Link Sent", 
+          description: "If this email exists in our system, you will receive a password reset link shortly." 
+        })
+        router.push("/login")
+      } else {
+        toast({ 
+          title: "Error", 
+          description: res.error || "Failed to send reset link.",
+          variant: "destructive"
+        })
+      }
+    } catch (err) {
       toast({ 
-        title: "Reset Link Sent", 
-        description: "If this email exists in our system, you will receive a password reset link shortly." 
+        title: "Error", 
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
       })
-      router.push("/login")
-    }, 1500)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
