@@ -226,6 +226,13 @@ export async function permanentlyDeleteDocument(id: string) {
     return { success: false, error: "Unauthorized" }
   }
 
+  // 1. Clean up associated notifications for this document
+  await supabase
+    .from("notifications")
+    .delete()
+    .eq("entity_type", "document")
+    .eq("entity_id", id)
+
   const { error: deleteError } = await supabase
     .from("documents")
     .delete()
