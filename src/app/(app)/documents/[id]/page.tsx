@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation"
 import { getDocumentById } from "@/actions/document.actions"
 import { mapDocumentToUI } from "@/lib/mappers/document.mapper"
 import { DocumentDetailsClient } from "./document-details-client"
+import { DocumentNotFoundClient } from "./document-not-found-client"
 
 export default async function DocumentDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
@@ -10,7 +10,7 @@ export default async function DocumentDetailsPage({ params }: { params: Promise<
   const { data, success } = await getDocumentById(documentId)
 
   if (!success || !data) {
-    notFound()
+    return <DocumentNotFoundClient documentId={documentId} />
   }
 
   const document = mapDocumentToUI(data)

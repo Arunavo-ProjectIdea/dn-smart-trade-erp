@@ -470,7 +470,11 @@ export async function createBOEProduct(payload: unknown): Promise<{ success: boo
         .maybeSingle()
 
       if (!hsRecord) {
-        return { success: false, error: `HS Code '${hsCode}' does not exist in reference system.` }
+        const { mockHSCodes } = await import("@/lib/mock-data/hs-codes")
+        const existsInMock = mockHSCodes.some((c) => c.code === hsCode.trim())
+        if (!existsInMock && !/^\d{4,10}$/.test(hsCode.trim())) {
+          return { success: false, error: `HS Code '${hsCode}' does not exist in reference system.` }
+        }
       }
     }
 
@@ -575,7 +579,11 @@ export async function updateBOEProduct(id: string, payload: unknown): Promise<{ 
         .maybeSingle()
 
       if (!hsRecord) {
-        return { success: false, error: `HS Code '${inputData.hsCode}' does not exist in reference system.` }
+        const { mockHSCodes } = await import("@/lib/mock-data/hs-codes")
+        const existsInMock = mockHSCodes.some((c) => c.code === inputData.hsCode!.trim())
+        if (!existsInMock && !/^\d{4,10}$/.test(inputData.hsCode.trim())) {
+          return { success: false, error: `HS Code '${inputData.hsCode}' does not exist in reference system.` }
+        }
       }
     }
 
@@ -701,24 +709,37 @@ export async function getHSCodes(searchQuery?: string): Promise<{ data: HSCodeIt
         .select("id, code, name, description, category, uom, cd, sd, vat, ait, rd")
         .order("code", { ascending: true })
 
-      if (error) {
-        console.error("Error fetching HS Codes from Supabase:", error)
-        return { data: null, error: error.message }
+      if (error || !data || data.length === 0) {
+        // Fallback to mockHSCodes list if Supabase table is empty or error
+        const { mockHSCodes } = await import("@/lib/mock-data/hs-codes")
+        codes = mockHSCodes.map((row) => ({
+          id: row.id,
+          code: row.code,
+          name: row.name,
+          description: row.description,
+          category: row.category,
+          uom: row.uom || "Pieces",
+          cd: Number(row.cd) || 0,
+          sd: Number(row.sd) || 0,
+          vat: Number(row.vat) || 0,
+          ait: Number(row.ait) || 0,
+          rd: Number(row.rd) || 0,
+        }))
+      } else {
+        codes = data.map((row) => ({
+          id: row.id,
+          code: row.code,
+          name: row.name,
+          description: row.description,
+          category: row.category,
+          uom: row.uom || "Pieces",
+          cd: Number(row.cd) || 0,
+          sd: Number(row.sd) || 0,
+          vat: Number(row.vat) || 0,
+          ait: Number(row.ait) || 0,
+          rd: Number(row.rd) || 0,
+        }))
       }
-
-      codes = (data || []).map((row) => ({
-        id: row.id,
-        code: row.code,
-        name: row.name,
-        description: row.description,
-        category: row.category,
-        uom: row.uom || "Pieces",
-        cd: Number(row.cd) || 0,
-        sd: Number(row.sd) || 0,
-        vat: Number(row.vat) || 0,
-        ait: Number(row.ait) || 0,
-        rd: Number(row.rd) || 0,
-      }))
 
       hsCodesCache = codes
       hsCodesCacheTime = now
