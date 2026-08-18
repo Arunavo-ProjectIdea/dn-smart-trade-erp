@@ -83,7 +83,7 @@ export default function EditEmployeePage({ params }: { params: Promise<{ id: str
     e.preventDefault()
     setIsSubmitting(true)
 
-    const res = await updateEmployee(id, formData as any)
+    const res = await updateEmployee(id, formData as Omit<Employee, "id" | "createdAt" | "updatedAt">)
     
     setIsSubmitting(false)
     

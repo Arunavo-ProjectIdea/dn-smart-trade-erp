@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NotificationRow } from "@/actions/notifications.actions"
 
 export type NotificationUI = {
@@ -17,6 +16,7 @@ export type NotificationUI = {
 }
 
 export function mapNotificationToUI(row: NotificationRow): NotificationUI {
+  // Determine the route based on entity_type and entity_id
   let href = "#"
   if (row.entity_type && row.entity_id) {
     switch (row.entity_type.toLowerCase()) {
@@ -43,7 +43,7 @@ export function mapNotificationToUI(row: NotificationRow): NotificationUI {
     type: row.type,
     priority: row.priority,
     title: row.title,
-    message: row.description || "",
+    message: row.description, // Maps DB description to UI message
     isRead: row.is_read,
     entityId: row.entity_id,
     entityType: row.entity_type,

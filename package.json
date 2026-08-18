@@ -15,22 +15,26 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:load:auth": "artillery run load-tests/auth.yml",
-    "test:load:clients": "artillery run load-tests/clients.yml"
+    "test:load:clients": "artillery run load-tests/clients.yml",
+    "test:load:dashboard": "artillery run load-tests/dashboard.yml",
+    "test:load:boe": "artillery run load-tests/boe.yml",
+    "test:load:shipments": "artillery run load-tests/shipments.yml",
+    "test:load:all": "npm run test:load:auth && npm run test:load:clients && npm run test:load:dashboard && npm run test:load:boe && npm run test:load:shipments"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^4.0.19",
+    "@ai-sdk/groq": "^4.0.24",
     "@ai-sdk/react": "^4.0.50",
     "@base-ui/react": "^1.6.0",
     "@fortawesome/fontawesome-svg-core": "^7.3.1",
     "@fortawesome/free-solid-svg-icons": "^7.3.1",
     "@fortawesome/react-fontawesome": "^3.5.0",
-    "@hookform/resolvers": "^5.6.0",
+    "@hookform/resolvers": "^5.7.1",
     "@radix-ui/react-accordion": "^1.2.17",
     "@radix-ui/react-label": "^2.1.15",
     "@radix-ui/react-slot": "^1.3.3",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.9",
-    "ai": "^7.0.47",
+    "ai": "^7.0.56",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "csv-parse": "^7.0.1",
@@ -52,6 +56,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.0",
@@ -66,6 +71,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "jsdom": "^29.1.1",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"

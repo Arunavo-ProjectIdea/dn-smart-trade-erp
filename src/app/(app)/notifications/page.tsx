@@ -23,9 +23,10 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   deleteNotification,
-  type NotificationRow,
   type NotificationFilter,
 } from "@/actions/notifications.actions"
+import { mapNotificationToUI, NotificationUI } from "@/lib/mappers/notification.mapper"
+import { useRouter } from "next/navigation"
 
 type FilterKey = "all" | "unread" | "shipment" | "boe" | "document" | "system"
 
@@ -93,7 +94,8 @@ function EmptyState({ filter }: { filter: FilterKey }) {
 }
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<NotificationRow[]>([])
+  const router = useRouter()
+  const [notifications, setNotifications] = useState<NotificationUI[]>([])
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all")
   const [isLoading, setIsLoading] = useState(true)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -106,7 +108,7 @@ export default function NotificationsPage() {
 
     const res = await getNotifications(f)
     if (res.success && res.data) {
-      setNotifications(res.data)
+      setNotifications(res.data.map(mapNotificationToUI))
     } else {
       toast.error(res.error ?? "Failed to load notifications")
     }
@@ -118,21 +120,26 @@ export default function NotificationsPage() {
     void load(activeFilter)
   }, [activeFilter, load])
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length
+  const unreadCount = notifications.filter((n) => !n.isRead).length
 
-  const handleMarkRead = async (id: string) => {
+  const handleMarkReadAndNavigate = async (id: string, href: string) => {
     const n = notifications.find((x) => x.id === id)
-    if (!n || n.is_read) return
-    setNotifications((prev) => prev.map((x) => (x.id === id ? { ...x, is_read: true } : x)))
-    const res = await markNotificationRead(id)
-    if (!res.success) {
-      setNotifications((prev) => prev.map((x) => (x.id === id ? { ...x, is_read: false } : x)))
-      toast.error(res.error ?? "Failed to mark as read")
+    if (n && !n.isRead) {
+      setNotifications((prev) => prev.map((x) => (x.id === id ? { ...x, isRead: true } : x)))
+      const res = await markNotificationRead(id)
+      if (!res.success) {
+        setNotifications((prev) => prev.map((x) => (x.id === id ? { ...x, isRead: false } : x)))
+        toast.error(res.error ?? "Failed to mark as read")
+      }
+    }
+    
+    if (href && href !== "#") {
+      router.push(href)
     }
   }
 
   const handleMarkAllRead = async () => {
-    setNotifications((prev) => prev.map((x) => ({ ...x, is_read: true })))
+    setNotifications((prev) => prev.map((x) => ({ ...x, isRead: true })))
     const res = await markAllNotificationsRead()
     if (!res.success) {
       toast.error(res.error ?? "Failed to mark all as read")
@@ -209,13 +216,13 @@ export default function NotificationsPage() {
                 key={n.id}
                 className={cn(
                   "rounded-xl border-border/60 shadow-sm transition-all hover:shadow-md cursor-pointer group",
-                  !n.is_read && "border-primary/20 bg-primary/[0.02]"
+                  !n.isRead && "border-primary/20 bg-primary/[0.02]"
                 )}
-                onClick={() => handleMarkRead(n.id)}
+                onClick={() => handleMarkReadAndNavigate(n.id, n.href)}
                 role="button"
                 tabIndex={0}
-                aria-label={`${!n.is_read ? "Unread notification: " : ""}${n.title}`}
-                onKeyDown={(e) => e.key === "Enter" && handleMarkRead(n.id)}
+                aria-label={`${!n.isRead ? "Unread notification: " : ""}${n.title}`}
+                onKeyDown={(e) => e.key === "Enter" && handleMarkReadAndNavigate(n.id, n.href)}
               >
                 <CardContent className="flex items-start gap-4 p-5">
                   <div className={cn("mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl", meta.iconBg)}>
@@ -224,7 +231,7 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className={cn("font-semibold text-sm leading-snug", !n.is_read ? "text-foreground" : "text-muted-foreground")}>
+                        <p className={cn("font-semibold text-sm leading-snug", !n.isRead ? "text-foreground" : "text-muted-foreground")}>
                           {n.title}
                         </p>
                         {n.priority !== "medium" && (
@@ -234,8 +241,8 @@ export default function NotificationsPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs text-muted-foreground/70 whitespace-nowrap">{timeAgo(n.created_at)}</span>
-                        {!n.is_read && <span className="size-2 rounded-full bg-primary shrink-0" aria-label="Unread" />}
+                        <span className="text-xs text-muted-foreground/70 whitespace-nowrap">{timeAgo(n.createdAt)}</span>
+                        {!n.isRead && <span className="size-2 rounded-full bg-primary shrink-0" aria-label="Unread" />}
                         <Button
                           variant="ghost"
                           size="icon"
@@ -248,7 +255,7 @@ export default function NotificationsPage() {
                         </Button>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{n.description}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">{n.message}</p>
                   </div>
                 </CardContent>
               </Card>

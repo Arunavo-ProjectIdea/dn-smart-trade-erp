@@ -16,24 +16,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCircle } from "@fortawesome/free-solid-svg-icons"
 import { createClientAction } from "../actions"
 import { toast } from "sonner"
 
 export default function AddClientPage() {
   const router = useRouter()
   
-  // Temporary auto-upgrade script to fix the user's role from Client to Admin
-  // so they don't get RLS blocked when creating clients.
-  useEffect(() => {
-    const upgradeRole = async () => {
-      const supabase = createClient()
-      const { data: user } = await supabase.auth.getUser()
-      if (user?.user) {
-        await supabase.from('profiles').update({ role: 'Admin' }).eq('id', user.user.id)
-      }
-    }
-    upgradeRole()
-  }, [])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -48,28 +40,41 @@ export default function AddClientPage() {
     tinNumber: "",
     notes: ""
   })
+  
+  const [createAccount, setCreateAccount] = useState(false)
+  const [tempPassword, setTempPassword] = useState(() => "TEMP-" + Math.random().toString(36).substring(2, 8).toUpperCase())
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    const { error } = await createClientAction({
+    const { error, tempPassword: returnedPassword } = await createClientAction({
       ...formData,
       status: "Active", // Defaulting new clients to Active
       clientType: formData.clientType as "Importer" | "Exporter" | "Both"
-    })
+    }, createAccount ? tempPassword : undefined)
 
     setIsSubmitting(false)
     if (error) {
       toast.error(typeof error === 'string' ? error : "Failed to create client")
     } else {
       toast.success("Client created successfully")
+      if (createAccount) {
+        toast.success(`Account created with temporary password: ${tempPassword}`, { duration: 10000 })
+      }
       router.push("/clients")
     }
   }
 
   const handleCancel = () => {
     router.push("/clients")
+  }
+
+  const copyToClipboard = (text: string) => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(text)
+      toast.success("Password copied to clipboard.")
+    }
   }
 
   return (
@@ -158,6 +163,50 @@ export default function AddClientPage() {
             placeholder="Add any special instructions or negotiated terms here..." 
             className="min-h-[100px]"
           />
+        </div>
+        
+        <div className="my-6 border-t border-border" />
+
+        <div className="space-y-4">
+          <label htmlFor="createAccount" className="flex flex-row items-start space-x-3 space-y-0 rounded-xl border p-4 cursor-pointer transition-all duration-200 hover:border-primary/50 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:bg-primary/5 has-[[data-state=checked]]:shadow-sm">
+            <Checkbox
+              id="createAccount"
+              checked={createAccount}
+              onCheckedChange={(checked) => setCreateAccount(checked === true)}
+            />
+            <div className="space-y-1 leading-none">
+              <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">Create Login Account for Client</span>
+              <p className="text-sm text-muted-foreground">
+                This will automatically create a login for the client and generate a temporary password.
+              </p>
+            </div>
+          </label>
+          
+          {createAccount && (
+            <div className="space-y-2 p-4 bg-muted/30 rounded-lg border border-border/50">
+              <Label htmlFor="tempPassword">Temporary Password</Label>
+              <div className="flex space-x-2 max-w-sm">
+                <Input 
+                  id="tempPassword" 
+                  value={tempPassword}
+                  onChange={(e) => setTempPassword(e.target.value)}
+                  className="bg-background font-mono"
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => copyToClipboard(tempPassword)}
+                  title="Copy password"
+                >
+                  <FontAwesomeIcon icon={faCircle} className="h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                The client will be forced to change this password on their first login.
+              </p>
+            </div>
+          )}
         </div>
       </FormLayout>
     </div>

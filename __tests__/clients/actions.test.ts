@@ -31,7 +31,8 @@ describe('createClientAction', () => {
   const setupMockProfile = (role: string) => {
     const mockSingle = vi.fn().mockResolvedValue({ data: { id: 'profile-123', role } })
     const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
-    const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
+    const mockIn = vi.fn().mockResolvedValue({ data: [], error: null })
+    const mockSelect = vi.fn().mockReturnValue({ eq: mockEq, in: mockIn })
     
     // Default implementation for `from` to handle both 'profiles' and 'clients'
     mockSupabase.from.mockImplementation((table: string) => {
@@ -75,9 +76,9 @@ describe('createClientAction', () => {
     setupMockProfile('Client')
     setupMockInsert(null, { message: 'new row violates row-level security policy' })
 
-    const result = await createClientAction({ companyName: 'New Client' } as any)
-    
-    expect(result.error).toContain('new row violates row-level security policy')
+    const result = await createClientAction({ companyName: 'New Client', email: 'test@example.com' } as any)
+
+    expect(result.error).toContain('Failed to create client. Please try again.')
     expect(result.data).toBeNull()
     expect(revalidatePath).not.toHaveBeenCalled()
   })
@@ -86,9 +87,9 @@ describe('createClientAction', () => {
     setupMockProfile('Admin')
     setupMockInsert(null, { message: 'duplicate key value violates unique constraint' })
 
-    const result = await createClientAction({ tradeLicenseNumber: 'DUP-123' } as any)
-    
-    expect(result.error).toContain('duplicate key value violates unique constraint')
+    const result = await createClientAction({ tradeLicenseNumber: 'DUP123' } as any)
+
+    expect(result.error).toContain('Failed to create client. Please try again.')
     expect(result.data).toBeNull()
   })
 
@@ -103,7 +104,7 @@ describe('createClientAction', () => {
     mockSupabase.from.mockImplementation((table: string) => {
       if (table === 'clients') return { insert: mockInsert }
       if (table === 'profiles') {
-        return { select: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { role: 'Admin' } }) }) }) }
+        return { select: vi.fn().mockReturnValue({ in: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnValue({ single: vi.fn().mockResolvedValue({ data: { role: 'Admin' } }) }) }) }
       }
       return {}
     })

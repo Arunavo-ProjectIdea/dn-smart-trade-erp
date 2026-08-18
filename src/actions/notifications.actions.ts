@@ -59,7 +59,7 @@ export async function getNotifications(
   let { data, error } = await query
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to fetch notifications." }
   }
 
   // Seed initial notifications if user has 0 notifications
@@ -128,7 +128,7 @@ export async function getUnreadCount(): Promise<ActionResult<number>> {
     .eq("is_read", false)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to fetch unread notification count." }
   }
 
   return { success: true, data: count ?? 0 }
@@ -153,7 +153,7 @@ export async function markNotificationRead(id: string): Promise<ActionResult> {
     .eq("user_id", userData.user.id)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to mark notification as read." }
   }
 
   revalidatePath("/notifications")
@@ -175,7 +175,7 @@ export async function markAllNotificationsRead(): Promise<ActionResult> {
     .eq("is_read", false)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to mark all notifications as read." }
   }
 
   revalidatePath("/notifications")
@@ -201,7 +201,7 @@ export async function deleteNotification(id: string): Promise<ActionResult> {
     .eq("user_id", userData.user.id)
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to delete notification." }
   }
 
   revalidatePath("/notifications")
@@ -217,7 +217,7 @@ export async function createNotification(params: {
   type: NotificationType
   priority: NotificationPriority
   title: string
-  description: string
+  message: string
   entityId?: string
   entityType?: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -232,7 +232,7 @@ export async function createNotification(params: {
       type: params.type,
       priority: params.priority,
       title: params.title,
-      description: params.description,
+      description: params.message,
       entity_id: params.entityId ?? null,
       entity_type: params.entityType ?? null,
       data: params.data ?? {},
@@ -241,8 +241,39 @@ export async function createNotification(params: {
     .single()
 
   if (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: "Failed to create notification." }
   }
 
   return { success: true, data: data.id }
+}
+
+export async function notifyUsersByRoles(roles: Database['public']['Enums']['user_role'][], params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+  const supabase = await createClient()
+  const { data: users, error } = await supabase.from('profiles').select('id, role').in('role', roles)
+  if (error || !users) return { success: false, error: "Failed to process notification operation." }
+
+  const promises = users.map(user => createNotification({ ...params, userId: user.id }))
+  await Promise.all(promises)
+  return { success: true }
+}
+
+
+export async function notifyUsersByClient(clientId: string, params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+  const supabase = await createClient()
+  const { data: users, error } = await supabase.from('profiles').select('id').eq('client_id', clientId)
+  if (error || !users) return { success: false, error: error?.message }
+
+  const promises = users.map(user => createNotification({ ...params, userId: user.id }))
+  await Promise.all(promises)
+  return { success: true }
+}
+
+
+export async function notifyRolesAndClient(roles: Database['public']['Enums']['user_role'][], clientId: string | null, params: Omit<Parameters<typeof createNotification>[0], 'userId'>) {
+  const promises: Promise<any>[] = []
+  if (roles.length > 0) promises.push(notifyUsersByRoles(roles, params))
+  if (clientId) promises.push(notifyUsersByClient(clientId, params))
+  await Promise.all(promises)
+  return { success: true }
+
 }

@@ -18,6 +18,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
 import { createSupportRequest, type SupportRequestFormValues } from "@/actions/support.actions"
 
 type SupportRequest = {
@@ -36,7 +37,7 @@ const formSchema = z.object({
   description: z.string().min(10, "Description must be at least 10 characters"),
 })
 
-export function HelpCenterClient({ initialSupportRequests }: { initialSupportRequests: SupportRequest[] }) {
+export function HelpCenterClient({ initialSupportRequests, role }: { initialSupportRequests: SupportRequest[], role: string }) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -79,12 +80,12 @@ export function HelpCenterClient({ initialSupportRequests }: { initialSupportReq
   ]
 
   const guides = [
-    { title: "Create Client", desc: "Step-by-step guide to onboarding a new client." },
-    { title: "Create Employee", desc: "How to set up accounts for your team members." },
-    { title: "Create Shipment", desc: "Learn how to record a new import or export." },
-    { title: "Upload Documents", desc: "Managing Commercial Invoices and Packing Lists." },
-    { title: "Use HS Code Search", desc: "Tips for finding the correct product classification." },
-    { title: "Use AI Duty Calculator", desc: "How to generate accurate tax estimates." },
+    { title: "Create Client", desc: "Step-by-step guide to onboarding a new client.", content: "To onboard a new client, go to the 'Clients' module and click the 'Add Client' button. You'll need their company name, contact information, and billing details. If you'd like them to be able to login, make sure to check the 'Create Login Account' box. After creation, you'll be shown a temporary password to share with them." },
+    { title: "Create Employee", desc: "How to set up accounts for your team members.", content: "Navigate to the 'Employees' section and click 'New Employee'. Fill out their name, role, department, and contact info. The system will auto-generate a temporary password. New employees will be required to change this password on their first login for security." },
+    { title: "Create Shipment", desc: "Learn how to record a new import or export.", content: "Go to the 'Shipments' dashboard and select 'New Shipment'. Enter the origin, destination, shipping lines, and the linked client. You can also add products and their associated HS Codes directly from the shipment creation screen." },
+    { title: "Upload Documents", desc: "Managing Commercial Invoices and Packing Lists.", content: "Open any Shipment or Bill of Entry and navigate to the 'Documents' tab. Click 'Upload' and select your files. Supported formats include PDF, JPG, and PNG. Documents can be tagged and categorized for easy retrieval." },
+    { title: "Use HS Code Search", desc: "Tips for finding the correct product classification.", content: "Use the HS Codes module to browse the official tariff schedule. You can search by keywords or section. If you're unsure, ask the AI Assistant to recommend the most appropriate HS code based on a product description." },
+    { title: "Use AI Duty Calculator", desc: "How to generate accurate tax estimates.", content: "The Duty Calculator uses the latest customs data. Enter the HS Code, declared value, and origin. The AI will compute CD, SD, VAT, AIT, and AT, giving you a comprehensive estimate of the total duties payable." },
   ]
 
   const filteredFaqs = faqs.filter(f => 
@@ -115,12 +116,11 @@ export function HelpCenterClient({ initialSupportRequests }: { initialSupportReq
       </div>
 
       <Tabs defaultValue="faq" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-8 h-12 bg-muted/50 p-1 rounded-xl">
+        <TabsList className={`grid w-full mb-8 h-12 bg-muted/50 p-1 rounded-xl ${role === 'Client' ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="faq" className="rounded-lg">FAQ</TabsTrigger>
           <TabsTrigger value="guides" className="rounded-lg">User Guides</TabsTrigger>
-          <TabsTrigger value="support" className="rounded-lg">Support</TabsTrigger>
+          {role === 'Client' && <TabsTrigger value="support" className="rounded-lg">Support</TabsTrigger>}
           <TabsTrigger value="ai" className="rounded-lg">AI Assistant</TabsTrigger>
-          <TabsTrigger value="about" className="rounded-lg">About</TabsTrigger>
         </TabsList>
 
         {/* FAQ Tab */}
@@ -161,27 +161,44 @@ export function HelpCenterClient({ initialSupportRequests }: { initialSupportReq
               <div className="col-span-full text-center py-8 text-muted-foreground">No guides found matching your search.</div>
             ) : (
               filteredGuides.map((guide, idx) => (
-                <Card key={idx} className="border-border/60 shadow-sm hover:border-primary/50 transition-all cursor-pointer group rounded-xl">
-                  <CardHeader>
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
-                      <FontAwesomeIcon icon={faBook} className="h-4 w-4 text-primary" />
+                <Sheet key={idx}>
+                  <SheetTrigger className="w-full text-left appearance-none bg-transparent border-none p-0 m-0">
+                    <Card className="border-border/60 shadow-sm hover:border-primary/50 transition-all cursor-pointer group rounded-xl">
+                      <CardHeader>
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
+                          <FontAwesomeIcon icon={faBook} className="h-4 w-4 text-primary" />
+                        </div>
+                        <CardTitle className="text-lg">{guide.title}</CardTitle>
+                        <CardDescription>{guide.desc}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <Button variant="ghost" className="w-full justify-between group-hover:text-primary p-0 h-auto" type="button">
+                          Read Guide
+                          <FontAwesomeIcon icon={faArrowRight} className="h-3 w-3" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </SheetTrigger>
+                  <SheetContent className="w-[400px] sm:w-[540px] p-6 overflow-y-auto">
+                    <SheetHeader className="p-0 mb-6">
+                      <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                        <FontAwesomeIcon icon={faBook} className="h-6 w-6 text-primary" />
+                      </div>
+                      <SheetTitle className="text-2xl">{guide.title}</SheetTitle>
+                      <SheetDescription className="text-base">{guide.desc}</SheetDescription>
+                    </SheetHeader>
+                    <div className="space-y-4 text-base leading-relaxed text-foreground">
+                      {guide.content}
                     </div>
-                    <CardTitle className="text-lg">{guide.title}</CardTitle>
-                    <CardDescription>{guide.desc}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Button variant="ghost" className="w-full justify-between group-hover:text-primary p-0 h-auto" onClick={() => toast.info("Guide opens here")}>
-                      Read Guide
-                      <FontAwesomeIcon icon={faArrowRight} className="h-3 w-3" />
-                    </Button>
-                  </CardContent>
-                </Card>
+                  </SheetContent>
+                </Sheet>
               ))
             )}
           </div>
         </TabsContent>
 
         {/* Support Tab */}
+        {role === 'Client' && (
         <TabsContent value="support" className="space-y-8 outline-none">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="border-border/60 shadow-sm rounded-xl">
@@ -316,6 +333,7 @@ export function HelpCenterClient({ initialSupportRequests }: { initialSupportReq
             </Card>
           </div>
         </TabsContent>
+        )}
 
         {/* AI Assistant Tab */}
         <TabsContent value="ai" className="outline-none">
@@ -340,47 +358,6 @@ export function HelpCenterClient({ initialSupportRequests }: { initialSupportReq
                 </Button>
               </div>
             </div>
-          </Card>
-        </TabsContent>
-
-        {/* About Tab */}
-        <TabsContent value="about" className="outline-none">
-          <Card className="border-border/60 shadow-sm rounded-xl max-w-2xl mx-auto">
-            <CardHeader className="text-center pb-2">
-              <div className="h-16 w-16 mx-auto rounded-2xl bg-primary flex items-center justify-center mb-4 shadow-lg shadow-primary/20">
-                <FontAwesomeIcon icon={faInfoCircle} className="h-8 w-8 text-primary-foreground" />
-              </div>
-              <CardTitle className="text-2xl">DN Smart Trade ERP AI Platform</CardTitle>
-              <CardDescription>Next-generation freight forwarding and customs management.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="grid grid-cols-2 gap-y-4 text-sm">
-                <div className="text-muted-foreground">Version</div>
-                <div className="font-medium text-right">4.8.0</div>
-                
-                <div className="text-muted-foreground">University</div>
-                <div className="font-medium text-right">Leading University</div>
-                
-                <div className="text-muted-foreground">Supervisor</div>
-                <div className="font-medium text-right">Dr. Faculty Member</div>
-                
-                <div className="text-muted-foreground">Team Members</div>
-                <div className="font-medium text-right">Arunavo & Team</div>
-              </div>
-
-              <div className="pt-6 border-t border-border">
-                <h4 className="text-sm font-semibold mb-3">Technologies Used</h4>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">Next.js 15</Badge>
-                  <Badge variant="secondary">React 19</Badge>
-                  <Badge variant="secondary">Tailwind CSS</Badge>
-                  <Badge variant="secondary">Supabase</Badge>
-                  <Badge variant="secondary">Groq AI</Badge>
-                  <Badge variant="secondary">shadcn/ui</Badge>
-                  <Badge variant="secondary">TypeScript</Badge>
-                </div>
-              </div>
-            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
