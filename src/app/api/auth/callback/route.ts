@@ -12,10 +12,8 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`)
     }
-    console.error("exchangeCodeForSession error:", error)
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`)
   }
 
   // return the user to an error page with some instructions
-  return NextResponse.redirect(`${origin}/login?error=No_code_provided`)
+  return NextResponse.redirect(`${origin}/login?error=Invalid_link`)
 }
