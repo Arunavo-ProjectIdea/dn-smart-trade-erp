@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const publicRoutes = ['/', '/login', '/forgot-password']
+  const publicRoutes = ['/', '/login', '/forgot-password', '/api/auth/callback']
   const pathname = request.nextUrl.pathname
 
   if (
